@@ -12,14 +12,119 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	HWND b;
 	HBITMAP i;
 
-	b = CreateWindowEx(WS_EX_LEFT, "BUTTON", "d4", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP,
+	b = CreateWindowEx(WS_EX_LEFT, "BUTTON", "d2", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP,
 	  10, 10, 57, 48,
-	  w, (HMENU) IDC_D4, GetModuleHandle(NULL), NULL);
+	  w, (HMENU) IDC_D2, GetModuleHandle(NULL), NULL);
 
-	i = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_D4), IMAGE_BITMAP,
+	/*
+	i = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_D2), IMAGE_BITMAP,
 	  0, 0, LR_LOADMAP3DCOLORS);
 
 	SendMessage(b, BM_SETIMAGE, (WPARAM) IMAGE_BITMAP, (LPARAM) i);
+	*/
+      }
+      {
+	HWND b;
+	HBITMAP i;
+
+	b = CreateWindowEx(WS_EX_LEFT, "BUTTON", "d4", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP | BS_FLAT,
+	  67, 10, 57, 48,
+	  w, (HMENU) IDC_D4, GetModuleHandle(NULL), NULL);
+
+	i = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_D4), IMAGE_BITMAP,
+	  0, 0, 0);
+
+	SendMessage(b, BM_SETIMAGE, (WPARAM) IMAGE_BITMAP, (LPARAM) i);
+      }
+      {
+	HWND b;
+	HBITMAP i;
+
+	b = CreateWindowEx(WS_EX_LEFT, "BUTTON", "d6", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP,
+	  124, 10, 57, 48,
+	  w, (HMENU) IDC_D6, GetModuleHandle(NULL), NULL);
+
+	/*
+	i = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_D6), IMAGE_BITMAP,
+	  0, 0, LR_LOADMAP3DCOLORS);
+
+	SendMessage(b, BM_SETIMAGE, (WPARAM) IMAGE_BITMAP, (LPARAM) i);
+	*/
+      }
+      {
+	HWND b;
+	HBITMAP i;
+
+	b = CreateWindowEx(WS_EX_LEFT, "BUTTON", "d8", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP,
+	  181, 10, 57, 48,
+	  w, (HMENU) IDC_D8, GetModuleHandle(NULL), NULL);
+
+	/*
+	i = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_D8), IMAGE_BITMAP,
+	  0, 0, LR_LOADMAP3DCOLORS);
+
+	SendMessage(b, BM_SETIMAGE, (WPARAM) IMAGE_BITMAP, (LPARAM) i);
+	*/
+      }
+      {
+	HWND b;
+	HBITMAP i;
+
+	b = CreateWindowEx(WS_EX_LEFT, "BUTTON", "d10", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP,
+	  181, 10, 57, 48,
+	  w, (HMENU) IDC_D10, GetModuleHandle(NULL), NULL);
+
+	/*
+	i = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_D10), IMAGE_BITMAP,
+	  0, 0, LR_LOADMAP3DCOLORS);
+
+	SendMessage(b, BM_SETIMAGE, (WPARAM) IMAGE_BITMAP, (LPARAM) i);
+	*/
+      }
+      {
+	HWND b;
+	HBITMAP i;
+
+	b = CreateWindowEx(WS_EX_LEFT, "BUTTON", "d12", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP,
+	  238, 10, 57, 48,
+	  w, (HMENU) IDC_D12, GetModuleHandle(NULL), NULL);
+
+	/*
+	i = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_D12), IMAGE_BITMAP,
+	  0, 0, LR_LOADMAP3DCOLORS);
+
+	SendMessage(b, BM_SETIMAGE, (WPARAM) IMAGE_BITMAP, (LPARAM) i);
+	*/
+      }
+      {
+	HWND b;
+	HBITMAP i;
+
+	b = CreateWindowEx(WS_EX_LEFT, "BUTTON", "d20", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP,
+	  295, 10, 57, 48,
+	  w, (HMENU) IDC_D20, GetModuleHandle(NULL), NULL);
+
+	/*
+	i = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_D20), IMAGE_BITMAP,
+	  0, 0, LR_LOADMAP3DCOLORS);
+
+	SendMessage(b, BM_SETIMAGE, (WPARAM) IMAGE_BITMAP, (LPARAM) i);
+	*/
+      }
+      {
+	HWND b;
+	HBITMAP i;
+
+	b = CreateWindowEx(WS_EX_LEFT, "BUTTON", "d100", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP,
+	  352, 10, 57, 48,
+	  w, (HMENU) IDC_D100, GetModuleHandle(NULL), NULL);
+
+	/*
+	i = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_D100), IMAGE_BITMAP,
+	  0, 0, LR_LOADMAP3DCOLORS);
+
+	SendMessage(b, BM_SETIMAGE, (WPARAM) IMAGE_BITMAP, (LPARAM) i);
+	*/
       }
       break;
 
@@ -67,7 +172,7 @@ int WINAPI WinMain (HINSTANCE inst, HINSTANCE prev_inst, PSTR opts, int show)
   }
 
   w = CreateWindowEx(WS_EX_WINDOWEDGE, class, "THIR", WS_OVERLAPPEDWINDOW | WS_BORDER, 
-    CW_USEDEFAULT, CW_USEDEFAULT, 300, 300,
+    CW_USEDEFAULT, CW_USEDEFAULT, 500, 300,
     NULL, NULL, inst, NULL);
 
   if(w == NULL)
