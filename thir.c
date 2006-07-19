@@ -9,120 +9,28 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
   {
     case WM_CREATE:
       {
-	HWND b;
-	HBITMAP i;
+	HWND button;
+	HBITMAP img;
+	UINT x = 10;
+	UINT y = 10;
+	UINT width = 61;
+	UINT height = 52;
+	UINT i;
+	UINT dice[8] = {2, 4, 6, 8, 10, 12, 20, 100};
 
-	b = CreateWindowEx(WS_EX_LEFT, "BUTTON", "d2", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP | BS_FLAT,
-	  10, 10, 57, 48,
-	  w, (HMENU) IDC_D2, GetModuleHandle(NULL), NULL);
+	for(i = 0; i < 8; i++)
+	{
+	  button = CreateWindowEx(WS_EX_LEFT, "BUTTON", "", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP | BS_FLAT,
+	    x, y, width, height,
+	    w, (HMENU) (1000 + dice[i]), GetModuleHandle(NULL), NULL);
 
-	i = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_D2), IMAGE_BITMAP,
-	  0, 0, 0);
+	  img = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(2000 + dice[i]), IMAGE_BITMAP,
+	    0, 0, 0);
 
-	SendMessage(b, BM_SETIMAGE, (WPARAM) IMAGE_BITMAP, (LPARAM) i);
-      }
-      {
-	HWND b;
-	HBITMAP i;
+	  if(img != NULL) SendMessage(button, BM_SETIMAGE, (WPARAM) IMAGE_BITMAP, (LPARAM) img);
 
-	b = CreateWindowEx(WS_EX_LEFT, "BUTTON", "d4", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP | BS_FLAT,
-	  67, 10, 57, 48,
-	  w, (HMENU) IDC_D4, GetModuleHandle(NULL), NULL);
-
-	i = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_D4), IMAGE_BITMAP,
-	  0, 0, 0);
-
-	SendMessage(b, BM_SETIMAGE, (WPARAM) IMAGE_BITMAP, (LPARAM) i);
-      }
-      {
-	HWND b;
-	HBITMAP i;
-
-	b = CreateWindowEx(WS_EX_LEFT, "BUTTON", "d6", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP,
-	  124, 10, 57, 48,
-	  w, (HMENU) IDC_D6, GetModuleHandle(NULL), NULL);
-
-	/*
-	i = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_D6), IMAGE_BITMAP,
-	  0, 0, LR_LOADMAP3DCOLORS);
-
-	SendMessage(b, BM_SETIMAGE, (WPARAM) IMAGE_BITMAP, (LPARAM) i);
-	*/
-      }
-      {
-	HWND b;
-	HBITMAP i;
-
-	b = CreateWindowEx(WS_EX_LEFT, "BUTTON", "d8", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP,
-	  181, 10, 57, 48,
-	  w, (HMENU) IDC_D8, GetModuleHandle(NULL), NULL);
-
-	/*
-	i = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_D8), IMAGE_BITMAP,
-	  0, 0, LR_LOADMAP3DCOLORS);
-
-	SendMessage(b, BM_SETIMAGE, (WPARAM) IMAGE_BITMAP, (LPARAM) i);
-	*/
-      }
-      {
-	HWND b;
-	HBITMAP i;
-
-	b = CreateWindowEx(WS_EX_LEFT, "BUTTON", "d10", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP,
-	  238, 10, 57, 48,
-	  w, (HMENU) IDC_D10, GetModuleHandle(NULL), NULL);
-
-	/*
-	i = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_D10), IMAGE_BITMAP,
-	  0, 0, LR_LOADMAP3DCOLORS);
-
-	SendMessage(b, BM_SETIMAGE, (WPARAM) IMAGE_BITMAP, (LPARAM) i);
-	*/
-      }
-      {
-	HWND b;
-	HBITMAP i;
-
-	b = CreateWindowEx(WS_EX_LEFT, "BUTTON", "d12", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP,
-	  295, 10, 57, 48,
-	  w, (HMENU) IDC_D12, GetModuleHandle(NULL), NULL);
-
-	/*
-	i = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_D12), IMAGE_BITMAP,
-	  0, 0, LR_LOADMAP3DCOLORS);
-
-	SendMessage(b, BM_SETIMAGE, (WPARAM) IMAGE_BITMAP, (LPARAM) i);
-	*/
-      }
-      {
-	HWND b;
-	HBITMAP i;
-
-	b = CreateWindowEx(WS_EX_LEFT, "BUTTON", "d20", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP,
-	  352, 10, 57, 48,
-	  w, (HMENU) IDC_D20, GetModuleHandle(NULL), NULL);
-
-	/*
-	i = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_D20), IMAGE_BITMAP,
-	  0, 0, LR_LOADMAP3DCOLORS);
-
-	SendMessage(b, BM_SETIMAGE, (WPARAM) IMAGE_BITMAP, (LPARAM) i);
-	*/
-      }
-      {
-	HWND b;
-	HBITMAP i;
-
-	b = CreateWindowEx(WS_EX_LEFT, "BUTTON", "d100", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP,
-	  409, 10, 57, 48,
-	  w, (HMENU) IDC_D100, GetModuleHandle(NULL), NULL);
-
-	/*
-	i = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_D100), IMAGE_BITMAP,
-	  0, 0, LR_LOADMAP3DCOLORS);
-
-	SendMessage(b, BM_SETIMAGE, (WPARAM) IMAGE_BITMAP, (LPARAM) i);
-	*/
+	  x += width;
+	}
       }
       break;
 
@@ -169,8 +77,8 @@ int WINAPI WinMain (HINSTANCE inst, HINSTANCE prev_inst, PSTR opts, int show)
     return 0;
   }
 
-  w = CreateWindowEx(WS_EX_WINDOWEDGE, class, "THIR", WS_OVERLAPPEDWINDOW | WS_BORDER, 
-    CW_USEDEFAULT, CW_USEDEFAULT, 500, 300,
+  w = CreateWindowEx(WS_EX_APPWINDOW, class, "THIR", WS_BORDER, 
+    CW_USEDEFAULT, CW_USEDEFAULT, 515, 300,
     NULL, NULL, inst, NULL);
 
   if(w == NULL)
