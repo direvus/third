@@ -6,3 +6,5 @@
 #define IDC_D12		112
 #define IDC_D20		120
 #define IDC_D100	200
+
+#define IDB_D4		1004
