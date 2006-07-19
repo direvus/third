@@ -4,7 +4,7 @@ RC = windres
 RT = "/c/Program Files/POV-Ray/bin/pvengine.exe"
 RTFLAGS = +FS +W800 +H600 -EXIT
 OBJS = thir.o res.o
-IMGS = include/coin.bmp include/tetra.bmp
+IMGS = include/coin.bmp include/tetra.bmp include/hex.bmp
 
 thir.exe: $(OBJS)
 	$(CC) -o $@ $^ $(CFLAGS)

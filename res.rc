@@ -4,3 +4,4 @@
 
 IDB_D2	BITMAP	"include/coin.bmp"
 IDB_D4	BITMAP	"include/tetra.bmp"
+IDB_D6	BITMAP	"include/hex.bmp"
