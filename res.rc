@@ -1,5 +1,6 @@
 #include "include/thir.h"
 
-1	24	"manifest.xml"
+1	24	"include/manifest.xml"
 
+IDB_D2	BITMAP	"include/coin.bmp"
 IDB_D4	BITMAP	"include/tetra.bmp"
