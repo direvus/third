@@ -10,9 +10,16 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
     case WM_CREATE:
       {
 	HWND b;
-	b = CreateWindowEx(WS_EX_LEFT, "BUTTON", "d2", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-	  10, 10, 30, 20,
-	  w, (HMENU) IDC_D2, GetModuleHandle(NULL), NULL);
+	HBITMAP i;
+
+	b = CreateWindowEx(WS_EX_LEFT, "BUTTON", "d4", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP,
+	  10, 10, 57, 48,
+	  w, (HMENU) IDC_D4, GetModuleHandle(NULL), NULL);
+
+	i = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_D4), IMAGE_BITMAP,
+	  0, 0, LR_LOADMAP3DCOLORS);
+
+	SendMessage(b, BM_SETIMAGE, (WPARAM) IMAGE_BITMAP, (LPARAM) i);
       }
       break;
 
