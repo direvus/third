@@ -77,7 +77,7 @@ int WINAPI WinMain (HINSTANCE inst, HINSTANCE prev_inst, PSTR opts, int show)
     return 0;
   }
 
-  w = CreateWindowEx(WS_EX_APPWINDOW, class, "THIR", WS_BORDER, 
+  w = CreateWindowEx(WS_EX_APPWINDOW, class, "THIR", WS_BORDER | WS_SYSMENU | WS_MINIMIZEBOX, 
     CW_USEDEFAULT, CW_USEDEFAULT, 515, 300,
     NULL, NULL, inst, NULL);
 
