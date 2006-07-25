@@ -25,3 +25,12 @@
 #define IDC_ND20	3020
 #define IDC_ND100	3100
 
+#define IDC_MULT	4000
+#define IDC_MULT_UP	4001
+#define IDC_MULT_DOWN	4002
+#define IDC_ADD		4003
+#define IDC_ADD_UP	4004
+#define IDC_ADD_DOWN	4005
+
+#define IDC_RESET	4006
+#define IDC_ROLL	4007

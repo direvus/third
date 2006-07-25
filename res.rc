@@ -2,9 +2,11 @@
 
 1	24	"include/manifest.xml"
 
-IDB_D2	BITMAP	"include/coin.bmp"
-IDB_D4	BITMAP	"include/tetra.bmp"
-IDB_D6	BITMAP	"include/hex.bmp"
-IDB_D8	BITMAP	"include/oct.bmp"
-IDB_D10	BITMAP	"include/dec.bmp"
-IDB_D12	BITMAP	"include/dodec.bmp"
+IDB_D2		BITMAP	"include/coin.bmp"
+IDB_D4		BITMAP	"include/tetra.bmp"
+IDB_D6		BITMAP	"include/hex.bmp"
+IDB_D8		BITMAP	"include/oct.bmp"
+IDB_D10		BITMAP	"include/dec.bmp"
+IDB_D12		BITMAP	"include/dodec.bmp"
+IDB_D20		BITMAP	"include/icos.bmp"
+IDB_D100	BITMAP	"include/2dec.bmp"
