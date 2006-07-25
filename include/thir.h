@@ -31,6 +31,11 @@
 #define IDC_ADD		4003
 #define IDC_ADD_UP	4004
 #define IDC_ADD_DOWN	4005
+#define IDS_MULT	4006
+#define IDS_ADD		4007
 
-#define IDC_RESET	4006
-#define IDC_ROLL	4007
+#define IDC_RESET	4100
+#define IDC_ROLL	4101
+
+void IncrementEdit(HWND w, UINT id);
+void DecrementEdit(HWND w, UINT id);
