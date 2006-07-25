@@ -10,3 +10,6 @@ IDB_D10		BITMAP	"include/dec.bmp"
 IDB_D12		BITMAP	"include/dodec.bmp"
 IDB_D20		BITMAP	"include/icos.bmp"
 IDB_D100	BITMAP	"include/2dec.bmp"
+
+IDI_APP		ICON	"include/dodec_32x32.ico"
+IDI_TASKBAR	ICON	"include/oct_16x16.ico"

@@ -3,6 +3,9 @@ CFLAGS = -O2 -mwindows
 RC = windres
 RT = "/c/Program Files/POV-Ray/bin/pvengine.exe"
 RTFLAGS = +FS +W800 +H600 -EXIT
+ZIP = "/d/programs/7-Zip/7z.exe"
+ZIPFLAGS = a
+
 OBJS = thir.o res.o
 IMGS = include/coin.bmp include/tetra.bmp include/hex.bmp include/oct.bmp include/dec.bmp include/dodec.bmp include/icos.bmp include/2dec.bmp
 
@@ -21,3 +24,11 @@ images/%.bmp: images/%.pov
 clean:
 	rm $(OBJS)
 	rm images/*.bmp
+
+dist/thir.7z: thir.exe README
+	$(ZIP) $(ZIPFLAGS) -t7z $@ $^
+
+dist/thir.zip: thir.exe README
+	$(ZIP) $(ZIPFLAGS) -tzip $@ $^
+
+dist:	dist/thir.7z dist/thir.zip

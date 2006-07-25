@@ -1,0 +1,39 @@
+THIR - That's How I Roll
+
+	A dice roller by Brendan Jurd
+
+Installation:
+
+	Just extract the executable file thir.exe to wherever you like.  "C:\Program Files\thir\" is a good choice.
+	Then run it.  The program is entirely self contained.
+
+Usage:
+
+	Each of the icons along the top of the application represents a different die.  It should be pretty obvious to any tabletop gamer which is which, but in any case, the icons are, in order of appearance:
+
+		d2	A coin
+		d4	A regular tetrahedron
+		d6	A cube
+		d8	A regular octahedron
+		d10	A pentagonal trapezohedron
+		d12	A regular dodecahedron
+		d20	A regular icosahedron
+		d100	Two d10s
+
+	The input box underneath each die is how many of that die you want to roll.  Click on the die, and the number goes up by one.  Keep clicking, and it keeps going up.
+
+	The "Multiplier" is exactly what it sounds like.  After your dice are rolled, the total will be multiplied by this number.  If you don't want a multiplier, just leave it at the default value of 1.
+
+	The "Modifier" is added (or subtracted, if it's negative) to your roll after the dice are totalled and the multiplier (if any) is applied.
+
+	When you've set things up to your liking, hit "Roll".  This is also exactly what it sounds like.
+
+	The results of your roll will be shown in the listbox to the right, and the final total is displayed at the bottom right corner.
+
+	You can repeatedly roll the same configuration of dice by just pressing the "Roll" button again.
+
+	If you are sick of your current configuration and want to start again from scratch, press the "Reset" button.
+
+Uninstallation
+	
+	Delete the file.

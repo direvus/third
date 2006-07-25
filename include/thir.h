@@ -39,6 +39,9 @@
 #define IDC_RESULTS	4102
 #define IDS_TOTAL	4103
 
+#define IDI_APP		4200
+#define IDI_TASKBAR	4201
+
 void IncrementEdit(HWND w, UINT id);
 void DecrementEdit(HWND w, UINT id);
 UINT roll(UINT sides);

@@ -285,8 +285,8 @@ int WINAPI WinMain (HINSTANCE inst, HINSTANCE prev_inst, PSTR opts, int show)
   wc.cbSize		= sizeof(WNDCLASSEX);
   wc.cbClsExtra		= 0;
   wc.cbWndExtra		= 0;
-  wc.hIcon		= NULL;
-  wc.hIconSm		= NULL;
+  wc.hIcon		= LoadIcon(inst, MAKEINTRESOURCE(IDI_APP));
+  wc.hIconSm		= LoadIcon(inst, MAKEINTRESOURCE(IDI_TASKBAR));
   wc.hbrBackground	= (HBRUSH) (COLOR_BTNFACE + 1);
   wc.hCursor		= LoadCursor(NULL, IDC_ARROW);
   wc.lpszMenuName	= NULL;
