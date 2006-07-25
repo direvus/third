@@ -205,7 +205,7 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 		{
 		  total += mod;
 
-		  sprintf(buf, "Modified by %d = %d", mod, total);
+		  sprintf(buf, "Modified by %+d = %d", mod, total);
 		  item = SendDlgItemMessage(w, IDC_RESULTS, LB_ADDSTRING, 0, (LPARAM) buf);
 		}
 
