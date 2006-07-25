@@ -2,12 +2,12 @@ CC = gcc
 CFLAGS = -O2 -mwindows
 RC = windres
 RT = "/c/Program Files/POV-Ray/bin/pvengine.exe"
-RTFLAGS = +FS +W800 +H600 -EXIT
+RTFLAGS = +FS +W64 +H48 +A -EXIT
 ZIP = "/d/programs/7-Zip/7z.exe"
 ZIPFLAGS = a
 
 OBJS = thir.o res.o
-IMGS = include/coin.bmp include/tetra.bmp include/hex.bmp include/oct.bmp include/dec.bmp include/dodec.bmp include/icos.bmp include/2dec.bmp
+IMGS = include/coin.bmp include/tetra.bmp include/hex.bmp include/oct.bmp include/dec.bmp include/dodec.bmp include/icos.bmp include/2dec.bmp include/dodec_32x32.ico include/oct_16x16.ico
 
 thir.exe: $(OBJS)
 	$(CC) -o $@ $^ $(CFLAGS)

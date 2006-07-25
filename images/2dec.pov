@@ -11,12 +11,12 @@ background { Gray75 }
 
 #declare frame_w = 0.03;
 #declare frame_t = texture {
- pigment { color Red }
+ pigment { color SkyBlue }
  finish { ambient .2 diffuse 0.8 specular 1 }
 }
 
 #declare body_t = texture { 
- pigment { color Red filter 0.6 }
+ pigment { color SkyBlue filter 0.6 }
 }
 
 #macro pentagonal_deltohedron()

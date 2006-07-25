@@ -38,7 +38,7 @@ union {
   sphere { <-1, 1, 1>, frame_w }
 
   texture {
-   pigment { color Red }
+   pigment { color SpringGreen }
    finish { ambient .2 diffuse 0.8 specular 1 }
   }
  }
@@ -46,9 +46,10 @@ union {
  box {
   <-1, -1, -1>, <1, 1, 1>
   texture { 
-   pigment { color Red filter 0.6 }
+   pigment { color SpringGreen filter 0.6 }
   }
  }
  rotate <10, 30, 0>
+ rotate x * 20
  rotate y * clock * 360
 }

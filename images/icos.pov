@@ -1,22 +1,22 @@
 #include "colors.inc"
 
 camera {
- location <4, 2, -13>
+ location <4, 4, -13>
  look_at 0
  angle 20
 }
 
-light_source { <-1, 6, -15> White }
+light_source { <-1, 8, -15> White }
 background { Gray75 }
 
 #declare frame_w = 0.03;
 #declare frame_t = texture {
- pigment { color Red }
+ pigment { color CoolCopper }
  finish { ambient .2 diffuse 0.8 specular 1 }
 }
 
 #declare body_t = texture { 
- pigment { color Red filter 0.6 }
+ pigment { color CoolCopper filter 0.6 }
 }
 
 #declare Phi = (1 + sqrt(5)) / 2;
