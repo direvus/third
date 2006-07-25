@@ -36,6 +36,9 @@
 
 #define IDC_RESET	4100
 #define IDC_ROLL	4101
+#define IDC_RESULTS	4102
+#define IDS_TOTAL	4103
 
 void IncrementEdit(HWND w, UINT id);
 void DecrementEdit(HWND w, UINT id);
+UINT roll(UINT sides);

@@ -1,4 +1,7 @@
 #include <windows.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
 #include "include/thir.h"
 
 const char class[] = "primary";
@@ -31,7 +34,7 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 
 	  if(img != NULL) SendMessage(button, BM_SETIMAGE, (WPARAM) IMAGE_BITMAP, (LPARAM) img);
 
-	  text = CreateWindowEx(WS_EX_RIGHT | WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | ES_NUMBER,
+	  text = CreateWindowEx(WS_EX_RIGHT | WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_NUMBER,
 	    x + 10, y + height + 2, 30, 20,
 	    w, (HMENU) (3000 + dice[i]), GetModuleHandle(NULL), NULL);
 
@@ -52,7 +55,7 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	  w, (HMENU) IDS_MULT, GetModuleHandle(NULL), NULL);
 	SendMessage(stat, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
 
-	text = CreateWindowEx(WS_EX_RIGHT | WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | ES_NUMBER,
+	text = CreateWindowEx(WS_EX_RIGHT | WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_NUMBER,
 	  x + 70, y, 30, 20,
 	  w, (HMENU) IDC_MULT, GetModuleHandle(NULL), NULL);
 	SendMessage(text, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
@@ -80,7 +83,7 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	  w, (HMENU) IDS_MULT, GetModuleHandle(NULL), NULL);
 	SendMessage(stat, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
 
-	text = CreateWindowEx(WS_EX_RIGHT | WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | ES_NUMBER,
+	text = CreateWindowEx(WS_EX_RIGHT | WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_NUMBER,
 	  x + 70, y, 30, 20,
 	  w, (HMENU) IDC_ADD, GetModuleHandle(NULL), NULL);
 	SendMessage(text, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
@@ -101,18 +104,47 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 
 	// Main buttons: reset and roll
 	
-	x += 250;
-	y -= 40;
+	x = 50;
+	y += 40;
 
-	button = CreateWindowEx(0, "BUTTON", "Reset", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_CENTER | BS_FLAT,
+	button = CreateWindowEx(0, "BUTTON", "Reset", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON | BS_CENTER | BS_FLAT,
 	  x, y, 100, 30,
 	  w, (HMENU) IDC_RESET, GetModuleHandle(NULL), NULL);
 	SendMessage(button, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
 
-	button = CreateWindowEx(0, "BUTTON", "Roll", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON | BS_CENTER | BS_FLAT,
+	button = CreateWindowEx(0, "BUTTON", "Roll", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_DEFPUSHBUTTON | BS_CENTER | BS_FLAT,
 	  x, y + 35, 100, 30,
-	  w, (HMENU) IDC_RESET, GetModuleHandle(NULL), NULL);
+	  w, (HMENU) IDC_ROLL, GetModuleHandle(NULL), NULL);
 	SendMessage(button, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
+
+	// Results: list box for roll log and static for final display
+	
+	x = 250;
+	y -= 80;
+
+	HWND list;
+	list = CreateWindowEx(WS_EX_CLIENTEDGE, "LISTBOX", "", WS_CHILD | WS_VISIBLE | LBS_NOSEL | LBS_HASSTRINGS,
+	  x, y, 200, 160,
+	  w, (HMENU) IDC_RESULTS, GetModuleHandle(NULL), NULL);
+	SendMessage(list, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
+
+	y += 156;
+
+	stat = CreateWindowEx(WS_EX_LEFT, "STATIC", "Result:", WS_CHILD | WS_VISIBLE,
+	  x, y, 60, 20,
+	  w, NULL, GetModuleHandle(NULL), NULL);
+	SendMessage(stat, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
+
+	LOGFONT lf;
+	GetObject(font, sizeof(lf), &lf);
+
+	lf.lfWeight = FW_BOLD;
+	HFONT bold = CreateFontIndirect(&lf);
+
+	stat = CreateWindowEx(WS_EX_RIGHT, "STATIC", "", WS_CHILD | WS_VISIBLE,
+	  x + 60, y, 140, 20,
+	  w, (HMENU) IDS_TOTAL, GetModuleHandle(NULL), NULL);
+	SendMessage(stat, WM_SETFONT, (WPARAM) bold, MAKELPARAM(FALSE, 0));
       }
       break;
 
@@ -128,6 +160,57 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	  switch(ctl)
 	  {
 	    case IDC_ROLL:
+	      {
+		srand(time(NULL));
+		UINT i, r, total, item, mult;
+		INT mod;
+		char buf[100];
+
+		while(SendDlgItemMessage(w, IDC_RESULTS, LB_GETCOUNT, 0, 0) > 0)
+		{
+		  SendDlgItemMessage(w, IDC_RESULTS, LB_DELETESTRING, 0, 0);
+		}
+
+		total = 0;
+
+		for(i = 0; i < num_dice; i++)
+		{
+		  UINT n = GetDlgItemInt(w, dice[i] + 3000, NULL, FALSE);
+		  if(n <= 0) continue;
+
+		  UINT j = 1;
+		  while(j <= n)
+		  {
+		    r = roll(dice[i]);
+
+		    sprintf(buf, "d%d roll #%d = %d", dice[i], j, r);
+		    item = SendDlgItemMessage(w, IDC_RESULTS, LB_ADDSTRING, 0, (LPARAM) buf);
+
+		    total += r;
+		    j++;
+		  }
+		}
+
+		mult = GetDlgItemInt(w, IDC_MULT, NULL, FALSE);
+		if(mult > 1)
+		{
+		  total *= mult;
+
+		  sprintf(buf, "Multiplied by %d = %d", mult, total);
+		  item = SendDlgItemMessage(w, IDC_RESULTS, LB_ADDSTRING, 0, (LPARAM) buf);
+		}
+
+		mod = GetDlgItemInt(w, IDC_ADD, NULL, TRUE);
+		if(mod != 0)
+		{
+		  total += mod;
+
+		  sprintf(buf, "Modified by %d = %d", mod, total);
+		  item = SendDlgItemMessage(w, IDC_RESULTS, LB_ADDSTRING, 0, (LPARAM) buf);
+		}
+
+		SetDlgItemInt(w, IDS_TOTAL, total, FALSE);
+	      }
 	      break;
 
 	    case IDC_MULT_UP:
@@ -254,4 +337,9 @@ void DecrementEdit(HWND w, UINT id)
   {
     SetDlgItemInt(w, id, 0, FALSE);
   }
+}
+
+UINT roll(UINT sides)
+{
+  return (rand() % sides) + 1;
 }
