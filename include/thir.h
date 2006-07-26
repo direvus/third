@@ -42,6 +42,7 @@
 #define IDI_APP		4200
 #define IDI_TASKBAR	4201
 
-void IncrementEdit(HWND w, UINT id);
-void DecrementEdit(HWND w, UINT id);
+LRESULT CALLBACK dice_proc(HWND w, UINT msg, WPARAM wp, LPARAM lp);
+void AlterEdit(HWND w, UINT id, int mod);
+void AlterEditU(HWND w, UINT id, int mod);
 UINT roll(UINT sides);

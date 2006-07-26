@@ -20,7 +20,12 @@ Usage:
 		d20	A regular icosahedron
 		d100	Two d10s
 
-	The input box underneath each die is how many of that die you want to roll.  Click on the die, and the number goes up by one.  Keep clicking, and it keeps going up.
+	The input box underneath each die is how many of that die you want to roll.  You can change this number by typing the number directly into the input box, but unless you are rolling a very strange number of dice, you probably want to do it by clicking on the dice icons.  Clicks modify the corresponding dice counter like this:
+
+		Left click		Adds 1
+		Right click		Removes 1
+		Shift + left click	Adds 5
+		Shift + right click	Removes 5
 
 	The "Multiplier" is exactly what it sounds like.  After your dice are rolled, the total will be multiplied by this number.  If you don't want a multiplier, just leave it at the default value of 1.
 

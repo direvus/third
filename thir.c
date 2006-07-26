@@ -7,6 +7,7 @@
 const char class[] = "primary";
 UINT num_dice = 8;
 UINT dice[8] = {2, 4, 6, 8, 10, 12, 20, 100};
+WNDPROC oldproc = 0;
 
 LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 {
@@ -14,11 +15,11 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
   {
     case WM_CREATE:
       {
-	HWND button, text;
+	HWND button, text, stat;
 	HBITMAP img;
 	HFONT font = GetStockObject(DEFAULT_GUI_FONT);
-	UINT x = 10;
-	UINT y = 10;
+	UINT x = 12;
+	UINT y = 12;
 	UINT width = 61;
 	UINT height = 52;
 	UINT i;
@@ -28,6 +29,8 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	  button = CreateWindowEx(WS_EX_LEFT, "BUTTON", "", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP | BS_FLAT,
 	    x, y, width, height,
 	    w, (HMENU) (1000 + dice[i]), GetModuleHandle(NULL), NULL);
+
+	  oldproc = (WNDPROC) SetWindowLongPtr(button, GWLP_WNDPROC, (LONG_PTR) dice_proc);
 
 	  img = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(2000 + dice[i]), IMAGE_BITMAP,
 	    0, 0, 0);
@@ -44,9 +47,12 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	  x += width;
 	}
 
+        CreateWindowEx(0, "BUTTON", "", WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
+	  8, 0, x - 4, height + 44,
+	  w, NULL, GetModuleHandle(NULL), NULL);
+
 	x = 40;
-	y += height + 40;
-	HWND stat;
+	y += height + 50;
 
 	// Muliplier controls
 
@@ -151,106 +157,95 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
     case WM_COMMAND:
       {
 	UINT ctl = LOWORD(wp);
-	if(ctl > 1000 && ctl < 2000)
+	switch(ctl)
 	{
-	  IncrementEdit(w, ctl + 2000);
-	}
-	else
-	{
-	  switch(ctl)
-	  {
-	    case IDC_ROLL:
+	  case IDC_ROLL:
+	    {
+	      srand(time(NULL));
+	      UINT i, r, total, item, mult;
+	      INT mod;
+	      char buf[100];
+
+	      while(SendDlgItemMessage(w, IDC_RESULTS, LB_GETCOUNT, 0, 0) > 0)
 	      {
-		srand(time(NULL));
-		UINT i, r, total, item, mult;
-		INT mod;
-		char buf[100];
+		SendDlgItemMessage(w, IDC_RESULTS, LB_DELETESTRING, 0, 0);
+	      }
 
-		while(SendDlgItemMessage(w, IDC_RESULTS, LB_GETCOUNT, 0, 0) > 0)
+	      total = 0;
+
+	      for(i = 0; i < num_dice; i++)
+	      {
+		UINT n = GetDlgItemInt(w, dice[i] + 3000, NULL, FALSE);
+		if(n <= 0) continue;
+
+		UINT j = 1;
+		while(j <= n)
 		{
-		  SendDlgItemMessage(w, IDC_RESULTS, LB_DELETESTRING, 0, 0);
-		}
+		  r = roll(dice[i]);
 
-		total = 0;
-
-		for(i = 0; i < num_dice; i++)
-		{
-		  UINT n = GetDlgItemInt(w, dice[i] + 3000, NULL, FALSE);
-		  if(n <= 0) continue;
-
-		  UINT j = 1;
-		  while(j <= n)
-		  {
-		    r = roll(dice[i]);
-
-		    sprintf(buf, "d%d roll #%d = %d", dice[i], j, r);
-		    item = SendDlgItemMessage(w, IDC_RESULTS, LB_ADDSTRING, 0, (LPARAM) buf);
-
-		    total += r;
-		    j++;
-		  }
-		}
-
-		mult = GetDlgItemInt(w, IDC_MULT, NULL, FALSE);
-		if(mult > 1)
-		{
-		  total *= mult;
-
-		  sprintf(buf, "Multiplied by %d = %d", mult, total);
+		  sprintf(buf, "d%d roll #%d = %d", dice[i], j, r);
 		  item = SendDlgItemMessage(w, IDC_RESULTS, LB_ADDSTRING, 0, (LPARAM) buf);
+
+		  total += r;
+		  j++;
 		}
-
-		mod = GetDlgItemInt(w, IDC_ADD, NULL, TRUE);
-		if(mod != 0)
-		{
-		  total += mod;
-
-		  sprintf(buf, "Modified by %+d = %d", mod, total);
-		  item = SendDlgItemMessage(w, IDC_RESULTS, LB_ADDSTRING, 0, (LPARAM) buf);
-		}
-
-		SetDlgItemInt(w, IDS_TOTAL, total, FALSE);
 	      }
-	      break;
 
-	    case IDC_MULT_UP:
-
-	      IncrementEdit(w, IDC_MULT);
-	      break;
-
-	    case IDC_MULT_DOWN:
-
-	      DecrementEdit(w, IDC_MULT);
-	      break;
-
-	    case IDC_ADD_UP:
+	      mult = GetDlgItemInt(w, IDC_MULT, NULL, FALSE);
+	      if(mult > 1)
 	      {
-		INT n = GetDlgItemInt(w, IDC_ADD, NULL, TRUE);
-		SetDlgItemInt(w, IDC_ADD, n + 1, TRUE);
-	      }
-	      break;
+		total *= mult;
 
-	    case IDC_ADD_DOWN:
+		sprintf(buf, "Multiplied by %d = %d", mult, total);
+		item = SendDlgItemMessage(w, IDC_RESULTS, LB_ADDSTRING, 0, (LPARAM) buf);
+	      }
+
+	      mod = GetDlgItemInt(w, IDC_ADD, NULL, TRUE);
+	      if(mod != 0)
 	      {
-		INT n = GetDlgItemInt(w, IDC_ADD, NULL, TRUE);
-		SetDlgItemInt(w, IDC_ADD, n - 1, TRUE);
-	      }
-	      break;
+		total += mod;
 
-	    case IDC_RESET:
+		sprintf(buf, "Modified by %+d = %d", mod, total);
+		item = SendDlgItemMessage(w, IDC_RESULTS, LB_ADDSTRING, 0, (LPARAM) buf);
+	      }
+
+	      SetDlgItemInt(w, IDS_TOTAL, total, FALSE);
+	    }
+	    break;
+
+	  case IDC_MULT_UP:
+
+	    AlterEditU(w, IDC_MULT, 1);
+	    break;
+
+	  case IDC_MULT_DOWN:
+
+	    AlterEditU(w, IDC_MULT, -1);
+	    break;
+
+	  case IDC_ADD_UP:
+
+	    AlterEdit(w, IDC_ADD, 1);
+	    break;
+
+	  case IDC_ADD_DOWN:
+
+	    AlterEdit(w, IDC_ADD, -1);
+	    break;
+
+	  case IDC_RESET:
+	    {
+	      UINT i;
+
+	      for(i = 0; i < num_dice; i++)
 	      {
-		UINT i;
-
-		for(i = 0; i < num_dice; i++)
-		{
-		  SetDlgItemInt(w, dice[i] + 3000, 0, FALSE);
-		}
-
-		SetDlgItemInt(w, IDC_MULT, 1, FALSE);
-		SetDlgItemInt(w, IDC_ADD, 0, FALSE);
+		SetDlgItemInt(w, dice[i] + 3000, 0, FALSE);
 	      }
-	      break;
-	  }
+
+	      SetDlgItemInt(w, IDC_MULT, 1, FALSE);
+	      SetDlgItemInt(w, IDC_ADD, 0, FALSE);
+	    }
+	    break;
 	}
       }
       break;
@@ -268,6 +263,36 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
     default:
 
       return DefWindowProc(w, msg, wp, lp);
+  }
+
+  return 0;
+}
+
+LRESULT CALLBACK dice_proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
+{
+  /* Intercepts messages sent to the dice buttons.
+   * Left-clicking increases the corresponding dice counter by one, right-clicking decreases it by one.
+   * Holding shift while clicking changes the counter by five.
+   *
+   * The window IDs are structured such that the counter is always the ID of the button plus 2000.
+   * I use GetMenu to find the ID (which is stored in the HMENU slot) of this button.
+   */ 
+  switch(msg)
+  {
+    case WM_LBUTTONDOWN:
+    case WM_RBUTTONDOWN:
+      {
+	UINT i = 1;
+	if(wp & MK_SHIFT) i = 5;
+	if(wp & MK_RBUTTON) i = -i;
+
+	AlterEditU(GetParent(w), (UINT) GetMenu(w) + 2000, i);
+      }
+      break;
+
+    default:
+
+      return CallWindowProc(oldproc, w, msg, wp, lp);
   }
 
   return 0;
@@ -320,23 +345,17 @@ int WINAPI WinMain (HINSTANCE inst, HINSTANCE prev_inst, PSTR opts, int show)
   return msg.wParam;
 }
 
-void IncrementEdit(HWND w, UINT id)
+void AlterEdit(HWND w, UINT id, int mod)
 {
-  UINT n = GetDlgItemInt(w, id, NULL, FALSE);
-  SetDlgItemInt(w, id, n + 1, FALSE);
+  SetDlgItemInt(w, id, GetDlgItemInt(w, id, NULL, TRUE) + mod, TRUE);
 }
 
-void DecrementEdit(HWND w, UINT id)
+void AlterEditU(HWND w, UINT id, int mod)
 {
-  UINT n = GetDlgItemInt(w, id, NULL, FALSE);
-  if(n > 0)
-  {
-    SetDlgItemInt(w, id, n - 1, FALSE);
-  }
-  else
-  {
-    SetDlgItemInt(w, id, 0, FALSE);
-  }
+  int n = GetDlgItemInt(w, id, NULL, FALSE) + mod;
+  if(n < 0) n = 0;
+
+  SetDlgItemInt(w, id, n, FALSE);
 }
 
 UINT roll(UINT sides)
