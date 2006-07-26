@@ -51,8 +51,42 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	  8, 0, x - 4, height + 44,
 	  w, NULL, GetModuleHandle(NULL), NULL);
 
+	// The dX (custom die) controls 
+
+	x -= width;
+	y += height + 38;
+
+	button = CreateWindowEx(WS_EX_LEFT, "BUTTON", "", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP,
+	  x, y, width, height,
+	  w, (HMENU) IDC_DX, GetModuleHandle(NULL), NULL);
+
+	oldproc = (WNDPROC) SetWindowLongPtr(button, GWLP_WNDPROC, (LONG_PTR) dice_proc);
+
+	img = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_DX), IMAGE_BITMAP,
+	  0, 0, 0);
+
+	if(img != NULL) SendMessage(button, BM_SETIMAGE, (WPARAM) IMAGE_BITMAP, (LPARAM) img);
+
+	text = CreateWindowEx(WS_EX_RIGHT | WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_NUMBER,
+	  x, y + height + 2, width, 20,
+	  w, (HMENU) IDC_SDX, GetModuleHandle(NULL), NULL);
+
+	SendMessage(text, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
+	SendMessage(text, WM_SETTEXT, 0, (LPARAM) "3");
+
+	text = CreateWindowEx(WS_EX_RIGHT | WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_NUMBER,
+	  x + 10, y + height + 22, 30, 20,
+	  w, (HMENU) IDC_NDX, GetModuleHandle(NULL), NULL);
+
+	SendMessage(text, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
+	SendMessage(text, WM_SETTEXT, 0, (LPARAM) "0");
+
+        CreateWindowEx(0, "BUTTON", "", WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
+	  x - 4, y - 12, width + 8, height + 60,
+	  w, NULL, GetModuleHandle(NULL), NULL);
+
 	x = 40;
-	y += height + 50;
+	y += 15;
 
 	// Muliplier controls
 
@@ -125,16 +159,16 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 
 	// Results: list box for roll log and static for final display
 	
-	x = 250;
+	x = 230;
 	y -= 80;
 
 	HWND list;
 	list = CreateWindowEx(WS_EX_CLIENTEDGE, "LISTBOX", "", WS_CHILD | WS_VISIBLE | WS_VSCROLL | LBS_NOSEL | LBS_HASSTRINGS,
-	  x, y, 200, 160,
+	  x, y, 200, 140,
 	  w, (HMENU) IDC_RESULTS, GetModuleHandle(NULL), NULL);
 	SendMessage(list, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
 
-	y += 156;
+	y += 136;
 
 	stat = CreateWindowEx(WS_EX_LEFT, "STATIC", "Result:", WS_CHILD | WS_VISIBLE,
 	  x, y, 60, 20,
@@ -191,21 +225,41 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 		}
 	      }
 
+	      UINT s = GetDlgItemInt(w, IDC_SDX, NULL, FALSE);
+	      i = GetDlgItemInt(w, IDC_NDX, NULL, FALSE);
+
+	      if(s > 0 && i > 0)
+	      {
+		UINT j = 1;
+		while(j <= i)
+		{
+		  r = roll(s);
+
+		  sprintf(buf, "d%d roll #%d = %d", s, j, r);
+		  item = SendDlgItemMessage(w, IDC_RESULTS, LB_ADDSTRING, 0, (LPARAM) buf);
+
+		  total += r;
+		  j++;
+		}
+	      }
+
 	      mult = GetDlgItemInt(w, IDC_MULT, NULL, FALSE);
 	      if(mult > 1)
 	      {
+		i = total;
 		total *= mult;
 
-		sprintf(buf, "Multiplied by %d = %d", mult, total);
+		sprintf(buf, "%d multiplied by %d = %d", i, mult, total);
 		item = SendDlgItemMessage(w, IDC_RESULTS, LB_ADDSTRING, 0, (LPARAM) buf);
 	      }
 
 	      mod = GetDlgItemInt(w, IDC_ADD, NULL, TRUE);
 	      if(mod != 0)
 	      {
+		i = total;
 		total += mod;
 
-		sprintf(buf, "Modified by %+d = %d", mod, total);
+		sprintf(buf, "%d modified by %+d = %d", i, mod, total);
 		item = SendDlgItemMessage(w, IDC_RESULTS, LB_ADDSTRING, 0, (LPARAM) buf);
 	      }
 
@@ -327,7 +381,7 @@ int WINAPI WinMain (HINSTANCE inst, HINSTANCE prev_inst, PSTR opts, int show)
   }
 
   w = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_CONTROLPARENT, class, "THIR", WS_BORDER | WS_SYSMENU | WS_MINIMIZEBOX, 
-    CW_USEDEFAULT, CW_USEDEFAULT, 515, 320,
+    CW_USEDEFAULT, CW_USEDEFAULT, 530, 320,
     NULL, NULL, inst, NULL);
 
   if(w == NULL)

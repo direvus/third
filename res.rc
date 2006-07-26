@@ -2,6 +2,7 @@
 
 1	24	"include/manifest.xml"
 
+IDB_DX		BITMAP	"include/var.bmp"
 IDB_D2		BITMAP	"include/coin.bmp"
 IDB_D4		BITMAP	"include/tetra.bmp"
 IDB_D6		BITMAP	"include/hex.bmp"

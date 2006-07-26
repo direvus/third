@@ -2,6 +2,14 @@ THIR - That's How I Roll
 
 	A dice roller by Brendan Jurd
 
+Premise:
+
+	Rolling dice is annoying.  First you need to have the right dice with you.  Then, when the time comes to make a roll, you need to extract the correct quantity and variety of dice from the assortment scattered around the room.  After rolling (and picking up those dice which fell on the floor, and re-rolling them) you need to perform some tedious mental arithmetic.
+
+	Further, the kinds of dice you can use are constrained by physical attributes; to produce fair outcomes a die must be possible to construct using some face-uniform solid.
+	
+	Faced with these obstacles, I did the same thing I do in pretty much every other situation in life.  I wrote a program.
+
 Installation:
 
 	Just extract the executable file thir.exe to wherever you like.  "C:\Program Files\thir\" is a good choice.
@@ -9,7 +17,7 @@ Installation:
 
 Usage:
 
-	Each of the icons along the top of the application represents a different die.  It should be pretty obvious to any tabletop gamer which is which, but in any case, the icons are, in order of appearance:
+	Each of the icons along the top of the application represents a different die.  The icons are, in order of appearance:
 
 		d2	A coin
 		d4	A regular tetrahedron
@@ -19,13 +27,16 @@ Usage:
 		d12	A regular dodecahedron
 		d20	A regular icosahedron
 		d100	Two d10s
+		d?	Custom die
 
-	The input box underneath each die is how many of that die you want to roll.  You can change this number by typing the number directly into the input box, but unless you are rolling a very strange number of dice, you probably want to do it by clicking on the dice icons.  Clicks modify the corresponding dice counter like this:
+	The small input box underneath each die is how many of that die you want to roll.  You can change this number by typing the number directly into the input box, but unless you are rolling a very strange number of dice, you probably want to do it by clicking on the dice icons.  Clicks modify the corresponding dice counter like this:
 
 		Left click		Adds 1
 		Right click		Removes 1
 		Shift + left click	Adds 5
 		Shift + right click	Removes 5
+
+	The custom die has a special input box underneath it.  You can specify how many sides your custom die should have here.  Want to roll a d17 or a d1000?  No problem, just type in the number of sides you want, and then use it like any other die.  The number of sides can be anything from 1 up to the maximum representable integer (probably 2^31 - 1, or 2147483647), but in practice you wouldn't want to use a number of sides that high since a multiplier or modifier could make the total unrepresentable.
 
 	The "Multiplier" is exactly what it sounds like.  After your dice are rolled, the total will be multiplied by this number.  If you don't want a multiplier, just leave it at the default value of 1.
 
@@ -39,6 +50,14 @@ Usage:
 
 	If you are sick of your current configuration and want to start again from scratch, press the "Reset" button.
 
+Distribution
+
+	Feel free to use and distribute THIR in whatever way you like.  With this README, without it, in a nice little box with a ribbon on it, I don't really care.  The copyright for all source code and images is held by me.
+
 Uninstallation
 	
 	Delete the file.
+
+Contact
+
+	You can send bug reports or feature requests to direvus@gmail.com.  The latest release version of THIR is available at http://swords.id.au/thir.zip.
