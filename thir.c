@@ -123,7 +123,7 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	y -= 80;
 
 	HWND list;
-	list = CreateWindowEx(WS_EX_CLIENTEDGE, "LISTBOX", "", WS_CHILD | WS_VISIBLE | LBS_NOSEL | LBS_HASSTRINGS,
+	list = CreateWindowEx(WS_EX_CLIENTEDGE, "LISTBOX", "", WS_CHILD | WS_VISIBLE | WS_VSCROLL | LBS_NOSEL | LBS_HASSTRINGS,
 	  x, y, 200, 160,
 	  w, (HMENU) IDC_RESULTS, GetModuleHandle(NULL), NULL);
 	SendMessage(list, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
@@ -298,7 +298,7 @@ int WINAPI WinMain (HINSTANCE inst, HINSTANCE prev_inst, PSTR opts, int show)
     return 0;
   }
 
-  w = CreateWindowEx(WS_EX_APPWINDOW, class, "THIR", WS_BORDER | WS_SYSMENU | WS_MINIMIZEBOX, 
+  w = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_CONTROLPARENT, class, "THIR", WS_BORDER | WS_SYSMENU | WS_MINIMIZEBOX, 
     CW_USEDEFAULT, CW_USEDEFAULT, 515, 320,
     NULL, NULL, inst, NULL);
 
