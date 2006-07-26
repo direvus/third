@@ -26,7 +26,7 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 
 	for(i = 0; i < num_dice; i++)
 	{
-	  button = CreateWindowEx(WS_EX_LEFT, "BUTTON", "", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP | BS_FLAT,
+	  button = CreateWindowEx(WS_EX_LEFT, "BUTTON", "", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP,
 	    x, y, width, height,
 	    w, (HMENU) (1000 + dice[i]), GetModuleHandle(NULL), NULL);
 
@@ -281,10 +281,13 @@ LRESULT CALLBACK dice_proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
   {
     case WM_LBUTTONDOWN:
     case WM_RBUTTONDOWN:
+    case WM_LBUTTONDBLCLK:
+    case WM_RBUTTONDBLCLK:
       {
 	UINT i = 1;
+
 	if(wp & MK_SHIFT) i = 5;
-	if(wp & MK_RBUTTON) i = -i;
+	if(msg == WM_RBUTTONDOWN || msg == WM_RBUTTONDBLCLK) i = -i;
 
 	AlterEditU(GetParent(w), (UINT) GetMenu(w) + 2000, i);
       }
