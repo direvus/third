@@ -15,6 +15,7 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
   {
     case WM_CREATE:
       {
+	srand(time(NULL));
 	HWND button, text, stat;
 	HBITMAP img;
 	HFONT font = GetStockObject(DEFAULT_GUI_FONT);
@@ -195,7 +196,6 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	{
 	  case IDC_ROLL:
 	    {
-	      srand(time(NULL));
 	      UINT i, r, total, item, mult;
 	      INT mod;
 	      char buf[100];

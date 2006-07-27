@@ -1,5 +1,6 @@
 CC = gcc
-CFLAGS = -O2 -mwindows
+CFLAGS = -O2
+LFLAGS = -mwindows
 RC = windres
 RT = "/c/Program Files/POV-Ray/bin/pvengine.exe"
 RTFLAGS = +FS +W24 +H18 +A -EXIT
@@ -10,10 +11,10 @@ OBJS = thir.o res.o
 IMGS = include/coin.bmp include/tetra.bmp include/hex.bmp include/oct.bmp include/dec.bmp include/dodec.bmp include/icos.bmp include/2dec.bmp include/dodec_32x32.ico include/oct_16x16.ico include/var.bmp
 
 thir.exe: $(OBJS)
-	$(CC) -o $@ $^ $(CFLAGS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS)
 
 thir.o: thir.c include/thir.h
-	$(CC) -c $<
+	$(CC) $(CFLAGS) -c $<
 
 res.o: res.rc include/manifest.xml $(IMGS)
 	$(RC) -o $@ $<
@@ -22,8 +23,7 @@ images/%.bmp: images/%.pov
 	$(RT) $(RTFLAGS) $<
 
 clean:
-	rm $(OBJS)
-	rm images/*.bmp
+	-rm thir.exe $(OBJS) images/*.bmp
 
 dist/thir.7z: thir.exe README README.html
 	$(ZIP) $(ZIPFLAGS) -t7z $@ $^
