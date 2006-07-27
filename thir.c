@@ -1,8 +1,8 @@
 #include <windows.h>
-#include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 #include "include/thir.h"
+#include "include/mt19937ar.h"
 
 const char class[] = "primary";
 UINT num_dice = 8;
@@ -15,7 +15,7 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
   {
     case WM_CREATE:
       {
-	srand(time(NULL));
+	init_genrand(time(NULL));
 	HWND button, text, stat;
 	HBITMAP img;
 	HFONT font = GetStockObject(DEFAULT_GUI_FONT);
@@ -196,7 +196,8 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	{
 	  case IDC_ROLL:
 	    {
-	      UINT i, r, total, item, mult;
+	      UINT i, item, mult;
+	      unsigned long r, total;
 	      INT mod;
 	      char buf[100];
 
@@ -415,7 +416,7 @@ void AlterEditU(HWND w, UINT id, int mod)
   SetDlgItemInt(w, id, n, FALSE);
 }
 
-UINT roll(UINT sides)
+unsigned long roll(UINT sides)
 {
-  return (rand() % sides) + 1;
+  return (genrand_int32() % sides) + 1;
 }

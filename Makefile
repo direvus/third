@@ -7,7 +7,7 @@ RTFLAGS = +FS +W24 +H18 +A -EXIT
 ZIP = "/d/programs/7-Zip/7z.exe"
 ZIPFLAGS = a
 
-OBJS = thir.o res.o
+OBJS = thir.o res.o mt19937ar.o
 IMGS = include/coin.bmp include/tetra.bmp include/hex.bmp include/oct.bmp include/dec.bmp include/dodec.bmp include/icos.bmp include/2dec.bmp include/dodec_32x32.ico include/oct_16x16.ico include/var.bmp
 
 thir.exe: $(OBJS)
@@ -18,6 +18,9 @@ thir.o: thir.c include/thir.h
 
 res.o: res.rc include/manifest.xml $(IMGS)
 	$(RC) -o $@ $<
+
+mt19937ar.o: mt19937ar.c include/mt19937ar.h
+	$(CC) $(CFLAGS) -c $<
 
 images/%.bmp: images/%.pov
 	$(RT) $(RTFLAGS) $<
