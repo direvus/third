@@ -20,10 +20,15 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	HBITMAP img;
 	HFONT font = GetStockObject(DEFAULT_GUI_FONT);
 	UINT x = 12;
-	UINT y = 12;
+	UINT y = 14;
 	UINT width = 61;
 	UINT height = 52;
 	UINT i;
+
+        group = CreateWindowEx(0, "BUTTON", "Dice", WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
+	  6, 0, x + (width * num_dice), height + 44,
+	  w, NULL, GetModuleHandle(NULL), NULL);
+	SendMessage(group, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
 
 	for(i = 0; i < num_dice; i++)
 	{
@@ -47,11 +52,6 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 
 	  x += width;
 	}
-
-        group = CreateWindowEx(0, "BUTTON", "Dice", WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
-	  6, 0, x - 4, height + 44,
-	  w, NULL, GetModuleHandle(NULL), NULL);
-	SendMessage(group, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
 
 	// The dX (custom die) controls 
 
@@ -87,66 +87,58 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	  x - 4, y - 12, width + 8, height + 60,
 	  w, NULL, GetModuleHandle(NULL), NULL);
 
-	x = 40;
+	x = 12;
 	y += 15;
 
 	// Muliplier controls
 
-	stat = CreateWindowEx(WS_EX_LEFT, "STATIC", "Multiplier: ", WS_CHILD | WS_VISIBLE,
-	  x, y + 3, 60, 20,
-	  w, (HMENU) IDS_MULT, GetModuleHandle(NULL), NULL);
-	SendMessage(stat, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
-
 	text = CreateWindowEx(WS_EX_RIGHT | WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_NUMBER,
-	  x + 70, y, 30, 20,
+	  x + 20, y, 30, 20,
 	  w, (HMENU) IDC_MULT, GetModuleHandle(NULL), NULL);
 	SendMessage(text, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
 	SendMessage(text, WM_SETTEXT, 0, (LPARAM) "1");
 
 	button = CreateWindowEx(0, "BUTTON", "+", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_CENTER | BS_FLAT,
-	  x + 104, y, 20, 20,
+	  x + 54, y, 20, 20,
 	  w, (HMENU) IDC_MULT_UP, GetModuleHandle(NULL), NULL);
 	SendMessage(button, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
 	button = CreateWindowEx(0, "BUTTON", "-", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_CENTER | BS_FLAT,
-	  x + 126, y, 20, 20,
+	  x + 76, y, 20, 20,
 	  w, (HMENU) IDC_MULT_DOWN, GetModuleHandle(NULL), NULL);
 	SendMessage(button, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
 
-        CreateWindowEx(0, "BUTTON", "", WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
-	  x - 30, y - 15, 206, 40,
+        group = CreateWindowEx(0, "BUTTON", "Multiplier", WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
+	  x, y - 15, 120, 40,
 	  w, NULL, GetModuleHandle(NULL), NULL);
+	SendMessage(group, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
 
 	// Modifier controls
 	
 	y += 35;
 
-	stat = CreateWindowEx(WS_EX_LEFT, "STATIC", "Modifier: ", WS_CHILD | WS_VISIBLE,
-	  x, y + 3, 60, 20,
-	  w, (HMENU) IDS_MULT, GetModuleHandle(NULL), NULL);
-	SendMessage(stat, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
-
 	text = CreateWindowEx(WS_EX_RIGHT | WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_NUMBER,
-	  x + 70, y, 30, 20,
+	  x + 20, y, 30, 20,
 	  w, (HMENU) IDC_ADD, GetModuleHandle(NULL), NULL);
 	SendMessage(text, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
 	SendMessage(text, WM_SETTEXT, 0, (LPARAM) "0");
 
 	button = CreateWindowEx(0, "BUTTON", "+", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_CENTER | BS_FLAT,
-	  x + 104, y, 20, 20,
+	  x + 54, y, 20, 20,
 	  w, (HMENU) IDC_ADD_UP, GetModuleHandle(NULL), NULL);
 	SendMessage(button, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
 	button = CreateWindowEx(0, "BUTTON", "-", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_CENTER | BS_FLAT,
-	  x + 126, y, 20, 20,
+	  x + 76, y, 20, 20,
 	  w, (HMENU) IDC_ADD_DOWN, GetModuleHandle(NULL), NULL);
 	SendMessage(button, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
 
-        CreateWindowEx(0, "BUTTON", "", WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
-	  x - 30, y - 15, 206, 40,
+        group = CreateWindowEx(0, "BUTTON", "Modifier", WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
+	  x, y - 15, 120, 40,
 	  w, NULL, GetModuleHandle(NULL), NULL);
+	SendMessage(group, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
 
 	// Main buttons: reset and roll
 	
-	x = 50;
+	x = 20;
 	y += 40;
 
 	button = CreateWindowEx(0, "BUTTON", "Reset", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON | BS_CENTER | BS_FLAT,
@@ -161,12 +153,12 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 
 	// Results: list box for roll log and static for final display
 	
-	x = 230;
-	y -= 80;
+	x = 140;
+	y -= 84;
 
 	HWND list;
 	list = CreateWindowEx(WS_EX_CLIENTEDGE, "LISTBOX", "", WS_CHILD | WS_VISIBLE | WS_VSCROLL | LBS_NOSEL | LBS_HASSTRINGS,
-	  x, y, 200, 140,
+	  x, y, 170, 140,
 	  w, (HMENU) IDC_RESULTS, GetModuleHandle(NULL), NULL);
 	SendMessage(list, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
 
@@ -184,7 +176,7 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	HFONT bold = CreateFontIndirect(&lf);
 
 	stat = CreateWindowEx(WS_EX_RIGHT, "STATIC", "", WS_CHILD | WS_VISIBLE,
-	  x + 60, y, 140, 20,
+	  x + 60, y, 110, 20,
 	  w, (HMENU) IDS_TOTAL, GetModuleHandle(NULL), NULL);
 	SendMessage(stat, WM_SETFONT, (WPARAM) bold, MAKELPARAM(FALSE, 0));
       }
