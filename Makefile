@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -O2
+CFLAGS = -O2 -Wall
 LFLAGS = -mwindows
 RC = windres
 RT = "/c/Program Files/POV-Ray/bin/pvengine.exe"
