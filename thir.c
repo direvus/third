@@ -16,7 +16,7 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
     case WM_CREATE:
       {
 	init_genrand(time(NULL));
-	HWND button, text, stat;
+	HWND button, text, stat, group;
 	HBITMAP img;
 	HFONT font = GetStockObject(DEFAULT_GUI_FONT);
 	UINT x = 12;
@@ -48,9 +48,10 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	  x += width;
 	}
 
-        CreateWindowEx(0, "BUTTON", "", WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
-	  8, 0, x - 4, height + 44,
+        group = CreateWindowEx(0, "BUTTON", "Dice", WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
+	  6, 0, x - 4, height + 44,
 	  w, NULL, GetModuleHandle(NULL), NULL);
+	SendMessage(group, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
 
 	// The dX (custom die) controls 
 
@@ -218,7 +219,7 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 		{
 		  r = roll(dice[i]);
 
-		  sprintf(buf, "d%d roll #%d = %d", dice[i], j, r);
+		  sprintf(buf, "d%d roll #%d = %ld", dice[i], j, r);
 		  item = SendDlgItemMessage(w, IDC_RESULTS, LB_ADDSTRING, 0, (LPARAM) buf);
 
 		  total += r;
@@ -236,7 +237,7 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 		{
 		  r = roll(s);
 
-		  sprintf(buf, "d%d roll #%d = %d", s, j, r);
+		  sprintf(buf, "d%d roll #%d = %ld", s, j, r);
 		  item = SendDlgItemMessage(w, IDC_RESULTS, LB_ADDSTRING, 0, (LPARAM) buf);
 
 		  total += r;
@@ -250,7 +251,7 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 		i = total;
 		total *= mult;
 
-		sprintf(buf, "%d multiplied by %d = %d", i, mult, total);
+		sprintf(buf, "%d multiplied by %d = %ld", i, mult, total);
 		item = SendDlgItemMessage(w, IDC_RESULTS, LB_ADDSTRING, 0, (LPARAM) buf);
 	      }
 
@@ -260,7 +261,7 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 		i = total;
 		total += mod;
 
-		sprintf(buf, "%d modified by %+d = %d", i, mod, total);
+		sprintf(buf, "%d modified by %+d = %ld", i, mod, total);
 		item = SendDlgItemMessage(w, IDC_RESULTS, LB_ADDSTRING, 0, (LPARAM) buf);
 	      }
 
