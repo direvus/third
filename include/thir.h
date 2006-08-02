@@ -46,7 +46,21 @@
 #define IDI_APP		4200
 #define IDI_TASKBAR	4201
 
+const unsigned int num_dice = 8;
+const unsigned int dice[8] = {2, 4, 6, 8, 10, 12, 20, 100};
+
 LRESULT CALLBACK dice_proc(HWND w, UINT msg, WPARAM wp, LPARAM lp);
 void alter_edit(HWND w, UINT id, int mod);
 void alter_edit_u(HWND w, UINT id, int mod);
 unsigned long roll(UINT sides);
+
+typedef struct
+{
+  unsigned int dice[8];
+  unsigned int x_sides;
+  unsigned int x_num;
+  unsigned int mult;
+  int mod;
+} conf;
+
+char * describe_conf(conf *);

@@ -5,8 +5,6 @@
 #include "include/mt19937ar.h"
 
 const char class[] = "primary";
-UINT num_dice = 8;
-UINT dice[8] = {2, 4, 6, 8, 10, 12, 20, 100};
 WNDPROC oldproc = 0;
 
 LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
@@ -189,6 +187,12 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	  x, y, 574 - x, 280 - y,
 	  w, NULL, GetModuleHandle(NULL), NULL);
 	SendMessage(group, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
+
+	conf c;
+	c.dice[2] = 3;
+	c.dice[3] = 1;
+
+	MessageBox(NULL, describe_conf(&c), "Config", MB_OK);
       }
       break;
 
@@ -424,3 +428,26 @@ unsigned long roll(UINT sides)
   return (genrand_int32() % sides) + 1;
 }
 
+char * describe_conf(conf * c)
+{
+  char str[1000] = "";
+  unsigned int i;
+  unsigned int active = 0;
+
+  for(i = 0; i < num_dice; i++)
+  {
+    if(c->dice[i] > 0)
+    {
+      if(active > 0) strcat(str, " + ");
+
+      char d[25];
+      sprintf(d, "%dd%d", c->dice[i], dice[i]);
+
+      strcat(str, d);
+
+      active++;
+    }
+  }
+
+  return str;
+}
