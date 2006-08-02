@@ -44,7 +44,7 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	  if(img != NULL) SendMessage(button, BM_SETIMAGE, (WPARAM) IMAGE_BITMAP, (LPARAM) img);
 
 	  text = CreateWindowEx(WS_EX_RIGHT | WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_NUMBER,
-	    x + 10, y + height + 2, 30, 20,
+	    x + 15, y + height + 2, 30, 20,
 	    w, (HMENU) (3000 + dice[i]), GetModuleHandle(NULL), NULL);
 
 	  SendMessage(text, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
@@ -55,8 +55,7 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 
 	// The dX (custom die) controls 
 
-	x -= width;
-	y += height + 38;
+	x += 10;
 
 	button = CreateWindowEx(WS_EX_LEFT, "BUTTON", "", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_BITMAP,
 	  x, y, width, height,
@@ -77,18 +76,19 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	SendMessage(text, WM_SETTEXT, 0, (LPARAM) "3");
 
 	text = CreateWindowEx(WS_EX_RIGHT | WS_EX_CLIENTEDGE, "EDIT", "", WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_NUMBER,
-	  x + 10, y + height + 22, 30, 20,
+	  x + 15, y + height + 22, 30, 20,
 	  w, (HMENU) IDC_NDX, GetModuleHandle(NULL), NULL);
 
 	SendMessage(text, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
 	SendMessage(text, WM_SETTEXT, 0, (LPARAM) "0");
 
-        CreateWindowEx(0, "BUTTON", "", WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
-	  x - 4, y - 12, width + 8, height + 60,
+        group = CreateWindowEx(0, "BUTTON", "", WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
+	  x - 4, y - 14, width + 8, height + 60,
 	  w, NULL, GetModuleHandle(NULL), NULL);
+	SendMessage(group, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
 
 	x = 12;
-	y += 15;
+	y += height + 58;
 
 	// Muliplier controls
 
@@ -179,6 +179,16 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	  x + 60, y, 110, 20,
 	  w, (HMENU) IDS_TOTAL, GetModuleHandle(NULL), NULL);
 	SendMessage(stat, WM_SETFONT, (WPARAM) bold, MAKELPARAM(FALSE, 0));
+
+	// Presets: show list of preconfigured presets and allow them to be quickly loaded and rolled.
+
+	x += 180;
+	y -= 136;
+
+	group = CreateWindowEx(0, "BUTTON", "Presets", WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
+	  x, y, 574 - x, 280 - y,
+	  w, NULL, GetModuleHandle(NULL), NULL);
+	SendMessage(group, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
       }
       break;
 
@@ -375,7 +385,7 @@ int WINAPI WinMain (HINSTANCE inst, HINSTANCE prev_inst, PSTR opts, int show)
   }
 
   w = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_CONTROLPARENT, class, "THIR", WS_BORDER | WS_SYSMENU | WS_MINIMIZEBOX, 
-    CW_USEDEFAULT, CW_USEDEFAULT, 530, 320,
+    CW_USEDEFAULT, CW_USEDEFAULT, 590, 320,
     NULL, NULL, inst, NULL);
 
   if(w == NULL)
@@ -413,3 +423,4 @@ unsigned long roll(UINT sides)
 {
   return (genrand_int32() % sides) + 1;
 }
+
