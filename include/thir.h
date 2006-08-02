@@ -47,6 +47,6 @@
 #define IDI_TASKBAR	4201
 
 LRESULT CALLBACK dice_proc(HWND w, UINT msg, WPARAM wp, LPARAM lp);
-void AlterEdit(HWND w, UINT id, int mod);
-void AlterEditU(HWND w, UINT id, int mod);
+void alter_edit(HWND w, UINT id, int mod);
+void alter_edit_u(HWND w, UINT id, int mod);
 unsigned long roll(UINT sides);

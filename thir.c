@@ -273,22 +273,22 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 
 	  case IDC_MULT_UP:
 
-	    AlterEditU(w, IDC_MULT, 1);
+	    alter_edit_u(w, IDC_MULT, 1);
 	    break;
 
 	  case IDC_MULT_DOWN:
 
-	    AlterEditU(w, IDC_MULT, -1);
+	    alter_edit_u(w, IDC_MULT, -1);
 	    break;
 
 	  case IDC_ADD_UP:
 
-	    AlterEdit(w, IDC_ADD, 1);
+	    alter_edit(w, IDC_ADD, 1);
 	    break;
 
 	  case IDC_ADD_DOWN:
 
-	    AlterEdit(w, IDC_ADD, -1);
+	    alter_edit(w, IDC_ADD, -1);
 	    break;
 
 	  case IDC_RESET:
@@ -347,7 +347,7 @@ LRESULT CALLBACK dice_proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	if(wp & MK_SHIFT) i = 5;
 	if(msg == WM_RBUTTONDOWN || msg == WM_RBUTTONDBLCLK) i = -i;
 
-	AlterEditU(GetParent(w), (UINT) GetMenu(w) + 2000, i);
+	alter_edit_u(GetParent(w), (UINT) GetMenu(w) + 2000, i);
       }
       break;
 
@@ -406,12 +406,12 @@ int WINAPI WinMain (HINSTANCE inst, HINSTANCE prev_inst, PSTR opts, int show)
   return msg.wParam;
 }
 
-void AlterEdit(HWND w, UINT id, int mod)
+void alter_edit(HWND w, UINT id, int mod)
 {
   SetDlgItemInt(w, id, GetDlgItemInt(w, id, NULL, TRUE) + mod, TRUE);
 }
 
-void AlterEditU(HWND w, UINT id, int mod)
+void alter_edit_u(HWND w, UINT id, int mod)
 {
   int n = GetDlgItemInt(w, id, NULL, FALSE) + mod;
   if(n < 0) n = 0;
