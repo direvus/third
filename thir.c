@@ -196,7 +196,7 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	  w, NULL, GetModuleHandle(NULL), NULL);
 	SendMessage(group, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
 
-	list = CreateWindowEx(WS_EX_CLIENTEDGE, "LISTBOX", "", WS_CHILD | WS_VISIBLE | WS_VSCROLL | LBS_HASSTRINGS,
+	list = CreateWindowEx(WS_EX_CLIENTEDGE, "LISTBOX", "", WS_CHILD | WS_VISIBLE | WS_VSCROLL | LBS_HASSTRINGS | LBS_NOTIFY,
 	  x + 5, y + 20, 574 - x - 10, 280 - y - 40,
 	  w, (HMENU) IDC_PRESETS, GetModuleHandle(NULL), NULL);
 	SendMessage(list, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
@@ -416,6 +416,23 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 		  SendMessage(GetDlgItem(w, IDC_PRESETS), LB_DELETESTRING, (WPARAM) i + 1, 0);
 		}
 	      }
+	    }
+	    break;
+
+	  case IDC_PRESETS:
+	    switch(HIWORD(wp))
+	    {
+	      case LBN_DBLCLK:
+		{
+		  unsigned long i = SendMessage(GetDlgItem(w, IDC_PRESETS), LB_GETCURSEL, 0, 0);
+		  if(i != LB_ERR)
+		  {
+		    load_conf(w, &presets[i]);
+		  }
+
+		  SendMessage(w, WM_COMMAND, (WPARAM) IDC_ROLL, 0);
+		}
+		break;
 	    }
 	    break;
 	}
