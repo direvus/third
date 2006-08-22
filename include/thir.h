@@ -76,6 +76,7 @@ typedef struct
 } conf;
 
 void set_conf(conf * c, char * name, unsigned int d2, unsigned int d4, unsigned int d6, unsigned int d8, unsigned int d10, unsigned int d12, unsigned int d20, unsigned int d100, unsigned int x_sides, unsigned int x_num, unsigned int mult, int mod);
+void copy_conf(conf * dest, conf * src);
 void describe_conf(conf *, char *);
 void current_conf(HWND, conf *);
 void scan_conf(conf * c, char * str);

@@ -1,10 +1,18 @@
 #include <windows.h>
 #include <stdio.h>
 #include <time.h>
+#include <string.h>
 #include "include/thir.h"
 #include "include/mt19937ar.h"
 
 const char class[] = "primary";
+char preset_name[255];
+
+conf presets[255];
+unsigned int num_presets = 0;
+
+char preset_labels[255][1024];
+
 WNDPROC oldproc = 0;
 
 LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
@@ -188,11 +196,33 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	  w, NULL, GetModuleHandle(NULL), NULL);
 	SendMessage(group, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
 
-	conf c;
-	c.dice[2] = 3;
-	c.dice[3] = 1;
+	list = CreateWindowEx(WS_EX_CLIENTEDGE, "LISTBOX", "", WS_CHILD | WS_VISIBLE | WS_VSCROLL | LBS_HASSTRINGS,
+	  x + 5, y + 20, 574 - x - 10, 280 - y - 40,
+	  w, (HMENU) IDC_PRESETS, GetModuleHandle(NULL), NULL);
+	SendMessage(list, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
 
-	MessageBox(NULL, describe_conf(&c), "Config", MB_OK);
+	y = 250;
+	x += 5;
+
+	button = CreateWindowEx(0, "BUTTON", "Add", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON | BS_CENTER | BS_FLAT,
+	  x, y, 50, 20,
+	  w, (HMENU) IDC_PS_NEW, GetModuleHandle(NULL), NULL);
+	SendMessage(button, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
+
+	button = CreateWindowEx(0, "BUTTON", "Update", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON | BS_CENTER | BS_FLAT,
+	  x + 55, y, 50, 20,
+	  w, (HMENU) IDC_PS_UPDATE, GetModuleHandle(NULL), NULL);
+	SendMessage(button, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
+
+	button = CreateWindowEx(0, "BUTTON", "Rename", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON | BS_CENTER | BS_FLAT,
+	  x + 110, y, 50, 20,
+	  w, (HMENU) IDC_PS_RENAME, GetModuleHandle(NULL), NULL);
+	SendMessage(button, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
+
+	button = CreateWindowEx(0, "BUTTON", "Delete", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON | BS_CENTER | BS_FLAT,
+	  x + 165, y, 50, 20,
+	  w, (HMENU) IDC_PS_DELETE, GetModuleHandle(NULL), NULL);
+	SendMessage(button, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
       }
       break;
 
@@ -308,6 +338,28 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	      SetDlgItemInt(w, IDC_ADD, 0, FALSE);
 	    }
 	    break;
+
+	  case IDC_PS_NEW:
+	    {
+	      conf c;
+	      current_conf(w, &c);
+
+	      if(IDOK == LOWORD(DialogBox(
+		GetModuleHandle(NULL), 
+		MAKEINTRESOURCE(IDD_PS_NEW), 
+		w, 
+		(DLGPROC) new_preset_proc)))
+	      {
+		strcpy(c.name, preset_name);
+		copy_conf(&presets[num_presets], &c);
+		describe_conf(&c, preset_labels[num_presets]);
+
+		SendMessage(GetDlgItem(w, IDC_PRESETS), LB_ADDSTRING, 0, (LPARAM) preset_labels[num_presets]);
+
+		num_presets++;
+	      }
+	    }
+	    break;
 	}
       }
       break;
@@ -361,6 +413,29 @@ LRESULT CALLBACK dice_proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
   }
 
   return 0;
+}
+
+BOOL CALLBACK new_preset_proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
+{
+  switch(msg)
+  {
+    case WM_COMMAND:
+
+      switch(LOWORD(wp))
+      {
+	case IDOK:
+	  GetDlgItemText(w, IDC_PS_NEW_NAME, preset_name, 255);
+	  // This case deliberately does not break.
+
+	case IDCANCEL:
+	  EndDialog(w, wp);
+	  return TRUE;
+	  break;
+      }
+      break;
+  }
+
+  return FALSE;
 }
 
 int WINAPI WinMain (HINSTANCE inst, HINSTANCE prev_inst, PSTR opts, int show) 
@@ -428,11 +503,37 @@ unsigned long roll(UINT sides)
   return (genrand_int32() % sides) + 1;
 }
 
-char * describe_conf(conf * c)
+void set_conf(conf * c, char * name, unsigned int d2, unsigned int d4, unsigned int d6, unsigned int d8, unsigned int d10, unsigned int d12, unsigned int d20, unsigned int d100, unsigned int x_sides, unsigned int x_num, unsigned int mult, int mod)
 {
-  char str[1000] = "";
+  strcpy(c->name,name);
+  c->dice[0] = d2;
+  c->dice[1] = d4;
+  c->dice[2] = d6;
+  c->dice[3] = d8;
+  c->dice[4] = d10;
+  c->dice[5] = d12;
+  c->dice[6] = d20;
+  c->dice[7] = d100;
+  c->x_sides = x_sides;
+  c->x_num = x_num;
+  c->mult = mult;
+  c->mod = mod;
+}
+
+void copy_conf(conf * dest, conf * src)
+{
+  set_conf(dest, src->name, src->dice[0], src->dice[1], src->dice[2], src->dice[3], src->dice[4], src->dice[5], src->dice[6], src->dice[7], src->x_sides, src->x_num, src->mult, src->mod);
+}
+
+void describe_conf(conf * c, char * str)
+{
   unsigned int i;
   unsigned int active = 0;
+
+  if(strlen(c->name) > 0)
+  {
+    sprintf(str, "%s: ", c->name);
+  }
 
   for(i = 0; i < num_dice; i++)
   {
@@ -449,5 +550,73 @@ char * describe_conf(conf * c)
     }
   }
 
-  return str;
+  if(c->x_num > 0 && c->x_sides > 1)
+  {
+    if(active > 0) strcat(str, " + ");
+
+    char d[25];
+    sprintf(d, "%dd%d", c->x_num, c->x_sides);
+
+    strcat(str, d);
+
+    active++;
+  }
+
+  if(active > 0)
+  {
+
+    if(c->mult > 1)
+    {
+      char m[15];
+      sprintf(m, " * %d", c->mult);
+      
+      strcat(str, m);
+    }
+
+    if(c->mod)
+    {
+      char m[15];
+      sprintf(m, " + %d", c->mod);
+
+      strcat(str, m);
+    }
+  }else{
+
+    strcat(str, "<none>");
+  }
+}
+
+void current_conf(HWND w, conf * c)
+{
+  strcpy(c->name, "");
+
+  unsigned int i;
+  for(i = 0; i < num_dice; i++)
+  {
+    c->dice[i] = GetDlgItemInt(w, 3000 + i, NULL, FALSE);
+  }
+
+  c->x_sides = GetDlgItemInt(w, IDC_SDX, NULL, FALSE);
+  c->x_num = GetDlgItemInt(w, IDC_NDX, NULL, FALSE);
+
+  c->mult = GetDlgItemInt(w, IDC_MULT, NULL, FALSE);
+  c->mod = GetDlgItemInt(w, IDC_ADD, NULL, TRUE);
+}
+
+void scan_conf(conf * c, char * str)
+{
+  sscanf(str, "%s %d %d %d %d %d %d %d %d %d %d %d %d",
+    c->name,
+    &c->dice[0],
+    &c->dice[1],
+    &c->dice[2],
+    &c->dice[3],
+    &c->dice[4],
+    &c->dice[5],
+    &c->dice[6],
+    &c->dice[7],
+    &c->x_sides,
+    &c->x_num,
+    &c->mult,
+    &c->mod);
 }
