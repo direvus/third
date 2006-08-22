@@ -360,6 +360,41 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	      }
 	    }
 	    break;
+
+	  case IDC_PS_DELETE:
+	    {
+	      unsigned long i = SendMessage(GetDlgItem(w, IDC_PRESETS), LB_GETCURSEL, 0, 0);
+	      if(i != LB_ERR)
+	      {
+		SendMessage(GetDlgItem(w, IDC_PRESETS), LB_DELETESTRING, (WPARAM) i, 0);
+
+		while(i < num_presets)
+		{
+		  copy_conf(&presets[i], &presets[i + 1]);
+		  i++;
+		}
+
+		num_presets--;
+	      }
+	    }
+	    break;
+
+	  case IDC_PS_UPDATE:
+	    {
+	      unsigned long i = SendMessage(GetDlgItem(w, IDC_PRESETS), LB_GETCURSEL, 0, 0);
+	      if(i != LB_ERR)
+	      {
+		conf c;
+		current_conf(w, &c);
+		strcpy(c.name, presets[i].name);
+		copy_conf(&presets[i], &c);
+		describe_conf(&presets[i], preset_labels[i]);
+
+		SendMessage(GetDlgItem(w, IDC_PRESETS), LB_INSERTSTRING, (WPARAM) i, (LPARAM) preset_labels[i]);
+		SendMessage(GetDlgItem(w, IDC_PRESETS), LB_DELETESTRING, (WPARAM) i + 1, 0);
+	      }
+	    }
+	    break;
 	}
       }
       break;
@@ -542,7 +577,15 @@ void describe_conf(conf * c, char * str)
       if(active > 0) strcat(str, " + ");
 
       char d[25];
-      sprintf(d, "%dd%d", c->dice[i], dice[i]);
+
+      if(c->dice[i] > 1)
+      {
+	sprintf(d, "%dd%d", c->dice[i], dice[i]);
+      }
+      else
+      {
+	sprintf(d, "d%d", dice[i]);
+      }
 
       strcat(str, d);
 
@@ -580,7 +623,9 @@ void describe_conf(conf * c, char * str)
 
       strcat(str, m);
     }
-  }else{
+  }
+  else
+  {
 
     strcat(str, "<none>");
   }
@@ -588,12 +633,10 @@ void describe_conf(conf * c, char * str)
 
 void current_conf(HWND w, conf * c)
 {
-  strcpy(c->name, "");
-
   unsigned int i;
   for(i = 0; i < num_dice; i++)
   {
-    c->dice[i] = GetDlgItemInt(w, 3000 + i, NULL, FALSE);
+    c->dice[i] = GetDlgItemInt(w, 3000 + dice[i], NULL, FALSE);
   }
 
   c->x_sides = GetDlgItemInt(w, IDC_SDX, NULL, FALSE);
@@ -603,7 +646,22 @@ void current_conf(HWND w, conf * c)
   c->mod = GetDlgItemInt(w, IDC_ADD, NULL, TRUE);
 }
 
-void scan_conf(conf * c, char * str)
+void load_conf(HWND w, conf * c)
+{
+  unsigned int i;
+  for(i = 0; i < num_dice; i++)
+  {
+    SetDlgItemInt(w, 3000 + dice[i], c->dice[i], FALSE);
+  }
+
+  SetDlgItemInt(w, IDC_SDX, c->x_sides, FALSE);
+  SetDlgItemInt(w, IDC_NDX, c->x_num, FALSE);
+
+  SetDlgItemInt(w, IDC_MULT, c->mult, FALSE);
+  SetDlgItemInt(w, IDC_ADD, c->mod, TRUE);
+}
+
+void import_conf(conf * c, char * str)
 {
   sscanf(str, "%s %d %d %d %d %d %d %d %d %d %d %d %d",
     c->name,
@@ -619,4 +677,22 @@ void scan_conf(conf * c, char * str)
     &c->x_num,
     &c->mult,
     &c->mod);
+}
+
+void export_conf(conf * c, char * str)
+{
+  sprintf(str, "%s %d %d %d %d %d %d %d %d %d %d %d %d",
+    c->name,
+    c->dice[0],
+    c->dice[1],
+    c->dice[2],
+    c->dice[3],
+    c->dice[4],
+    c->dice[5],
+    c->dice[6],
+    c->dice[7],
+    c->x_sides,
+    c->x_num,
+    c->mult,
+    c->mod);
 }

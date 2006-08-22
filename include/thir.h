@@ -75,8 +75,30 @@ typedef struct
   int mod;
 } conf;
 
+/* Set all the properties of a conf struct
+ */
 void set_conf(conf * c, char * name, unsigned int d2, unsigned int d4, unsigned int d6, unsigned int d8, unsigned int d10, unsigned int d12, unsigned int d20, unsigned int d100, unsigned int x_sides, unsigned int x_num, unsigned int mult, int mod);
+
+/* Copy all the properties from the src conf to the dest conf
+ */
 void copy_conf(conf * dest, conf * src);
+
+/* Fill the string with a textual description of the pointed-to conf.
+ */
 void describe_conf(conf *, char *);
+
+/* Populate the pointed-to conf with current values from the interface.
+ */
 void current_conf(HWND, conf *);
-void scan_conf(conf * c, char * str);
+
+/* Populate the interface controls with the values from the pointed-to conf.
+ */
+void load_conf(HWND w, conf * c);
+
+/* Populate the pointed-to conf with values from a specially formatted string.
+ */
+void import_conf(conf * c, char * str);
+
+/* Dump the pointed-to conf's data to a string that can be re-imported using import_conf()
+ */
+void export_conf(conf * c, char * str);
