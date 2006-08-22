@@ -395,6 +395,29 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	      }
 	    }
 	    break;
+
+	  case IDC_PS_RENAME:
+	    {
+	      unsigned long i = SendMessage(GetDlgItem(w, IDC_PRESETS), LB_GETCURSEL, 0, 0);
+	      if(i != LB_ERR)
+	      {
+		strcpy(preset_name, presets[i].name);
+
+		if(IDOK == LOWORD(DialogBox(
+		  GetModuleHandle(NULL), 
+		  MAKEINTRESOURCE(IDD_PS_RENAME), 
+		  w, 
+		  (DLGPROC) rename_preset_proc)))
+		{
+		  strcpy(presets[i].name, preset_name);
+		  describe_conf(&presets[i], preset_labels[i]);
+
+		  SendMessage(GetDlgItem(w, IDC_PRESETS), LB_INSERTSTRING, (WPARAM) i, (LPARAM) preset_labels[i]);
+		  SendMessage(GetDlgItem(w, IDC_PRESETS), LB_DELETESTRING, (WPARAM) i + 1, 0);
+		}
+	      }
+	    }
+	    break;
 	}
       }
       break;
@@ -460,6 +483,34 @@ BOOL CALLBACK new_preset_proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
       {
 	case IDOK:
 	  GetDlgItemText(w, IDC_PS_NEW_NAME, preset_name, 255);
+	  // This case deliberately does not break.
+
+	case IDCANCEL:
+	  EndDialog(w, wp);
+	  return TRUE;
+	  break;
+      }
+      break;
+  }
+
+  return FALSE;
+}
+
+BOOL CALLBACK rename_preset_proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
+{
+  switch(msg)
+  {
+    case WM_INITDIALOG:
+
+      SetDlgItemText(w, IDC_PS_RENAME_NAME, preset_name);
+      break;
+
+    case WM_COMMAND:
+
+      switch(LOWORD(wp))
+      {
+	case IDOK:
+	  GetDlgItemText(w, IDC_PS_RENAME_NAME, preset_name, 255);
 	  // This case deliberately does not break.
 
 	case IDCANCEL:

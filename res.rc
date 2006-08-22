@@ -27,3 +27,13 @@ FONT 8, "MS Sans Serif"
   PUSHBUTTON	"&Cancel", IDCANCEL, 82, 30, 50, 15
 }
 
+IDD_PS_RENAME	DIALOGEX	0, 0, 160, 50
+STYLE WS_POPUP | WS_BORDER
+CAPTION	"Rename preset"
+FONT 8, "MS Sans Serif"
+{
+  CTEXT		"Specify a new name for this preset:", 0, 0, 10, 160, 10
+  EDITTEXT	IDC_PS_RENAME_NAME, 10, 20, 140, 10
+  PUSHBUTTON	"&Save", IDOK, 27, 30, 50, 15, BS_DEFPUSHBUTTON
+  PUSHBUTTON	"&Cancel", IDCANCEL, 82, 30, 50, 15
+}

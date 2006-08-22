@@ -55,11 +55,15 @@
 #define IDD_PS_NEW	4300
 #define IDC_PS_NEW_NAME	4301
 
+#define IDD_PS_RENAME		4400
+#define IDC_PS_RENAME_NAME	4401
+
 const unsigned int num_dice = 8;
 const unsigned int dice[8] = {2, 4, 6, 8, 10, 12, 20, 100};
 
 LRESULT CALLBACK dice_proc(HWND w, UINT msg, WPARAM wp, LPARAM lp);
 BOOL CALLBACK new_preset_proc(HWND w, UINT msg, WPARAM wp, LPARAM lp);
+BOOL CALLBACK rename_preset_proc(HWND w, UINT msg, WPARAM wp, LPARAM lp);
 
 void alter_edit(HWND w, UINT id, int mod);
 void alter_edit_u(HWND w, UINT id, int mod);
