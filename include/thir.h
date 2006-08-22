@@ -1,3 +1,6 @@
+#define IDI_APP		100
+#define IDI_TASKBAR	101
+
 #define IDC_DX		1000
 #define IDC_D2		1002
 #define IDC_D4		1004
@@ -43,19 +46,28 @@
 #define IDC_RESULTS	4102
 #define IDS_TOTAL	4103
 
-#define IDI_APP		4200
-#define IDI_TASKBAR	4201
+#define IDC_PRESETS	4200
+#define IDC_PS_NEW	4201
+#define IDC_PS_UPDATE	4202
+#define	IDC_PS_RENAME	4203
+#define IDC_PS_DELETE	4204
+
+#define IDD_PS_NEW	4300
+#define IDC_PS_NEW_NAME	4301
 
 const unsigned int num_dice = 8;
 const unsigned int dice[8] = {2, 4, 6, 8, 10, 12, 20, 100};
 
 LRESULT CALLBACK dice_proc(HWND w, UINT msg, WPARAM wp, LPARAM lp);
+BOOL CALLBACK new_preset_proc(HWND w, UINT msg, WPARAM wp, LPARAM lp);
+
 void alter_edit(HWND w, UINT id, int mod);
 void alter_edit_u(HWND w, UINT id, int mod);
 unsigned long roll(UINT sides);
 
 typedef struct
 {
+  char name[100];
   unsigned int dice[8];
   unsigned int x_sides;
   unsigned int x_num;
@@ -63,4 +75,7 @@ typedef struct
   int mod;
 } conf;
 
-char * describe_conf(conf *);
+void set_conf(conf * c, char * name, unsigned int d2, unsigned int d4, unsigned int d6, unsigned int d8, unsigned int d10, unsigned int d12, unsigned int d20, unsigned int d100, unsigned int x_sides, unsigned int x_num, unsigned int mult, int mod);
+void describe_conf(conf *, char *);
+void current_conf(HWND, conf *);
+void scan_conf(conf * c, char * str);
