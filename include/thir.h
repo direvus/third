@@ -106,3 +106,4 @@ void import_conf(conf * c, char * str);
 /* Dump the pointed-to conf's data to a string that can be re-imported using import_conf()
  */
 void export_conf(conf * c, char * str);
+void export_conf_file(conf * c, FILE * fp);

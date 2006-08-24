@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <shlobj.h>
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
@@ -6,6 +7,9 @@
 #include "include/mt19937ar.h"
 
 const char class[] = "primary";
+char dir[MAX_PATH];
+char preset_file[MAX_PATH];
+
 char preset_name[255];
 
 conf presets[255];
@@ -21,6 +25,12 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
   {
     case WM_CREATE:
       {
+	SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, dir);
+	strcat(dir, "\\thir");
+
+	strcpy(preset_file, dir);
+	strcat(preset_file, "\\preset.txt");
+
 	init_genrand(time(NULL));
 	HWND button, text, stat, group;
 	HBITMAP img;
@@ -445,8 +455,24 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
       break;
 
     case WM_DESTROY:
+      {
+	/* Save the preset data to the preset file
+	 */
+	CreateDirectory(dir, 0);
 
-      PostQuitMessage(0);
+	FILE * fp = fopen(preset_file, "w+");
+	if(fp != NULL)
+	{
+	  unsigned int i;
+	  for(i = 0; i < num_presets; i++)
+	  {
+	    export_conf_file(&presets[i], fp);
+	  }
+	}
+	fclose(fp);
+
+	PostQuitMessage(0);
+      }
       break;
 
     default:
@@ -749,7 +775,25 @@ void import_conf(conf * c, char * str)
 
 void export_conf(conf * c, char * str)
 {
-  sprintf(str, "%s %d %d %d %d %d %d %d %d %d %d %d %d",
+  sprintf(str, "%s %d %d %d %d %d %d %d %d %d %d %d %d\n",
+    c->name,
+    c->dice[0],
+    c->dice[1],
+    c->dice[2],
+    c->dice[3],
+    c->dice[4],
+    c->dice[5],
+    c->dice[6],
+    c->dice[7],
+    c->x_sides,
+    c->x_num,
+    c->mult,
+    c->mod);
+}
+
+void export_conf_file(conf * c, FILE * fp)
+{
+  fprintf(fp, "%s %d %d %d %d %d %d %d %d %d %d %d %d\n",
     c->name,
     c->dice[0],
     c->dice[1],
