@@ -50,13 +50,25 @@ Usage:
 
 	If you are sick of your current configuration and want to start again from scratch, press the "Reset" button.
 
+Presets
+
+	If you find yourself rolling a particular configuration of dice often, you might want to save it as a preset.  Set up the configuration as if you were going to roll it, and then hit the Add button under the presets listbox.  This will add your current configuration as a new preset.
+
+	Once you've saved a preset you can roll it by double-clicking on the preset in the listbox.
+
+	Presets are saved to a file, located at %AppData%\thir\presets.txt (see *), when you close THIR.  When you open THIR again, the file is opened and all the presets saved therein are loaded up into the presets listbox.  Convenient!
+
+	You can Delete a preset if you no longer want it, or Update it with the current configuration, or Rename it.
+
+	* %AppData% is a special location set by Windows.  Its actual filesystem location can vary from system to system, but typically you'll find this directory at C:\Documents and Settings\[username]\Application Data.  Because Microsoft love their long-winded directory names.
+
 Distribution
 
 	Feel free to use and distribute THIR in whatever way you like.  With this README, without it, in a nice little box with a ribbon on it, I don't really care.  The copyright for all source code and images is held by me.
 
 Uninstallation
 	
-	Delete the file.
+	Delete the thir executable, and the directory %AppData%\thir.
 
 Contact
 

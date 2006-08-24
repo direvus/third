@@ -12,10 +12,10 @@ char preset_file[MAX_PATH];
 
 char preset_name[255];
 
-conf presets[255];
+conf presets[MAX_PRESETS];
 unsigned int num_presets = 0;
 
-char preset_labels[255][1024];
+char preset_labels[MAX_PRESETS][1024];
 
 WNDPROC oldproc = 0;
 
@@ -233,6 +233,34 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	  x + 165, y, 50, 20,
 	  w, (HMENU) IDC_PS_DELETE, GetModuleHandle(NULL), NULL);
 	SendMessage(button, WM_SETFONT, (WPARAM) font, MAKELPARAM(FALSE, 0));
+
+	// Load presets from the user's conf file
+	
+	FILE * fp = fopen(preset_file, "r");
+	if(fp != NULL)
+	{
+	  char line[1024];
+	  conf c;
+
+	  do
+	  {
+	    if(fgets(line, 1024, fp) == NULL) break;
+
+	    if(line[0] == '#') continue;
+
+	    if(import_conf(&c, line) == 0) continue;
+
+	    copy_conf(&presets[num_presets], &c);
+	    describe_conf(&c, preset_labels[num_presets]);
+
+	    SendMessage(GetDlgItem(w, IDC_PRESETS), LB_ADDSTRING, 0, (LPARAM) preset_labels[num_presets]);
+
+	    num_presets++;
+	  }
+	  while(!feof(fp) && num_presets < MAX_PRESETS);
+
+	}
+	fclose(fp);
       }
       break;
 
@@ -354,6 +382,12 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	      conf c;
 	      current_conf(w, &c);
 
+	      if(num_presets == MAX_PRESETS)
+	      {
+		MessageBox(w, "You have already loaded up the maximum number of allowed presets.", "You've had enough", MB_OK | MB_ICONEXCLAMATION);
+		break;
+	      }
+
 	      if(IDOK == LOWORD(DialogBox(
 		GetModuleHandle(NULL), 
 		MAKEINTRESOURCE(IDD_PS_NEW), 
@@ -463,6 +497,12 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	FILE * fp = fopen(preset_file, "w+");
 	if(fp != NULL)
 	{
+	  fputs("# thir presets file\n# saved on application close at ", fp);
+	  
+	  time_t ts = time(NULL);
+	  struct tm * t = localtime(&ts);
+	  fprintf(fp, "%d-%02d-%02d %02d:%02d:%02d\n", t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
+
 	  unsigned int i;
 	  for(i = 0; i < num_presets; i++)
 	  {
@@ -755,9 +795,27 @@ void load_conf(HWND w, conf * c)
   SetDlgItemInt(w, IDC_ADD, c->mod, TRUE);
 }
 
-void import_conf(conf * c, char * str)
+int import_conf(conf * c, char * str)
 {
-  sscanf(str, "%s %d %d %d %d %d %d %d %d %d %d %d %d",
+  return sscanf(str, "%s %d %d %d %d %d %d %d %d %d %d %d %d",
+    c->name,
+    &c->dice[0],
+    &c->dice[1],
+    &c->dice[2],
+    &c->dice[3],
+    &c->dice[4],
+    &c->dice[5],
+    &c->dice[6],
+    &c->dice[7],
+    &c->x_sides,
+    &c->x_num,
+    &c->mult,
+    &c->mod);
+}
+
+int import_conf_file(conf * c, FILE * fp)
+{
+  return fscanf(fp, "%s %d %d %d %d %d %d %d %d %d %d %d %d\n",
     c->name,
     &c->dice[0],
     &c->dice[1],

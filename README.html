@@ -45,6 +45,10 @@
       tr:hover > td {
 	background: #ddd;
       }
+
+      a.footnote {
+	text-decoration: none;
+      }
     </style>
 
   </head>
@@ -57,7 +61,7 @@
 
     <h2>Premise</h2>
 
-    <p>Rolling dice is annoying.  First you need to have the right dice with you.  Then, when the time comes to make a roll, you need to extract the correct quantity and variety of dice from the assortment scattered around the room.  After rolling (and picking up those dice which fell on the floor, and re-rolling them) you need to perform some tedious mental arithmetic.</p>
+    <p><strong>Rolling dice is annoying</strong>.  First you need to have the right dice with you.  Then, when the time comes to make a roll, you need to extract the correct quantity and variety of dice from the assortment scattered around the room.  After rolling (and picking up those dice which fell on the floor, and re-rolling them) you need to perform some tedious mental arithmetic.</p>
 
     <p>Further, the kinds of dice you can use are constrained by physical attributes; to produce fair outcomes a die must be possible to construct using some face-uniform solid.</p>
 	
@@ -111,13 +115,29 @@
 
     <p>If you are sick of your current configuration and want to start again from scratch, press the "Reset" button.</p>
 
+    <h3>Presets</h3>
+
+    <p>If you find yourself rolling a particular configuration of dice often, you might want to save it as a preset.  Set up the configuration as if you were going to roll it, and then hit the <strong>Add</strong> button under the presets listbox.  This will add your current configuration as a new preset.</p>
+
+    <p>Once you've saved a preset you can roll it by double-clicking on the preset in the listbox.</p>
+
+    <p>Presets are saved to a file, located at <code>%AppData%\thir\presets.txt</code><a href="#fn" class="footnote">*</a>, when you close THIR.  When you open THIR again, the file is opened and all the presets saved therein are loaded up into the presets listbox.  Convenient!</p>
+
+    <p>You can <strong>Delete</strong> a preset if you no longer want it, or <strong>Update</strong> it with the current configuration, or <strong>Rename</strong> it.</p>
+
+    <a name="fn"></a>
+
+    <p>
+    * <code>%AppData%</code> is a special location set by Windows.  Its actual filesystem location can vary from system to system, but typically you'll find this directory at <code>C:\Documents and Settings\[username]\Application Data</code>.  Because Microsoft love their long-winded directory names.
+    </p>
+
     <h2>Distribution</h2>
 
-    <p>Feel free to use and distribute THIR in whatever way you like.  With this README, without it, in a nice little box with a ribbon on it, I don't really care.  The copyright for all source code and images is held by me.</p>
+    <p>Feel free to use and distribute THIR in whatever way you like.  With this README, without it, in a nice little box with a ribbon on it, I don't really care.  There is no cost and concordantly there is no warranty, not even implied ones.  The copyright for all source code and images is held by me.</p>
 
     <h2>Uninstallation</h2>
 	
-    <p>Delete the file.</p>
+    <p>Delete the thir executable, and the directory <code>%AppData%\thir</code>.</p>
 
     <h2>Contact</h2>
 

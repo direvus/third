@@ -58,6 +58,8 @@
 #define IDD_PS_RENAME		4400
 #define IDC_PS_RENAME_NAME	4401
 
+#define MAX_PRESETS	255
+
 const unsigned int num_dice = 8;
 const unsigned int dice[8] = {2, 4, 6, 8, 10, 12, 20, 100};
 
@@ -101,7 +103,8 @@ void load_conf(HWND w, conf * c);
 
 /* Populate the pointed-to conf with values from a specially formatted string.
  */
-void import_conf(conf * c, char * str);
+int import_conf(conf * c, char * str);
+int import_conf_file(conf * c, FILE * fp);
 
 /* Dump the pointed-to conf's data to a string that can be re-imported using import_conf()
  */
