@@ -21,7 +21,7 @@ mt19937ar.o: mt19937ar.c include/mt19937ar.h
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	-rm thir.exe $(OBJS) images/*.bmp
+	-rm thir.exe $(OBJS)
 
 ../dist/thir-w32.7z: thir.exe README README.html
 	$(ZIP) $(ZIPFLAGS) -t7z $@ $^
