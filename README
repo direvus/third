@@ -1,6 +1,6 @@
-THIR - That's How I Roll
+THIRD - THIRD's How I Roll Dice
 
-	A dice roller by Brendan Jurd
+	A dice roller for roleplaying nerds, by Brendan Jurd
 
 Premise:
 
@@ -12,7 +12,7 @@ Premise:
 
 Installation:
 
-	Just extract the executable file thir.exe to wherever you like.  "C:\Program Files\thir\" is a good choice.
+	Just extract the executable file third.exe to wherever you like.  "C:\Program Files\third\" is a good choice.
 	Then run it.  The program is entirely self contained.
 
 Usage:
@@ -56,7 +56,7 @@ Presets
 
 	Once you've saved a preset you can roll it by double-clicking on the preset in the listbox.
 
-	Presets are saved to a file, located at %AppData%\thir\presets.txt (see *), when you close THIR.  When you open THIR again, the file is opened and all the presets saved therein are loaded up into the presets listbox.  Convenient!
+	Presets are saved to a file, located at %AppData%\third\presets.txt (see *), when you close THIRD.  When you open THIRD again, the file is opened and all the presets saved therein are loaded up into the presets listbox.  Convenient!
 
 	You can Delete a preset if you no longer want it, or Update it with the current configuration, or Rename it.
 
@@ -64,12 +64,12 @@ Presets
 
 Distribution
 
-	Feel free to use and distribute THIR in whatever way you like.  With this README, without it, in a nice little box with a ribbon on it, I don't really care.  The copyright for all source code and images is held by me.
+	Feel free to use and distribute THIRD in whatever way you like.  With this README, without it, in a nice little box with a ribbon on it, I don't really care.  The copyright for all source code and images is held by me.
 
 Uninstallation
 	
-	Delete the thir executable, and the directory %AppData%\thir.
+	Delete the third executable, and the directory %AppData%\third.
 
 Contact
 
-	You can send bug reports or feature requests to direvus@gmail.com.  The latest release version of THIR is available at http://swords.id.au/thir.zip.
+	You can send bug reports or feature requests to direvus@gmail.com.  The latest release version of THIRD is available at http://swords.id.au/third.zip.

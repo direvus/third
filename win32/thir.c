@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
-#include "include/thir.h"
+#include "include/third.h"
 #include "include/mt19937ar.h"
 
 const char class[] = "primary";
@@ -26,7 +26,7 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
     case WM_CREATE:
       {
 	SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, dir);
-	strcat(dir, "\\thir");
+	strcat(dir, "\\third");
 
 	strcpy(preset_file, dir);
 	strcat(preset_file, "\\preset.txt");
@@ -497,7 +497,7 @@ LRESULT CALLBACK proc(HWND w, UINT msg, WPARAM wp, LPARAM lp)
 	FILE * fp = fopen(preset_file, "w+");
 	if(fp != NULL)
 	{
-	  fputs("# thir presets file\n# saved on application close at ", fp);
+	  fputs("# third presets file\n# saved on application close at ", fp);
 	  
 	  time_t ts = time(NULL);
 	  struct tm * t = localtime(&ts);
@@ -632,7 +632,7 @@ int WINAPI WinMain (HINSTANCE inst, HINSTANCE prev_inst, PSTR opts, int show)
     return 0;
   }
 
-  w = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_CONTROLPARENT, class, "THIR", WS_BORDER | WS_SYSMENU | WS_MINIMIZEBOX, 
+  w = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_CONTROLPARENT, class, "THIRD", WS_BORDER | WS_SYSMENU | WS_MINIMIZEBOX, 
     CW_USEDEFAULT, CW_USEDEFAULT, 590, 320,
     NULL, NULL, inst, NULL);
 

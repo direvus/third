@@ -4,11 +4,11 @@
  <assemblyIdentity 
   version="1.0.0.0" 
   processorArchitecture="X86" 
-  name="direvus.thir" 
+  name="direvus.third" 
   type="win32"
  /> 
  
- <description>THIR: That's How I Roll</description> 
+ <description>THIRD: THIRD's How I Roll Dice</description> 
  <dependency> 
   <dependentAssembly> 
    <assemblyIdentity 
