@@ -18,6 +18,7 @@ of the equation, so we can get on with the having of fun.
 import pygtk
 pygtk.require('2.0')
 import gtk
+import gobject
 import pango
 from random import randint
 
@@ -120,7 +121,7 @@ class Config:
             te.display()
 
             
-    def roll(self):
+    def roll(self, log=None):
         """Evaluate the configuration.
 
         This is done by rolling each of the dice, adding the results together
@@ -131,26 +132,35 @@ class Config:
 
         """
         total = 0
+        number = 0
 
         for die, n in self.dice.iteritems():
             for i in range(0, abs(n)):
                 result = _roll(die)
-                print i, die, result
-                if n > 0:
-                    total += result
-                else:
-                    total -= result
+                if n < 0: result *= -1
+                total += result
+                number += 1
+                log.append_result(number, "d%d" % die, result)
 
         if self.dx_size > 0:
             for i in range(0, abs(self.dx_count)):
                 result = _roll(self.dx_size)
-                if self.dx_count > 0:
-                    total += result
-                else:
-                    total -= result
+                if self.dx_count < 0: result *= -1
+                total += result
+                number += 1
+                log.append_result(number, "d%d" % self.dx_size, result)
 
-        total += self.modifier
-        total *= self.multiplier
+        if self.modifier != 0:
+            total += self.modifier
+            label = self.modifier > 0 and "+" or "-"
+            number += 1
+            log.append_result(number, label, abs(self.modifier))
+
+        if self.multiplier != 1:
+            total *= self.multiplier
+            number += 1
+            log.append_result(number, "x", self.multiplier)
+
         return total
 
     def describe(self):
@@ -192,8 +202,8 @@ class Config:
             negterms = ' - '.join(neg)
             str = ' - '.join([str, negterms])
 
-        if self.multiplier > 0:
-            str = ' * '.join([str, self.multiplier])
+        if self.multiplier > 1:
+            str = ' * '.join([str, str(self.multiplier)])
             
         return str
 
@@ -268,8 +278,14 @@ class DieBox(gtk.VBox):
         """One of the die buttons has received a mouse click.
         
         The data argument should contain the number of sides on the target die.
+
+        Double and triple clicks are ignored because normal button press events
+        are sent during a double or triple click anyway.
         
         """
+        if event.type != gtk.gdk.BUTTON_PRESS:
+            return True
+
         counter = self.counters[data]
 
         if event.button == 1:
@@ -294,6 +310,36 @@ class DieBox(gtk.VBox):
         return True
 
 
+class THIRDLog(gtk.ListStore):
+    """The columns of the log are, in order:
+
+    The sequence number of the row
+    The description of the item (roll or modifier)
+    The numeric result of the item.
+
+    """
+    def append_result(self, count, label, amount):
+        iter = self.append()
+        self.set(iter, 0, count, 1, label, 2, amount)
+
+
+class THIRDLogView(gtk.TreeView):
+
+    def __init__(self, model):
+        gtk.TreeView.__init__(self, model)
+
+
+        cells = []
+        for i in range(3): cells.append(gtk.CellRendererText())
+
+        cells[0].xalign = 1.0
+        cells[2].xalign = 1.0
+
+        for i in range(3):
+            col = gtk.TreeViewColumn("", cells[i], text=i)
+            self.append_column(col)
+
+
 class THIRD(gtk.Window):
     """The main THIRD application window."""
 
@@ -302,6 +348,9 @@ class THIRD(gtk.Window):
         self.connect("delete_event", self.delete_event)
 
         self.set_border_width(5)
+        self.set_title("third")
+        
+        self.bold = pango.FontDescription("sans bold 10")
 
         self.dbox = DieBox()
         self.dbox.add_die(2, "coin")
@@ -317,6 +366,7 @@ class THIRD(gtk.Window):
         self.rollbutton.connect("clicked", self.roll)
         self.resetbutton = gtk.Button(stock="gtk-cancel")
         self.total = gtk.Label()
+        self.total.modify_font(self.bold)
         self.total.set_alignment(1.0, 0.5)
 
         bb = gtk.HButtonBox()
@@ -324,11 +374,29 @@ class THIRD(gtk.Window):
         bb.add(self.rollbutton)
         bb.add(self.resetbutton)
 
-        self.resultbox = gtk.VBox(False)
-        self.resultbox.pack_end(self.total)
-        self.resultbox.pack_end(bb)
+        self.log = THIRDLog(gobject.TYPE_UINT, 
+                            gobject.TYPE_STRING,
+                            gobject.TYPE_INT)
 
-        self.mainbox = gtk.HBox(False)
+        self.logview = THIRDLogView(self.log)
+
+        self.logscroll = gtk.ScrolledWindow()
+        self.logscroll.set_policy(gtk.POLICY_AUTOMATIC,
+                                  gtk.POLICY_ALWAYS)
+        self.logscroll.add_with_viewport(self.logview)
+
+        self.label = gtk.Label()
+        self.label.modify_font(self.bold)
+        self.label.set_alignment(0.0, 0.5)
+        self.label.set_text(self.get_config().describe())
+
+        self.resultbox = gtk.VBox(False)
+        self.resultbox.pack_start(self.label, False, False)
+        self.resultbox.pack_start(self.logscroll, True, True)
+        self.resultbox.pack_start(bb, True, False)
+        self.resultbox.pack_start(self.total, True, False)
+
+        self.mainbox = gtk.HBox(False, 5)
         self.mainbox.pack_start(self.dbox)
         self.mainbox.pack_start(self.resultbox)
         self.add(self.mainbox)
@@ -353,7 +421,9 @@ class THIRD(gtk.Window):
 
         """
         config = self.get_config()
-        result = config.roll()
+        self.label.set_text(config.describe())
+        self.log.clear()
+        result = config.roll(self.log)
         self.total.set_text(str(result))
         return result
 
