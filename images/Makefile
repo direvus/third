@@ -1,5 +1,5 @@
 RT = "povray"
-RTFLAGS = -D +W32 +H24 +A
+RTFLAGS = -D +W32 +H24 +A +Q11
 
 PNGS = coin.png tetra.png hex.png oct.png dec.png dodec.png icos.png 2dec.png
 BMPS = coin.bmp tetra.bmp hex.bmp oct.bmp dec.bmp dodec.bmp icos.bmp 2dec.bmp
@@ -8,7 +8,7 @@ BMPS = coin.bmp tetra.bmp hex.bmp oct.bmp dec.bmp dodec.bmp icos.bmp 2dec.bmp
 	$(RT) $(RTFLAGS) +FS +O- $< > $@
 
 %.png: %.pov
-	$(RT) $(RTFLAGS) +FN +O- $< > $@
+	$(RT) $(RTFLAGS) +FN +UA +O- $< > $@
 
 bmps: $(BMPS)
 

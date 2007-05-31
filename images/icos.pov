@@ -7,7 +7,6 @@ camera {
 }
 
 light_source { <-1, 8, -15> White }
-background { Gray75 }
 
 #declare frame_w = 0.03;
 #declare frame_t = texture {

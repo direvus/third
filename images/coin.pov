@@ -7,7 +7,6 @@ camera {
 }
 
 light_source { <3, 9, -14> White }
-background { Gray75 }
 
 #declare edge = torus { 
  1, 0.03

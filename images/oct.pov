@@ -7,7 +7,6 @@ camera {
 }
 
 light_source { <3, -7, -20> White }
-background { Gray75 }
 
 #declare frame_w = 0.03;
 
