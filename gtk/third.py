@@ -243,6 +243,15 @@ class DieBox(gtk.VBox):
         gtk.VBox.__init__(self, True, spacing)
         self.counters = {}
 
+        self.add_die(2, "coin")
+        self.add_die(4, "tetra")
+        self.add_die(6, "hex")
+        self.add_die(8, "oct")
+        self.add_die(10, "dec")
+        self.add_die(12, "dodec")
+        self.add_die(20, "icos")
+        self.add_die(100, "2dec")
+
     def add_die(self, sides, icon):
         button = Die(sides, icon)
         button.connect("button_press_event", self.press, sides)
@@ -353,14 +362,6 @@ class THIRD(gtk.Window):
         self.bold = pango.FontDescription("sans bold 10")
 
         self.dbox = DieBox()
-        self.dbox.add_die(2, "coin")
-        self.dbox.add_die(4, "tetra")
-        self.dbox.add_die(6, "hex")
-        self.dbox.add_die(8, "oct")
-        self.dbox.add_die(10, "dec")
-        self.dbox.add_die(12, "dodec")
-        self.dbox.add_die(20, "icos")
-        self.dbox.add_die(100, "2dec")
 
         self.rollbutton = gtk.Button(stock="gtk-ok")
         self.rollbutton.connect("clicked", self.roll)
@@ -397,8 +398,8 @@ class THIRD(gtk.Window):
         self.resultbox.pack_start(self.total, True, False)
 
         self.mainbox = gtk.HBox(False, 5)
-        self.mainbox.pack_start(self.dbox)
-        self.mainbox.pack_start(self.resultbox)
+        self.mainbox.pack_start(self.dbox, False, False)
+        self.mainbox.pack_start(self.resultbox, True, True)
         self.add(self.mainbox)
 
         self.show_all()
