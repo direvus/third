@@ -226,7 +226,7 @@ class Die(gtk.Button):
 class Counter(gtk.SpinButton):
     """A spinner widget which contains the quantity of each die to roll."""
 
-    def __init__(self, sides):
+    def __init__(self):
         gtk.SpinButton.__init__(self, gtk.Adjustment(0, -32767, 32767, 1, 5))
 
         self.set_numeric(True)
@@ -252,11 +252,19 @@ class DieBox(gtk.VBox):
         self.add_die(20, "icos")
         self.add_die(100, "2dec")
 
+        self.dx_size = gtk.SpinButton(gtk.Adjustment(3, 3, 16383, 1, 5))
+        self.dx_count = Counter()
+
+        hb = gtk.HBox(False)
+        hb.pack_start(self.dx_size, False, False)
+        hb.pack_end(self.dx_count, False, False)
+        self.pack_start(hb, False, False)
+
     def add_die(self, sides, icon):
         button = Die(sides, icon)
         button.connect("button_press_event", self.press, sides)
 
-        counter = Counter(sides)
+        counter = Counter()
         self.counters[sides] = counter
 
         hb = gtk.HBox(False)
@@ -270,6 +278,12 @@ class DieBox(gtk.VBox):
         """Return a reference to the counter for a particular die."""
         return self.counters[sides]
 
+    def get_dx_size(self):
+        return self.dx_size.get_value_as_int()
+
+    def get_dx_count(self):
+        return self.dx_count.get_value_as_int()
+
     def get_counters(self):
         """Return a dictionary of all non-zero die counts.
 
@@ -281,6 +295,15 @@ class DieBox(gtk.VBox):
             n = counter.value()
             if n != 0:
                 result[die] = n
+
+        dxc = self.get_dx_count()
+        if dxc != 0:
+            dxs = self.get_dx_size()
+            if dxs in result:
+                result[dxs] = result[dxs] + dxc
+            else:
+                result[dxs] = dxc
+
         return result
 
     def press(self, widget, event, data=None):
