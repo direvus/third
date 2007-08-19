@@ -298,6 +298,17 @@ class DieBox(gtk.VBox):
 
         self.pack_start(hb, False, False)
 
+    def connect_updates(self, callback):
+        """
+        Connect all signals which update the configuration with the given
+        handler.
+
+        """ 
+        for sides in self.counters:
+            self.counters[sides].connect("value-changed", callback)
+        self.dx_size.connect("value-changed", callback)
+        self.dx_count.connect("value-changed", callback)
+
     def get_counter(self, sides):
         """Return a reference to the counter for a particular die."""
         return self.counters[sides]
@@ -309,25 +320,14 @@ class DieBox(gtk.VBox):
         return self.dx_count.get_value_as_int()
 
     def get_counters(self):
-        """Return a dictionary of all non-zero die counts.
+        """Return a dictionary of all die counter values.
 
         The dictionary form is "sides": "count"
 
         """
         result = {}
         for die, counter in self.counters.iteritems():
-            n = counter.value()
-            if n != 0:
-                result[die] = n
-
-        dxc = self.get_dx_count()
-        if dxc != 0:
-            dxs = self.get_dx_size()
-            if dxs in result:
-                result[dxs] = result[dxs] + dxc
-            else:
-                result[dxs] = dxc
-
+            result[die] = counter.value()
         return result
 
     def set_counter(self, sides, count):
@@ -419,6 +419,7 @@ class THIRD(gtk.Window):
         self.bold = pango.FontDescription("sans bold 10")
 
         self.dbox = DieBox()
+        self.dbox.connect_updates(self.update_label)
 
         self.rollbutton = gtk.Button(stock="gtk-ok")
         self.rollbutton.connect("clicked", self.roll)
@@ -447,7 +448,7 @@ class THIRD(gtk.Window):
         self.label = gtk.Label()
         self.label.modify_font(self.bold)
         self.label.set_alignment(0.0, 0.5)
-        self.label.set_text(self.get_config().describe())
+        self.update_label()
 
         self.resultbox = gtk.VBox(False)
         self.resultbox.pack_start(self.label, False, False)
@@ -479,14 +480,25 @@ class THIRD(gtk.Window):
         self.dbox.set_dx_size(config.get_dx_size())
         self.dbox.set_dx_count(config.get_dx_count())
 
+    def set_label(self, config):
+        """Set the label to show the description of a Config."""
+
+        self.label.set_text(config.describe())
+
+    def update_label(self, widget, data=None):
+        """Update the label to describe the current configuration."""
+
+        config = self.get_config()
+        self.set_label(config)
+
     def roll(self, widget, data=None):
         """Roll the current widget configuration.
 
         Results will be posted to the total label.
 
         """
+
         config = self.get_config()
-        self.label.set_text(config.describe())
         self.log.clear()
         result = config.roll(self.log)
         self.total.set_text(str(result))
