@@ -394,7 +394,7 @@ class THIRDLogView(gtk.TreeView):
     def __init__(self, model):
         gtk.TreeView.__init__(self, model)
 
-
+        self.set_headers_visible(False)
         cells = []
         for i in range(3): cells.append(gtk.CellRendererText())
 
@@ -425,14 +425,21 @@ class THIRD(gtk.Window):
         self.rollbutton.connect("clicked", self.roll)
         self.resetbutton = gtk.Button(stock="gtk-cancel")
         self.resetbutton.connect("clicked", self.reset)
-        self.total = gtk.Label()
-        self.total.modify_font(self.bold)
-        self.total.set_alignment(1.0, 0.5)
 
         bb = gtk.HButtonBox()
         bb.set_layout(gtk.BUTTONBOX_EDGE)
         bb.add(self.rollbutton)
         bb.add(self.resetbutton)
+
+        self.total = gtk.Label()
+        self.total.modify_font(self.bold)
+        self.total.set_alignment(1.0, 0.5)
+
+        totallabel = gtk.Label()
+        totallabel.set_text("Total")
+        totalbox = gtk.HBox(False)
+        totalbox.pack_start(totallabel, False, False)
+        totalbox.pack_end(self.total, False, False)
 
         self.log = THIRDLog(gobject.TYPE_UINT, 
                             gobject.TYPE_STRING,
@@ -448,17 +455,18 @@ class THIRD(gtk.Window):
         self.label = gtk.Label()
         self.label.modify_font(self.bold)
         self.label.set_alignment(0.0, 0.5)
-        self.update_label()
+        self.update_label(self.label)
 
-        self.resultbox = gtk.VBox(False)
+        self.resultbox = gtk.VBox(False, 5)
         self.resultbox.pack_start(self.label, False, False)
         self.resultbox.pack_start(self.logscroll, True, True)
-        self.resultbox.pack_start(bb, True, False)
-        self.resultbox.pack_start(self.total, True, False)
+        self.resultbox.pack_start(bb, False, False)
+        self.resultbox.pack_start(totalbox, False, False)
 
-        self.mainbox = gtk.HBox(False, 5)
+        self.mainbox = gtk.HBox(False, 10)
         self.mainbox.pack_start(self.dbox, False, False)
-        self.mainbox.pack_start(self.resultbox, True, True)
+        self.mainbox.pack_start(gtk.VSeparator(), False, False)
+        self.mainbox.pack_end(self.resultbox, True, True)
         self.add(self.mainbox)
 
         self.show_all()
