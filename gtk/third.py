@@ -120,7 +120,27 @@ class Config:
             te = THIRDError("Invalid multiplier:\n%s" % e)
             te.display()
 
-            
+    def get_dice(self):
+        return self.dice
+
+    def get_die(self, sides):
+        if sides in self.dice:
+            return self.dice[sides]
+        else:
+            return 0
+
+    def get_dx_size(self):
+        return self.dx_size
+
+    def get_dx_count(self):
+        return self.dx_count
+
+    def get_modifier(self):
+        return self.modifier
+
+    def get_multiplier(self):
+        return self.multiplier
+
     def roll(self, log=None):
         """Evaluate the configuration.
 
@@ -235,6 +255,10 @@ class Counter(gtk.SpinButton):
     def value(self):
         return self.get_value_as_int()
 
+    def set_value(self, value):
+        value = _validate_int(value)
+        return gtk.SpinButton.set_value(self, value)
+
 
 class DieBox(gtk.VBox):
     """The box containing the die buttons."""
@@ -306,6 +330,17 @@ class DieBox(gtk.VBox):
 
         return result
 
+    def set_counter(self, sides, count):
+        if sides not in self.counters:
+            raise ValueError("No counter for %d-sided dice present." % sides)
+        self.counters[sides].set_value(count)
+
+    def set_dx_size(self, sides):
+        self.dx_size.set_value(_validate_uint(sides))
+
+    def set_dx_count(self, count):
+        self.dx_count.set_value(count)
+
     def press(self, widget, event, data=None):
         """One of the die buttons has received a mouse click.
         
@@ -356,7 +391,6 @@ class THIRDLog(gtk.ListStore):
 
 
 class THIRDLogView(gtk.TreeView):
-
     def __init__(self, model):
         gtk.TreeView.__init__(self, model)
 
@@ -389,6 +423,7 @@ class THIRD(gtk.Window):
         self.rollbutton = gtk.Button(stock="gtk-ok")
         self.rollbutton.connect("clicked", self.roll)
         self.resetbutton = gtk.Button(stock="gtk-cancel")
+        self.resetbutton.connect("clicked", self.reset)
         self.total = gtk.Label()
         self.total.modify_font(self.bold)
         self.total.set_alignment(1.0, 0.5)
@@ -430,13 +465,19 @@ class THIRD(gtk.Window):
     def get_config(self):
         """Return a Config object based on the current widget settings."""
 
-        # TODO: Implement dx, mod and mult here
-        return Config("", self.dbox.get_counters())
+        # TODO: Implement mod and mult here
+        return Config("", self.dbox.get_counters(), 
+                      self.dbox.get_dx_size(), self.dbox.get_dx_count())
 
     def set_config(self, config):
         """Populate the widgets based on values in a Config object."""
 
-        # TODO
+        # TODO: Implement mod and mult
+        for die in _dice_set:
+            self.dbox.set_counter(die, config.get_die(die))
+
+        self.dbox.set_dx_size(config.get_dx_size())
+        self.dbox.set_dx_count(config.get_dx_count())
 
     def roll(self, widget, data=None):
         """Roll the current widget configuration.
@@ -450,6 +491,12 @@ class THIRD(gtk.Window):
         result = config.roll(self.log)
         self.total.set_text(str(result))
         return result
+
+    def reset(self, widget, data=None):
+        """Set all widgets back to their default state."""
+
+        zero = Config("Zero", {}, 0, 0, 0, 1)
+        self.set_config(zero)
 
     def delete_event(self, widget, event, data=None):
         gtk.main_quit()
