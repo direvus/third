@@ -24,6 +24,8 @@ from random import randint
 
 
 _dice_set = (2, 4, 6, 8, 10, 12, 20, 100)
+_app_dir = "~/.third"
+_share_dir = "/usr/local/share/third/"
 
 
 def _roll(sides):
@@ -239,7 +241,7 @@ class Die(gtk.Button):
         self.set_relief(gtk.RELIEF_NONE)
 
         self.image = gtk.Image()
-        self.image.set_from_file(''.join(["include/", icon, ".png"]))
+        self.image.set_from_file(''.join([_share_dir, icon, ".png"]))
         self.add(self.image)
 
 
