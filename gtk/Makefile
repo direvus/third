@@ -1,8 +1,16 @@
-PY = python
-PYFLAGS = -OO
+DESTDIR = 
+BINDIR = $(DESTDIR)/usr/local/bin
+SHAREDIR = $(DESTDIR)/usr/local/share/third
 
-third.pyo: third.py
-	$(PY) $(PYFLAGS) -c "import py_compile; py_compile.compile(\"$^\");"
+install:
+	mkdir -p $(BINDIR)
+	install third.py $(BINDIR)/
+	mkdir -p $(SHAREDIR)
+	install include/* $(SHAREDIR)/
 
-clean:
-	-rm third.py?
+package: third.tar.bz2
+
+third.tar.bz2: DESTDIR = ./package
+third.tar.bz2: install
+	tar -cjvpf $@ -C $(DESTDIR) $(DESTDIR)/
+
