@@ -431,6 +431,7 @@ class THIRD(gtk.Window):
 
         self.set_border_width(5)
         self.set_title("third")
+        self.set_icon_from_file(_share_dir + "app.png")
         
         self.bold = pango.FontDescription("sans bold 10")
 
@@ -496,12 +497,14 @@ class THIRD(gtk.Window):
     def set_config(self, config):
         """Populate the widgets based on values in a Config object."""
 
-        # TODO: Implement mod and mult
         for die in _dice_set:
             self.dbox.set_counter(die, config.get_die(die))
 
         self.dbox.set_dx_size(config.get_dx_size())
         self.dbox.set_dx_count(config.get_dx_count())
+
+        self.dbox.set_counter('mul', config.get_multiplier())
+        self.dbox.set_counter('mod', config.get_modifier())
 
     def set_label(self, config):
         """Set the label to show the description of a Config."""
