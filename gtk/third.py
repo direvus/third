@@ -414,8 +414,12 @@ class THIRDLogView(gtk.TreeView):
         cells = []
         for i in range(3): cells.append(gtk.CellRendererText())
 
-        cells[0].xalign = 1.0
-        cells[2].xalign = 1.0
+        cells[0].set_property("foreground", "#999999")
+        cells[0].set_property("foreground-set", True)
+        cells[0].set_property("xalign", 1.0)
+        cells[2].set_property("xalign", 1.0)
+        cells[2].set_property("weight", 700)
+        cells[2].set_property("weight-set", True)
 
         for i in range(3):
             col = gtk.TreeViewColumn("", cells[i], text=i)
