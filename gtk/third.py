@@ -78,20 +78,19 @@ class THIRDError(Exception):
 class Config:
     """A configuration of dice and modifiers to roll."""
 
-    def __init__(self, name="", dice={}, 
-                 dx_size=0, dx_count=0, modifier=0, multiplier=1):
+    def __init__(self, name="", counters={}, dx_size=0, dx_count=0):
 
         self.name = name.strip()
         self.dice = {}
         self.dx_size = 0
         self.dx_count = 0
-        self.modifier = 0
         self.multiplier = 1
+        self.modifier = 0
 
         for die in _dice_set:
-            if die in dice:
+            if die in counters:
                 try:
-                    self.dice[die] = _validate_int(dice[die])
+                    self.dice[die] = _validate_int(counters[die])
                 except ValueError, e:
                     te = THIRDError("Invalid number of d%d:\n%s" 
                                     % (die, e))
@@ -110,17 +109,19 @@ class Config:
             te = THIRDError("Invalid number of custom dice:\n%s" % e)
             te.display()
 
-        try:
-            self.modifier = _validate_int(modifier)
-        except ValueError, e:
-            te = THIRDError("Invalid modifier:\n%s" % e)
-            te.display()
+        if counters.has_key('mod'):
+            try:
+                self.modifier = _validate_int(counters['mod'])
+            except ValueError, e:
+                te = THIRDError("Invalid modifier:\n%s" % e)
+                te.display()
 
-        try:
-            self.multiplier = _validate_uint(multiplier)
-        except ValueError, e:
-            te = THIRDError("Invalid multiplier:\n%s" % e)
-            te.display()
+        if counters.has_key('mul'):
+            try:
+                self.multiplier = _validate_uint(counters['mul'])
+            except ValueError, e:
+                te = THIRDError("Invalid multiplier:\n%s" % e)
+                te.display()
 
     def get_dice(self):
         return self.dice
@@ -172,23 +173,23 @@ class Config:
                 number += 1
                 log.append_result(number, "d%d" % self.dx_size, result)
 
+        if self.multiplier != 1:
+            total *= self.multiplier
+            number += 1
+            log.append_result(number, "x", self.multiplier)
+
         if self.modifier != 0:
             total += self.modifier
             label = self.modifier > 0 and "+" or "-"
             number += 1
             log.append_result(number, label, abs(self.modifier))
 
-        if self.multiplier != 1:
-            total *= self.multiplier
-            number += 1
-            log.append_result(number, "x", self.multiplier)
-
         return total
 
     def describe(self):
         """Return a string representation of this configuration."""
 
-        str = ""
+        result = ""
         pos = []
         neg = []
 
@@ -217,28 +218,27 @@ class Config:
         if self.modifier > 0:
             pos.append(str(self.modifier))
         elif self.modifier < 0:
-            neg.append(str(self.modifier))
+            neg.append(str(abs(self.modifier)))
 
-        str = ' + '.join(pos)
+        result = ' + '.join(pos)
         if neg:
             negterms = ' - '.join(neg)
-            str = ' - '.join([str, negterms])
+            result = ' - '.join([result, negterms])
 
         if self.multiplier > 1:
-            str = ' * '.join([str, str(self.multiplier)])
+            result = ' * '.join([result, str(self.multiplier)])
             
-        return str
+        return result
 
 
 class Die(gtk.Button):
-    """A button representing a particular die."""
+    """A button representing a particular die or mod."""
 
-    def __init__(self, sides, icon):
+    def __init__(self, icon):
         gtk.Button.__init__(self)
 
         self.set_border_width(0)
         self.set_focus_on_click(False)
-        self.set_relief(gtk.RELIEF_NONE)
 
         self.image = gtk.Image()
         self.image.set_from_file(''.join([_share_dir, icon, ".png"]))
@@ -248,11 +248,13 @@ class Die(gtk.Button):
 class Counter(gtk.SpinButton):
     """A spinner widget which contains the quantity of each die to roll."""
 
-    def __init__(self):
-        gtk.SpinButton.__init__(self, gtk.Adjustment(0, -32767, 32767, 1, 5))
+    def __init__(self, value=0):
+        gtk.SpinButton.__init__(self, gtk.Adjustment(value, -32767, 32767, 
+                                                     1, 5))
 
         self.set_numeric(True)
         self.modify_font(pango.FontDescription("sans,monospace normal 9"))
+        self.set_width_chars(2)
 
     def value(self):
         return self.get_value_as_int()
@@ -260,6 +262,19 @@ class Counter(gtk.SpinButton):
     def set_value(self, value):
         value = _validate_int(value)
         return gtk.SpinButton.set_value(self, value)
+
+
+class CounterControl(gtk.HBox):
+    """A control consisting of a button and a spinner.  
+    
+    The button can be used to modify the spinner's value.
+    
+    """
+    def __init__(self, button, counter):
+        gtk.HBox.__init__(self, False, 1)
+
+        self.pack_start(button, False, False)
+        self.pack_end(counter, False, False)
 
 
 class DieBox(gtk.VBox):
@@ -279,26 +294,24 @@ class DieBox(gtk.VBox):
         self.add_die(100, "2dec")
 
         self.dx_size = gtk.SpinButton(gtk.Adjustment(3, 3, 16383, 1, 5))
+        self.dx_size.set_width_chars(2)
         self.dx_count = Counter()
+        self.add_control(self.dx_size, self.dx_count)
 
-        hb = gtk.HBox(False)
-        hb.pack_start(self.dx_size, False, False)
-        hb.pack_end(self.dx_count, False, False)
-        self.pack_start(hb, False, False)
+        self.add_die("mul", "mul", 1);
+        self.add_die("mod", "mod");
 
-    def add_die(self, sides, icon):
-        button = Die(sides, icon)
-        button.connect("button_press_event", self.press, sides)
+    def add_control(self, button, counter):
+        control = CounterControl(button, counter)
+        self.pack_start(control, False, False)
 
-        counter = Counter()
-        self.counters[sides] = counter
+    def add_die(self, name, icon, count=0):
+        button = Die(icon)
+        button.connect("button_press_event", self.press, name)
 
-        hb = gtk.HBox(False)
-
-        hb.pack_start(button, False, False)
-        hb.pack_end(counter, False, False)
-
-        self.pack_start(hb, False, False)
+        counter = Counter(count)
+        self.counters[name] = counter
+        self.add_control(button, counter)
 
     def connect_updates(self, callback):
         """
@@ -322,14 +335,14 @@ class DieBox(gtk.VBox):
         return self.dx_count.get_value_as_int()
 
     def get_counters(self):
-        """Return a dictionary of all die counter values.
+        """Return a dictionary of all counter values.
 
-        The dictionary form is "sides": "count"
+        The dictionary form is "name": "count"
 
         """
         result = {}
-        for die, counter in self.counters.iteritems():
-            result[die] = counter.value()
+        for name, counter in self.counters.iteritems():
+            result[name] = counter.value()
         return result
 
     def set_counter(self, sides, count):
@@ -344,9 +357,10 @@ class DieBox(gtk.VBox):
         self.dx_count.set_value(count)
 
     def press(self, widget, event, data=None):
-        """One of the die buttons has received a mouse click.
+        """One of the die or mod buttons has received a mouse click.
         
-        The data argument should contain the number of sides on the target die.
+        The data argument should contain the identifier of the button.  This is
+        the number of sides for a die button, or the name for a mod button.
 
         Double and triple clicks are ignored because normal button press events
         are sent during a double or triple click anyway.
@@ -476,7 +490,6 @@ class THIRD(gtk.Window):
     def get_config(self):
         """Return a Config object based on the current widget settings."""
 
-        # TODO: Implement mod and mult here
         return Config("", self.dbox.get_counters(), 
                       self.dbox.get_dx_size(), self.dbox.get_dx_count())
 
@@ -517,7 +530,7 @@ class THIRD(gtk.Window):
     def reset(self, widget, data=None):
         """Set all widgets back to their default state."""
 
-        zero = Config("Zero", {}, 0, 0, 0, 1)
+        zero = Config("Zero", {}, 0, 0)
         self.set_config(zero)
 
     def delete_event(self, widget, event, data=None):
