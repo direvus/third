@@ -284,14 +284,14 @@ class DieBox(gtk.VBox):
         gtk.VBox.__init__(self, True, spacing)
         self.counters = {}
 
-        self.add_die(2, "coin")
-        self.add_die(4, "tetra")
-        self.add_die(6, "hex")
-        self.add_die(8, "oct")
-        self.add_die(10, "dec")
-        self.add_die(12, "dodec")
-        self.add_die(20, "icos")
-        self.add_die(100, "2dec")
+        self.add_die(2, "d2")
+        self.add_die(4, "d4")
+        self.add_die(6, "d6")
+        self.add_die(8, "d8")
+        self.add_die(10, "d10")
+        self.add_die(12, "d12")
+        self.add_die(20, "d20")
+        self.add_die(100, "d100")
 
         self.dx_size = gtk.SpinButton(gtk.Adjustment(3, 3, 16383, 1, 5))
         self.dx_size.set_width_chars(2)
