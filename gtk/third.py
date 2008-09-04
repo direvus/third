@@ -237,6 +237,7 @@ class Die(gtk.Button):
     def __init__(self, icon):
         gtk.Button.__init__(self)
 
+        self.set_relief(gtk.RELIEF_NONE)
         self.set_border_width(0)
         self.set_focus_on_click(False)
 
@@ -283,6 +284,7 @@ class DieBox(gtk.VBox):
     def __init__(self, spacing=2):
         gtk.VBox.__init__(self, True, spacing)
         self.counters = {}
+        self.buttons = {}
 
         self.add_die(2, "d2")
         self.add_die(4, "d4")
@@ -308,8 +310,10 @@ class DieBox(gtk.VBox):
     def add_die(self, name, icon, count=0):
         button = Die(icon)
         button.connect("button_press_event", self.press, name)
+        self.buttons[name] = button
 
         counter = Counter(count)
+        counter.connect("value-changed", self.update, name)
         self.counters[name] = counter
         self.add_control(button, counter)
 
@@ -392,6 +396,30 @@ class DieBox(gtk.VBox):
 
         return True
 
+    def update(self, widget, data=None):
+        """One of the counters has had its value updated.
+
+        The data argument should contain the counter's identifier, as for the
+        press() method.
+
+        If the counter is considered "live" (it has been set to a non-default
+        value), then we update the style of the corresponding button.
+
+        """
+        button = self.buttons[data]
+
+        if data == 'mul':
+            default = 1
+        else:
+            default = 0
+
+        if widget.get_value() == default:
+            button.set_relief(gtk.RELIEF_NONE)
+        else:
+            button.set_relief(gtk.RELIEF_NORMAL)
+
+        return True
+
 
 class THIRDLog(gtk.ListStore):
     """The columns of the log are, in order:
@@ -447,7 +475,7 @@ class THIRD(gtk.Window):
         self.resetbutton = gtk.Button(stock="gtk-cancel")
         self.resetbutton.connect("clicked", self.reset)
 
-        bb = gtk.HButtonBox()
+        bb = gtk.VButtonBox()
         bb.set_layout(gtk.BUTTONBOX_EDGE)
         bb.add(self.rollbutton)
         bb.add(self.resetbutton)
@@ -488,7 +516,11 @@ class THIRD(gtk.Window):
         self.mainbox.pack_start(self.dbox, False, False)
         self.mainbox.pack_start(gtk.VSeparator(), False, False)
         self.mainbox.pack_end(self.resultbox, True, True)
-        self.add(self.mainbox)
+
+        panes = gtk.HPaned()
+        self.add(panes)
+
+        panes.add2(self.mainbox)
 
         self.show_all()
 
