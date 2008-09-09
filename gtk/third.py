@@ -601,6 +601,16 @@ class THIRD(gtk.Window):
         self.addbutton.connect("clicked", self.add_preset)
         bb.add(self.addbutton)
 
+        self.editbutton = gtk.Button(stock="gtk-edit")
+        self.editbutton.set_sensitive(False)
+        self.editbutton.connect("clicked", self.edit_preset)
+        bb.add(self.editbutton)
+
+        self.removebutton = gtk.Button(stock="gtk-remove")
+        self.removebutton.set_sensitive(False)
+        self.removebutton.connect("clicked", self.remove_preset)
+        bb.add(self.removebutton)
+
         box = gtk.VBox(False, 5)
         box.pack_start(self.presetscroll, True, True)
         box.pack_end(bb, False, False)
@@ -694,12 +704,32 @@ class THIRD(gtk.Window):
             self.presetmodel.add_preset(config)
             self.save_presets()
 
+    def edit_preset(self, widget, data=None):
+        pass
+
+    def remove_preset(self, widget, data=None):
+        view = self.presetview
+        (path, column) = view.get_cursor()
+        if path != None:
+            store = view.get_model()
+            iter = store.get_iter(path)
+            iter = view.get_model().get_iter(path)
+            store.remove(iter)
+
+            index = path[0]
+            self.presets.pop(index)
+            self.save_presets()
+
     def select_preset(self, widget, data=None):
         (path, column) = widget.get_cursor()
-        if path != None:
+        selected = (path != None)
+        if selected:
             index = path[0]
             self.set_config(self.presets[index])
             self.update_config()
+
+        self.editbutton.set_sensitive(selected)
+        self.removebutton.set_sensitive(selected)
 
     def activate_preset(self, widget, path, column, data=None):
         self.roll(widget)
