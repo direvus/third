@@ -591,7 +591,8 @@ class THIRD(gtk.Window):
         self.logscroll = gtk.ScrolledWindow()
         self.logscroll.set_policy(gtk.POLICY_AUTOMATIC,
                                   gtk.POLICY_ALWAYS)
-        self.logscroll.add_with_viewport(self.logview)
+        self.logscroll.set_shadow_type(gtk.SHADOW_IN)
+        self.logscroll.add(self.logview)
 
         self.label = gtk.Label()
         self.label.modify_font(self.bold)
@@ -604,6 +605,7 @@ class THIRD(gtk.Window):
         self.resultbox.pack_start(totalbox, False, False)
 
         self.mainbox = gtk.HBox(False, 10)
+        self.mainbox.pack_start(gtk.VSeparator(), False, False)
         self.mainbox.pack_start(self.dbox, False, False)
         self.mainbox.pack_start(gtk.VSeparator(), False, False)
         self.mainbox.pack_end(self.resultbox, True, True)
@@ -619,7 +621,8 @@ class THIRD(gtk.Window):
         self.presetscroll = gtk.ScrolledWindow()
         self.presetscroll.set_policy(gtk.POLICY_NEVER,
                                      gtk.POLICY_AUTOMATIC)
-        self.presetscroll.add_with_viewport(self.presetview)
+        self.presetscroll.set_shadow_type(gtk.SHADOW_IN)
+        self.presetscroll.add(self.presetview)
         self.load_presets()
 
         bb = gtk.VButtonBox()
