@@ -518,6 +518,34 @@ class THIRDNewPreset(gtk.Dialog):
         return self.input.get_text()
 
 
+class THIRDEditPreset(gtk.Dialog):
+    def __init__(self, parent, config):
+        gtk.Dialog.__init__(self, "Rename a preset", parent,
+                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT)
+
+        self.vbox.set_spacing(5)
+        self.vbox.pack_start(gtk.Label("Enter a new name for the following "
+                                       "configuration:"))
+        conflabel = gtk.Label()
+        conflabel.set_markup("<b>" + config.describe() + "</b>")
+        self.vbox.pack_start(conflabel)
+
+        self.input = gtk.Entry()
+        self.input.set_text(config.get_name())
+        self.input.set_activates_default(True)
+        self.vbox.pack_start(self.input)
+        self.input.grab_focus()
+
+        self.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
+        self.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+        self.set_default_response(gtk.RESPONSE_OK)
+
+        self.show_all()
+
+    def get_text(self):
+        return self.input.get_text()
+
+
 class THIRD(gtk.Window):
     """The main THIRD application window."""
 
@@ -705,20 +733,39 @@ class THIRD(gtk.Window):
             self.save_presets()
 
     def edit_preset(self, widget, data=None):
-        pass
+        view = self.presetview
+        (path, column) = view.get_cursor()
+        if path == None:
+            return
+
+        index = path[0]
+        config = self.presets[index]
+        dialog = THIRDEditPreset(self, config)
+        response = dialog.run()
+        name = dialog.get_text().strip()
+        dialog.destroy()
+
+        if response == gtk.RESPONSE_OK and name != config.get_name():
+            config.set_name(name)
+            store = view.get_model()
+            iter = store.get_iter(path)
+            store.set_value(iter, 0, name)
+            self.save_presets()
 
     def remove_preset(self, widget, data=None):
         view = self.presetview
         (path, column) = view.get_cursor()
-        if path != None:
-            store = view.get_model()
-            iter = store.get_iter(path)
-            iter = view.get_model().get_iter(path)
-            store.remove(iter)
+        if path == None:
+            return
 
-            index = path[0]
-            self.presets.pop(index)
-            self.save_presets()
+        store = view.get_model()
+        iter = store.get_iter(path)
+        iter = view.get_model().get_iter(path)
+        store.remove(iter)
+
+        index = path[0]
+        self.presets.pop(index)
+        self.save_presets()
 
     def select_preset(self, widget, data=None):
         (path, column) = widget.get_cursor()
