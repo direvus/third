@@ -15,16 +15,19 @@ of the equation, so we can get on with the having of fun.
 
 """
 
+import os
 import pygtk
 pygtk.require('2.0')
 import gtk
 import gobject
 import pango
 from random import randint
+import pickle
 
 
 _dice_set = (2, 4, 6, 8, 10, 12, 20, 100)
-_app_dir = "~/.third"
+_app_dir = os.getenv("HOME") + "/.third/"
+_presets_file = _app_dir + "presets"
 _share_dir = "/usr/local/share/third/"
 
 
@@ -79,8 +82,7 @@ class Config:
     """A configuration of dice and modifiers to roll."""
 
     def __init__(self, name="", counters={}, dx_size=0, dx_count=0):
-
-        self.name = name.strip()
+        self.set_name(name)
         self.dice = {}
         self.dx_size = 0
         self.dx_count = 0
@@ -123,6 +125,22 @@ class Config:
                 te = THIRDError("Invalid multiplier:\n%s" % e)
                 te.display()
 
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name.strip()
+
+    def has_dice(self):
+        for die in self.dice:
+            if self.dice[die] != 0:
+                return True
+
+        if self.dx_count != 0:
+            return True
+
+        return False
+        
     def get_dice(self):
         return self.dice
 
@@ -430,8 +448,7 @@ class THIRDLog(gtk.ListStore):
 
     """
     def append_result(self, count, label, amount):
-        iter = self.append()
-        self.set(iter, 0, count, 1, label, 2, amount)
+        self.append([count, label, amount])
 
 
 class THIRDLogView(gtk.TreeView):
@@ -454,6 +471,53 @@ class THIRDLogView(gtk.TreeView):
             self.append_column(col)
 
 
+class THIRDPresets(gtk.ListStore):
+    def add_preset(self, config):
+        self.append([config.get_name(), config.describe()])
+
+
+class THIRDPresetView(gtk.TreeView):
+    def __init__(self, model):
+        gtk.TreeView.__init__(self, model)
+
+        self.set_headers_visible(False)
+
+        cell = gtk.CellRendererText()
+        col = gtk.TreeViewColumn("", cell, text=0)
+        self.append_column(col)
+
+        cell = gtk.CellRendererText()
+        col = gtk.TreeViewColumn("", cell, text=1)
+        self.append_column(col)
+
+
+class THIRDNewPreset(gtk.Dialog):
+    def __init__(self, parent, config):
+        gtk.Dialog.__init__(self, "Add a preset", parent,
+                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT)
+
+        self.vbox.set_spacing(5)
+        self.vbox.pack_start(gtk.Label("Enter a name for the following "
+                                       "configuration:"))
+        conflabel = gtk.Label()
+        conflabel.set_markup("<b>" + config.describe() + "</b>")
+        self.vbox.pack_start(conflabel)
+
+        self.input = gtk.Entry()
+        self.input.set_activates_default(True)
+        self.vbox.pack_start(self.input)
+        self.input.grab_focus()
+
+        self.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
+        self.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+        self.set_default_response(gtk.RESPONSE_OK)
+
+        self.show_all()
+
+    def get_text(self):
+        return self.input.get_text()
+
+
 class THIRD(gtk.Window):
     """The main THIRD application window."""
 
@@ -468,7 +532,7 @@ class THIRD(gtk.Window):
         self.bold = pango.FontDescription("sans bold 10")
 
         self.dbox = DieBox()
-        self.dbox.connect_updates(self.update_label)
+        self.dbox.connect_updates(self.update_config)
 
         self.rollbutton = gtk.Button(stock="gtk-ok")
         self.rollbutton.connect("clicked", self.roll)
@@ -504,7 +568,6 @@ class THIRD(gtk.Window):
         self.label = gtk.Label()
         self.label.modify_font(self.bold)
         self.label.set_alignment(0.0, 0.5)
-        self.update_label(self.label)
 
         self.resultbox = gtk.VBox(False, 5)
         self.resultbox.pack_start(self.label, False, False)
@@ -520,7 +583,30 @@ class THIRD(gtk.Window):
         panes = gtk.HPaned()
         self.add(panes)
 
+        self.presets = []
+        self.presetmodel = THIRDPresets(str, str)
+        self.presetview = THIRDPresetView(self.presetmodel)
+        self.presetscroll = gtk.ScrolledWindow()
+        self.presetscroll.set_policy(gtk.POLICY_NEVER,
+                                     gtk.POLICY_AUTOMATIC)
+        self.presetscroll.add_with_viewport(self.presetview)
+        self.load_presets()
+
+        bb = gtk.VButtonBox()
+        bb.set_layout(gtk.BUTTONBOX_EDGE)
+
+        self.addbutton = gtk.Button(stock="gtk-add")
+        self.addbutton.connect("clicked", self.add_preset)
+        bb.add(self.addbutton)
+
+        box = gtk.VBox(False, 5)
+        box.pack_start(self.presetscroll, True, True)
+        box.pack_end(bb, False, False)
+
+        panes.add1(box)
         panes.add2(self.mainbox)
+
+        self.update_config()
 
         self.show_all()
 
@@ -547,11 +633,14 @@ class THIRD(gtk.Window):
 
         self.label.set_text(config.describe())
 
-    def update_label(self, widget, data=None):
-        """Update the label to describe the current configuration."""
+    def update_config(self, widget=None, data=None):
+        """The active configuration has changed, so update the UI accordingly.
 
+        """
         config = self.get_config()
         self.set_label(config)
+
+        self.addbutton.set_sensitive(config.has_dice())
 
     def roll(self, widget, data=None):
         """Roll the current widget configuration.
@@ -571,6 +660,38 @@ class THIRD(gtk.Window):
 
         zero = Config("Zero", {}, 0, 0)
         self.set_config(zero)
+
+    def load_presets(self):
+        if not os.path.exists(_presets_file):
+            return
+
+        f = open(_presets_file, 'r')
+        self.presets = pickle.load(f)
+        f.close()
+
+        for config in self.presets:
+            self.presetmodel.add_preset(config)
+
+    def save_presets(self):
+        if not os.path.exists(_app_dir):
+            os.mkdir(_app_dir)
+
+        f = open(_presets_file, 'w')
+        pickle.dump(self.presets, f)
+        f.close()
+
+    def add_preset(self, widget, data=None):
+        config = self.get_config()
+        dialog = THIRDNewPreset(self, config)
+        response = dialog.run()
+        name = dialog.get_text().strip()
+        dialog.destroy()
+
+        if response == gtk.RESPONSE_OK and name != '':
+            config.set_name(name)
+            self.presets.append(config)
+            self.presetmodel.add_preset(config)
+            self.save_presets()
 
     def delete_event(self, widget, event, data=None):
         gtk.main_quit()
