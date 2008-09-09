@@ -586,6 +586,8 @@ class THIRD(gtk.Window):
         self.presets = []
         self.presetmodel = THIRDPresets(str, str)
         self.presetview = THIRDPresetView(self.presetmodel)
+        self.presetview.connect("cursor-changed", self.select_preset)
+        self.presetview.connect("row-activated", self.activate_preset)
         self.presetscroll = gtk.ScrolledWindow()
         self.presetscroll.set_policy(gtk.POLICY_NEVER,
                                      gtk.POLICY_AUTOMATIC)
@@ -648,7 +650,6 @@ class THIRD(gtk.Window):
         Results will be posted to the total label.
 
         """
-
         config = self.get_config()
         self.log.clear()
         result = config.roll(self.log)
@@ -692,6 +693,16 @@ class THIRD(gtk.Window):
             self.presets.append(config)
             self.presetmodel.add_preset(config)
             self.save_presets()
+
+    def select_preset(self, widget, data=None):
+        (path, column) = widget.get_cursor()
+        if path != None:
+            index = path[0]
+            self.set_config(self.presets[index])
+            self.update_config()
+
+    def activate_preset(self, widget, path, column, data=None):
+        self.roll(widget)
 
     def delete_event(self, widget, event, data=None):
         gtk.main_quit()
