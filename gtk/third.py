@@ -202,6 +202,7 @@ class Config:
             number += 1
             log.append_result(number, label, abs(self.modifier))
 
+        log.append_total(total)
         return total
 
     def describe(self):
@@ -450,6 +451,9 @@ class THIRDLog(gtk.ListStore):
     def append_result(self, count, label, amount):
         self.append([count, label, amount])
 
+    def append_total(self, total):
+        self.append([None, "=", total])
+
 
 class THIRDLogView(gtk.TreeView):
     def __init__(self, model):
@@ -572,20 +576,7 @@ class THIRD(gtk.Window):
         bb.add(self.rollbutton)
         bb.add(self.resetbutton)
 
-        self.total = gtk.Label()
-        self.total.modify_font(self.bold)
-        self.total.set_alignment(1.0, 0.5)
-
-        totallabel = gtk.Label()
-        totallabel.set_text("Total")
-        totalbox = gtk.HBox(False)
-        totalbox.pack_start(totallabel, False, False)
-        totalbox.pack_end(self.total, False, False)
-
-        self.log = THIRDLog(gobject.TYPE_UINT, 
-                            gobject.TYPE_STRING,
-                            gobject.TYPE_INT)
-
+        self.log = THIRDLog(str, str, int)
         self.logview = THIRDLogView(self.log)
 
         self.logscroll = gtk.ScrolledWindow()
@@ -602,7 +593,6 @@ class THIRD(gtk.Window):
         self.resultbox.pack_start(self.label, False, False)
         self.resultbox.pack_start(self.logscroll, True, True)
         self.resultbox.pack_start(bb, False, False)
-        self.resultbox.pack_start(totalbox, False, False)
 
         self.mainbox = gtk.HBox(False, 10)
         self.mainbox.pack_start(gtk.VSeparator(), False, False)
@@ -686,15 +676,11 @@ class THIRD(gtk.Window):
         self.addbutton.set_sensitive(config.has_dice())
 
     def roll(self, widget, data=None):
-        """Roll the current widget configuration.
+        """Roll the current widget configuration."""
 
-        Results will be posted to the total label.
-
-        """
         config = self.get_config()
         self.log.clear()
         result = config.roll(self.log)
-        self.total.set_text(str(result))
         return result
 
     def reset(self, widget, data=None):
