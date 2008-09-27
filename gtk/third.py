@@ -162,6 +162,32 @@ class Config:
     def get_multiplier(self):
         return self.multiplier
 
+    def min(self):
+        """Return the minimum possible outcome of this configuration."""
+        total = 0
+
+        for die, n in self.dice.iteritems():
+            total += n
+
+        if self.dx_size > 0:
+            total += self.dx_count
+
+        total *= self.multiplier
+        total += self.modifier
+        return total
+
+    def max(self):
+        """Return the maximum possible outcome of this configuration."""
+        total = 0
+
+        for die, n in self.dice.iteritems():
+            total += (die * n)
+
+        total += (self.dx_size * self.dx_count)
+        total *= self.multiplier
+        total += self.modifier
+        return total
+
     def roll(self, log=None):
         """Evaluate the configuration.
 
@@ -589,8 +615,16 @@ class THIRD(gtk.Window):
         self.label.modify_font(self.bold)
         self.label.set_alignment(0.0, 0.5)
 
+        self.range = gtk.Label()
+        self.range.set_alignment(1.0, 0.0)
+
+        labelbox = gtk.HBox()
+        labelbox.pack_start(gtk.Label("Range: "), False, False)
+        labelbox.pack_end(self.range, True, True)
+
         self.resultbox = gtk.VBox(False, 5)
         self.resultbox.pack_start(self.label, False, False)
+        self.resultbox.pack_start(labelbox, False, False)
         self.resultbox.pack_start(self.logscroll, True, True)
         self.resultbox.pack_start(bb, False, False)
 
@@ -666,12 +700,17 @@ class THIRD(gtk.Window):
 
         self.label.set_text(config.describe())
 
+    def set_range(self, config):
+        """Show the min and max values of a Config."""
+        self.range.set_text("%d - %d" % (config.min(), config.max()))
+
     def update_config(self, widget=None, data=None):
         """The active configuration has changed, so update the UI accordingly.
 
         """
         config = self.get_config()
         self.set_label(config)
+        self.set_range(config)
 
         self.addbutton.set_sensitive(config.has_dice())
 
