@@ -520,6 +520,10 @@ class THIRDPresetView(gtk.TreeView):
         col = gtk.TreeViewColumn("", cell, text=1)
         self.append_column(col)
 
+    def has_selection(self):
+        (path, column) = self.get_cursor()
+        return (path != None)
+
 
 class THIRDNewPreset(gtk.Dialog):
     def __init__(self, parent, config):
@@ -666,6 +670,11 @@ class THIRD(gtk.Window):
         self.editbutton.connect("clicked", self.edit_preset)
         bb.add(self.editbutton)
 
+        self.savebutton = gtk.Button(stock="gtk-save")
+        self.savebutton.set_sensitive(False)
+        self.savebutton.connect("clicked", self.save_preset)
+        bb.add(self.savebutton)
+
         self.removebutton = gtk.Button(stock="gtk-remove")
         self.removebutton.set_sensitive(False)
         self.removebutton.connect("clicked", self.remove_preset)
@@ -711,8 +720,12 @@ class THIRD(gtk.Window):
 
     def set_slider(self, config):
         """Set up the slider to the config's range."""
-        self.slider.set_range(config.min(), config.max())
-        self.slider.set_value(config.min())
+        min = config.min()
+        max = config.max()
+
+        if min < max:
+            self.slider.set_range(min, max)
+            self.slider.set_value(min)
 
     def update_config(self, widget=None, data=None):
         """The active configuration has changed, so update the UI accordingly.
@@ -724,6 +737,8 @@ class THIRD(gtk.Window):
         self.set_slider(config)
 
         self.addbutton.set_sensitive(config.has_dice())
+        self.savebutton.set_sensitive(config.has_dice() and
+                                      self.presetview.has_selection())
 
     def roll(self, widget, data=None):
         """Roll the current widget configuration."""
@@ -792,6 +807,23 @@ class THIRD(gtk.Window):
             store.set_value(iter, 0, name)
             self.save_presets()
 
+    def save_preset(self, widget, data=None):
+        view = self.presetview
+        (path, column) = view.get_cursor()
+        if path == None:
+            return
+
+        index = path[0]
+        config = self.get_config()
+        preset = self.presets[index]
+
+        config.set_name(preset.get_name())
+        self.presets[index] = config
+        store = view.get_model()
+        iter = store.get_iter(path)
+        store.set_value(iter, 1, config.describe())
+        self.save_presets()
+
     def remove_preset(self, widget, data=None):
         view = self.presetview
         (path, column) = view.get_cursor()
@@ -817,6 +849,9 @@ class THIRD(gtk.Window):
 
         self.editbutton.set_sensitive(selected)
         self.removebutton.set_sensitive(selected)
+
+        config = self.get_config()
+        self.savebutton.set_sensitive(selected and config.has_dice())
 
     def activate_preset(self, widget, path, column, data=None):
         self.roll(widget)
