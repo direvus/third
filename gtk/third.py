@@ -622,9 +622,14 @@ class THIRD(gtk.Window):
         labelbox.pack_start(gtk.Label("Range: "), False, False)
         labelbox.pack_end(self.range, True, True)
 
+        self.slider = gtk.HScale()
+        self.slider.set_increments(1, 1)
+        self.slider.set_draw_value(False)
+
         self.resultbox = gtk.VBox(False, 5)
         self.resultbox.pack_start(self.label, False, False)
         self.resultbox.pack_start(labelbox, False, False)
+        self.resultbox.pack_start(self.slider, False, False)
         self.resultbox.pack_start(self.logscroll, True, True)
         self.resultbox.pack_start(bb, False, False)
 
@@ -704,6 +709,11 @@ class THIRD(gtk.Window):
         """Show the min and max values of a Config."""
         self.range.set_text("%d - %d" % (config.min(), config.max()))
 
+    def set_slider(self, config):
+        """Set up the slider to the config's range."""
+        self.slider.set_range(config.min(), config.max())
+        self.slider.set_value(config.min())
+
     def update_config(self, widget=None, data=None):
         """The active configuration has changed, so update the UI accordingly.
 
@@ -711,6 +721,7 @@ class THIRD(gtk.Window):
         config = self.get_config()
         self.set_label(config)
         self.set_range(config)
+        self.set_slider(config)
 
         self.addbutton.set_sensitive(config.has_dice())
 
@@ -720,6 +731,7 @@ class THIRD(gtk.Window):
         config = self.get_config()
         self.log.clear()
         result = config.roll(self.log)
+        self.slider.set_value(result)
         return result
 
     def reset(self, widget, data=None):
