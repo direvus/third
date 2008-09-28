@@ -614,6 +614,8 @@ class THIRD(gtk.Window):
         for new, old in aliases:
             factory.add(new, gtk.icon_factory_lookup_default(old))
 
+        tips = gtk.Tooltips()
+
         self.dbox = DieBox()
         self.dbox.connect_updates(self.update_config)
 
@@ -679,27 +681,41 @@ class THIRD(gtk.Window):
         self.presetscroll.add(self.presetview)
         self.load_presets()
 
-        bb = gtk.VButtonBox()
-        bb.set_layout(gtk.BUTTONBOX_START)
+        bb = gtk.HBox(True, 0)
+        size = gtk.ICON_SIZE_BUTTON
 
-        self.addbutton = gtk.Button(stock="third-add")
+        self.addbutton = gtk.Button()
+        image = gtk.image_new_from_stock("third-add", size)
+        self.addbutton.set_image(image)
+        tips.set_tip(self.addbutton, 
+                     "Save the current configuration as a new preset")
         self.addbutton.connect("clicked", self.add_preset)
-        bb.add(self.addbutton)
+        bb.pack_start(self.addbutton, True, True)
 
-        self.editbutton = gtk.Button(stock="third-rename")
+        self.editbutton = gtk.Button()
+        image = gtk.image_new_from_stock("third-rename", size)
+        self.editbutton.set_image(image)
+        tips.set_tip(self.editbutton, "Rename the selected preset")
         self.editbutton.set_sensitive(False)
         self.editbutton.connect("clicked", self.edit_preset)
-        bb.add(self.editbutton)
+        bb.pack_start(self.editbutton, True, True)
 
-        self.savebutton = gtk.Button(stock="third-save")
+        self.savebutton = gtk.Button()
+        image = gtk.image_new_from_stock("third-save", size)
+        self.savebutton.set_image(image)
+        tips.set_tip(self.savebutton, 
+                     "Save the current configuration into the selected preset")
         self.savebutton.set_sensitive(False)
         self.savebutton.connect("clicked", self.save_preset)
-        bb.add(self.savebutton)
+        bb.pack_start(self.savebutton, True, True)
 
-        self.removebutton = gtk.Button(stock="third-remove")
+        self.removebutton = gtk.Button()
+        image = gtk.image_new_from_stock("third-remove", size)
+        self.removebutton.set_image(image)
+        tips.set_tip(self.removebutton, "Delete the selected preset")
         self.removebutton.set_sensitive(False)
         self.removebutton.connect("clicked", self.remove_preset)
-        bb.add(self.removebutton)
+        bb.pack_start(self.removebutton, True, True)
 
         box = gtk.VBox(False, 5)
         box.pack_start(self.presetscroll, True, True)
