@@ -593,12 +593,33 @@ class THIRD(gtk.Window):
         
         self.bold = pango.FontDescription("sans bold 10")
 
+        # Set up stock IDs and icon set aliases.
+        stock = [('third-roll', "_Roll", 0, 0, None), 
+                 ('third-clear', "_Clear", 0, 0, None),
+                 ('third-add', "_Add", 0, 0, None),
+                 ('third-rename', "Re_name", 0, 0, None),
+                 ('third-save', "_Save", 0, 0, None),
+                 ('third-remove', "R_emove", 0, 0, None)]
+
+        aliases = [('third-roll', 'gtk-ok'),
+                   ('third-clear', 'gtk-cancel'),
+                   ('third-add', 'gtk-add'),
+                   ('third-rename', 'gtk-edit'),
+                   ('third-save', 'gtk-save'),
+                   ('third-remove', 'gtk-remove')]
+
+        gtk.stock_add(stock)
+        factory = gtk.IconFactory()
+        factory.add_default()
+        for new, old in aliases:
+            factory.add(new, gtk.icon_factory_lookup_default(old))
+
         self.dbox = DieBox()
         self.dbox.connect_updates(self.update_config)
 
-        self.rollbutton = gtk.Button(stock="gtk-ok")
+        self.rollbutton = gtk.Button(stock="third-roll")
         self.rollbutton.connect("clicked", self.roll)
-        self.resetbutton = gtk.Button(stock="gtk-cancel")
+        self.resetbutton = gtk.Button(stock="third-clear")
         self.resetbutton.connect("clicked", self.reset)
 
         bb = gtk.VButtonBox()
@@ -659,23 +680,23 @@ class THIRD(gtk.Window):
         self.load_presets()
 
         bb = gtk.VButtonBox()
-        bb.set_layout(gtk.BUTTONBOX_EDGE)
+        bb.set_layout(gtk.BUTTONBOX_START)
 
-        self.addbutton = gtk.Button(stock="gtk-add")
+        self.addbutton = gtk.Button(stock="third-add")
         self.addbutton.connect("clicked", self.add_preset)
         bb.add(self.addbutton)
 
-        self.editbutton = gtk.Button(stock="gtk-edit")
+        self.editbutton = gtk.Button(stock="third-rename")
         self.editbutton.set_sensitive(False)
         self.editbutton.connect("clicked", self.edit_preset)
         bb.add(self.editbutton)
 
-        self.savebutton = gtk.Button(stock="gtk-save")
+        self.savebutton = gtk.Button(stock="third-save")
         self.savebutton.set_sensitive(False)
         self.savebutton.connect("clicked", self.save_preset)
         bb.add(self.savebutton)
 
-        self.removebutton = gtk.Button(stock="gtk-remove")
+        self.removebutton = gtk.Button(stock="third-remove")
         self.removebutton.set_sensitive(False)
         self.removebutton.connect("clicked", self.remove_preset)
         bb.add(self.removebutton)
