@@ -609,6 +609,19 @@ class THIRDEditPreset(gtk.Dialog):
         return self.input.get_text()
 
 
+class THIRDProfileBox(gtk.ComboBox):
+    def __init__(self):
+        gtk.ComboBox.__init__(self)
+        store = gtk.ListStore(str)
+        self.set_model(store)
+        cell = gtk.CellRendererText()
+        self.pack_start(cell, True)
+        self.add_attribute(cell, 'text', 0)
+
+    def add_profile(self, profile):
+        self.append_text(profile.get_name())
+
+
 class THIRD(gtk.Window):
     """The main THIRD application window."""
 
@@ -698,7 +711,10 @@ class THIRD(gtk.Window):
         panes = gtk.HPaned()
         self.add(panes)
 
-        self.profiles = [THIRDProfile("Default")]
+        self.profiles = []
+
+        self.profilebox = THIRDProfileBox()
+        self.profilebox.connect("changed", self.select_profile)
         self.presetmodel = THIRDPresets(str, str)
         self.presetview = THIRDPresetView(self.presetmodel)
         self.presetview.connect("cursor-changed", self.select_preset)
@@ -747,6 +763,7 @@ class THIRD(gtk.Window):
         bb.pack_start(self.removebutton, True, True)
 
         box = gtk.VBox(False, 5)
+        box.pack_start(self.profilebox, False, False)
         box.pack_start(self.presetscroll, True, True)
         box.pack_end(bb, False, False)
 
@@ -824,11 +841,18 @@ class THIRD(gtk.Window):
         zero = Config("Zero", {}, 0, 0)
         self.set_config(zero)
 
-    def profile(self):
-        return self.profiles[0]
+    def profile_index(self):
+        return self.profilebox.get_active()
 
-    def preset(self, index):
-        return self.profile().preset(index)
+    def profile(self):
+        return self.profiles[self.profile_index()]
+
+    def select_profile(self, widget, data=None):
+        self.presetmodel.clear()
+
+        profile = self.profile()
+        for config in profile.get_presets():
+            self.presetmodel.add_preset(config)
 
     def load_presets(self):
         if not os.path.exists(_presets_file):
@@ -838,9 +862,10 @@ class THIRD(gtk.Window):
         self.profiles = pickle.load(f)
         f.close()
 
-        profile = self.profile()
-        for config in profile.get_presets():
-            self.presetmodel.add_preset(config)
+        for profile in self.profiles:
+            self.profilebox.add_profile(profile)
+
+        self.profilebox.set_active(0)
 
     def save_presets(self):
         if not os.path.exists(_app_dir):
@@ -849,6 +874,9 @@ class THIRD(gtk.Window):
         f = open(_presets_file, 'w')
         pickle.dump(self.profiles, f)
         f.close()
+
+    def preset(self, index):
+        return self.profile().preset(index)
 
     def add_preset(self, widget, data=None):
         config = self.get_config()
