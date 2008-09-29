@@ -621,6 +621,68 @@ class THIRDProfileBox(gtk.ComboBox):
     def add_profile(self, profile):
         self.append_text(profile.get_name())
 
+    def set_active_last(self):
+        index = len(self.get_model()) - 1
+        self.set_active(index)
+
+
+class THIRDNewProfile(gtk.Dialog):
+    def __init__(self, parent):
+        gtk.Dialog.__init__(self, "Add a profile", parent,
+                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT)
+
+        self.vbox.set_spacing(5)
+        self.vbox.pack_start(gtk.Label("Enter a name for the new profile:"))
+
+        self.input = gtk.Entry()
+        self.input.set_activates_default(True)
+        self.vbox.pack_start(self.input)
+        self.input.grab_focus()
+
+        self.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
+        self.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+        self.set_default_response(gtk.RESPONSE_OK)
+
+        self.show_all()
+
+    def get_text(self):
+        return self.input.get_text()
+
+
+class THIRDEditProfile(gtk.Dialog):
+    def __init__(self, parent, profile):
+        gtk.Dialog.__init__(self, "Rename a profile", parent,
+                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT)
+        self.vbox.set_spacing(5)
+        self.vbox.pack_start(gtk.Label("Enter a new name for the profile:"))
+
+        self.input = gtk.Entry()
+        self.input.set_text(profile.get_name())
+        self.input.set_activates_default(True)
+        self.vbox.pack_start(self.input)
+        self.input.grab_focus()
+
+        self.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK)
+        self.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+        self.set_default_response(gtk.RESPONSE_OK)
+        self.show_all()
+
+    def get_text(self):
+        return self.input.get_text()
+
+
+class THIRDRemoveProfile(gtk.Dialog):
+    def __init__(self, parent, profile):
+        gtk.Dialog.__init__(self, "Remove a profile", parent,
+                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT)
+        self.vbox.set_spacing(5)
+        self.vbox.pack_start(gtk.Label("Do you want to remove the %s profile?" %
+                                       profile.get_name()))
+        self.add_button("gtk-ok", gtk.RESPONSE_OK)
+        self.add_button("gtk-cancel", gtk.RESPONSE_CANCEL)
+        self.set_default_response(gtk.RESPONSE_OK)
+        self.show_all()
+
 
 class THIRD(gtk.Window):
     """The main THIRD application window."""
@@ -729,6 +791,36 @@ class THIRD(gtk.Window):
         bb = gtk.HBox(True, 0)
         size = gtk.ICON_SIZE_BUTTON
 
+        box = gtk.VBox(False, 5)
+        box.pack_start(self.profilebox, False, False)
+        box.pack_end(bb, False, False)
+
+        self.addprofilebutton = gtk.Button()
+        image = gtk.image_new_from_stock("third-add", size)
+        self.addprofilebutton.set_image(image)
+        tips.set_tip(self.addprofilebutton, "Create a new profile")
+        self.addprofilebutton.connect("clicked", self.add_profile)
+        bb.pack_start(self.addprofilebutton, True, True)
+
+        self.editprofilebutton = gtk.Button()
+        image = gtk.image_new_from_stock("third-rename", size)
+        self.editprofilebutton.set_image(image)
+        tips.set_tip(self.editprofilebutton, "Rename the selected profile")
+        self.editprofilebutton.connect("clicked", self.rename_profile)
+        bb.pack_start(self.editprofilebutton, True, True)
+
+        self.removeprofilebutton = gtk.Button()
+        image = gtk.image_new_from_stock("third-remove", size)
+        self.removeprofilebutton.set_image(image)
+        tips.set_tip(self.removeprofilebutton, "Delete the selected profile")
+        self.removeprofilebutton.connect("clicked", self.remove_profile)
+        bb.pack_start(self.removeprofilebutton, True, True)
+
+        profileframe = gtk.Frame("Profiles")
+        profileframe.add(box)
+
+        bb = gtk.HBox(True, 0)
+
         self.addbutton = gtk.Button()
         image = gtk.image_new_from_stock("third-add", size)
         self.addbutton.set_image(image)
@@ -763,14 +855,17 @@ class THIRD(gtk.Window):
         bb.pack_start(self.removebutton, True, True)
 
         box = gtk.VBox(False, 5)
-        box.pack_start(self.profilebox, False, False)
         box.pack_start(self.presetscroll, True, True)
         box.pack_end(bb, False, False)
 
-        frame = gtk.Frame("Presets")
-        frame.add(box)
+        presetframe = gtk.Frame("Presets")
+        presetframe.add(box)
 
-        panes.add1(frame)
+        box = gtk.VBox(False, 5)
+        box.pack_start(profileframe, False, False)
+        box.pack_start(presetframe, True, True)
+
+        panes.add1(box)
         panes.add2(self.mainbox)
 
         self.update_config()
@@ -874,6 +969,47 @@ class THIRD(gtk.Window):
         f = open(_presets_file, 'w')
         pickle.dump(self.profiles, f)
         f.close()
+
+    def add_profile(self, widget, data=None):
+        dialog = THIRDNewProfile(self)
+        response = dialog.run()
+        name = dialog.get_text().strip()
+        dialog.destroy()
+
+        if response == gtk.RESPONSE_OK and name != '':
+            profile = THIRDProfile(name)
+            self.profiles.append(profile)
+            self.profilebox.add_profile(profile)
+            self.profilebox.set_active_last()
+            self.save_presets()
+
+    def rename_profile(self, widget, data=None):
+        index = self.profile_index()
+        profile = self.profile()
+        dialog = THIRDEditProfile(self, profile)
+        response = dialog.run()
+        name = dialog.get_text().strip()
+        dialog.destroy()
+
+        if response == gtk.RESPONSE_OK and name != '':
+            profile.set_name(name)
+            self.profilebox.remove_text(index)
+            self.profilebox.insert_text(index, name)
+            self.profilebox.set_active(index)
+            self.save_presets()
+
+    def remove_profile(self, widget, data=None):
+        index = self.profile_index()
+        profile = self.profile()
+        dialog = THIRDRemoveProfile(self, profile)
+        response = dialog.run()
+        dialog.destroy()
+
+        if response == gtk.RESPONSE_OK:
+            self.profiles.pop(index)
+            self.profilebox.remove_text(index)
+            self.profilebox.set_active_last()
+            self.save_presets()
 
     def preset(self, index):
         return self.profile().preset(index)
