@@ -276,6 +276,35 @@ class Config:
         return result
 
 
+class THIRDProfile:
+    """A named collection of presets."""
+
+    def __init__(self, name=""):
+        self.name = name
+        self.presets = []
+
+    def get_name(self):
+        return self.name
+
+    def set_name(self, name):
+        self.name = name
+
+    def preset(self, index):
+        return self.presets[index]
+    
+    def get_presets(self):
+        return self.presets
+
+    def add_preset(self, config):
+        self.presets.append(config)
+
+    def set_preset(self, index, config):
+        self.presets[index] = config
+
+    def remove_preset(self, index):
+        self.presets.pop(index)
+
+
 class Die(gtk.Button):
     """A button representing a particular die or mod."""
 
@@ -669,7 +698,7 @@ class THIRD(gtk.Window):
         panes = gtk.HPaned()
         self.add(panes)
 
-        self.presets = []
+        self.profiles = [THIRDProfile("Default")]
         self.presetmodel = THIRDPresets(str, str)
         self.presetview = THIRDPresetView(self.presetmodel)
         self.presetview.connect("cursor-changed", self.select_preset)
@@ -721,7 +750,10 @@ class THIRD(gtk.Window):
         box.pack_start(self.presetscroll, True, True)
         box.pack_end(bb, False, False)
 
-        panes.add1(box)
+        frame = gtk.Frame("Presets")
+        frame.add(box)
+
+        panes.add1(frame)
         panes.add2(self.mainbox)
 
         self.update_config()
@@ -792,15 +824,22 @@ class THIRD(gtk.Window):
         zero = Config("Zero", {}, 0, 0)
         self.set_config(zero)
 
+    def profile(self):
+        return self.profiles[0]
+
+    def preset(self, index):
+        return self.profile().preset(index)
+
     def load_presets(self):
         if not os.path.exists(_presets_file):
             return
 
         f = open(_presets_file, 'r')
-        self.presets = pickle.load(f)
+        self.profiles = pickle.load(f)
         f.close()
 
-        for config in self.presets:
+        profile = self.profile()
+        for config in profile.get_presets():
             self.presetmodel.add_preset(config)
 
     def save_presets(self):
@@ -808,7 +847,7 @@ class THIRD(gtk.Window):
             os.mkdir(_app_dir)
 
         f = open(_presets_file, 'w')
-        pickle.dump(self.presets, f)
+        pickle.dump(self.profiles, f)
         f.close()
 
     def add_preset(self, widget, data=None):
@@ -820,7 +859,7 @@ class THIRD(gtk.Window):
 
         if response == gtk.RESPONSE_OK and name != '':
             config.set_name(name)
-            self.presets.append(config)
+            self.profile().add_preset(config)
             self.presetmodel.add_preset(config)
             self.save_presets()
 
@@ -831,7 +870,7 @@ class THIRD(gtk.Window):
             return
 
         index = path[0]
-        config = self.presets[index]
+        config = self.preset(index)
         dialog = THIRDEditPreset(self, config)
         response = dialog.run()
         name = dialog.get_text().strip()
@@ -852,10 +891,11 @@ class THIRD(gtk.Window):
 
         index = path[0]
         config = self.get_config()
-        preset = self.presets[index]
+        profile = self.profile()
+        preset = self.preset(index)
 
         config.set_name(preset.get_name())
-        self.presets[index] = config
+        profile.set_preset(index, config)
         store = view.get_model()
         iter = store.get_iter(path)
         store.set_value(iter, 1, config.describe())
@@ -873,7 +913,7 @@ class THIRD(gtk.Window):
         store.remove(iter)
 
         index = path[0]
-        self.presets.pop(index)
+        self.profile().remove_preset(index)
         self.save_presets()
 
     def select_preset(self, widget, data=None):
@@ -881,7 +921,7 @@ class THIRD(gtk.Window):
         selected = (path != None)
         if selected:
             index = path[0]
-            self.set_config(self.presets[index])
+            self.set_config(self.preset(index))
             self.update_config()
 
         self.editbutton.set_sensitive(selected)
