@@ -188,6 +188,29 @@ class Config:
         total += self.modifier
         return total
 
+    def eq(self, config):
+        """Return whether the given configuration is equivalent to this one.
+
+        Two configurations are considered equivalent if they have the same dice
+        and modifiers; basically if all properties except the name are equal.
+
+        """
+        for die, n in self.dice.iteritems():
+            if config.get_die(die) != n:
+                return False
+
+        if self.dx_size != config.get_dx_size():
+            return False
+        if self.dx_count != config.get_dx_count():
+            return False
+
+        if self.modifier != config.get_modifier():
+            return False
+        if self.multiplier != config.get_multiplier():
+            return False
+
+        return True
+
     def roll(self, log=None):
         """Evaluate the configuration.
 
@@ -552,6 +575,13 @@ class THIRDPresetView(gtk.TreeView):
     def has_selection(self):
         (path, column) = self.get_cursor()
         return (path != None)
+
+    def index(self):
+        (path, column) = self.get_cursor()
+        if path == None:
+            return None
+        else:
+            return path[0]
 
 
 class THIRDNewPreset(gtk.Dialog):
@@ -919,7 +949,8 @@ class THIRD(gtk.Window):
 
         self.addbutton.set_sensitive(config.has_dice())
         self.savebutton.set_sensitive(config.has_dice() and
-                                      self.presetview.has_selection())
+                                      self.presetview.has_selection() and
+                                      not config.eq(self.preset()))
 
     def roll(self, widget, data=None):
         """Roll the current widget configuration."""
@@ -1011,7 +1042,12 @@ class THIRD(gtk.Window):
             self.profilebox.set_active_last()
             self.save_presets()
 
-    def preset(self, index):
+    def preset(self, index=None):
+        if index == None:
+            index = self.presetview.index()
+        if index == None:
+            return None
+
         return self.profile().preset(index)
 
     def add_preset(self, widget, data=None):
@@ -1092,7 +1128,7 @@ class THIRD(gtk.Window):
         self.removebutton.set_sensitive(selected)
 
         config = self.get_config()
-        self.savebutton.set_sensitive(selected and config.has_dice())
+        self.savebutton.set_sensitive(False)
 
     def activate_preset(self, widget, path, column, data=None):
         self.roll(widget)
