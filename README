@@ -1,15 +1,86 @@
-That's How I Roll Dice
+third - That's How I Roll Dice
 
--- a dice rolling application for roleplaying nerds
+-- A dice roller for roleplaying nerds, by Brendan Jurd
 
-Have you ever been irritated by rolling dice and having them fall off the
-table?  Ever sighed when you have to ask your buddies for the twentieth time
-"has anyone got another d12"?  Then third may be the app for you.  third packs
-all the random-number-generating punch of dice, without the issues that come
-with having to carry around and physically hurl regular polyhedra.
+== Premise ==
 
-third allows you to roll up pretty much any configuration of the standard
-roleplaying dice sets, as well as add modifiers and custom dice sizes.  If you
-have a particular roll you find yourself making frequently, save it as a
-preset.  Presets are saved under separate profiles, so you don't need to worry
-about getting your wizard's attack roll mixed up with your rogue's initiative.
+Rolling dice is annoying.  First you need to have the right dice with you.
+Then, when the time comes to make a roll, you need to extract the correct
+quantity and variety of dice from the assortment scattered around the room.
+After rolling (and picking up those dice which fell on the floor, and
+re-rolling them) you need to perform some tedious mental arithmetic.
+
+Further, the kinds of dice you can use are constrained by physical attributes;
+to produce fair outcomes a die must be possible to construct using some
+face-uniform solid.
+
+Faced with these obstacles, I did the same thing I do in pretty much every
+other situation in life.  I wrote a program.
+
+== Usage ==
+
+Each of the icons running down the middle of the application represents a
+different die, with the number of sides shown on the icon.  The input box next
+to the die selects how many of that die you want to roll.
+
+Directly underneath the dice is the custom die.  Want to roll a d17 or a d1000?
+No problem.  Just set the number of sides you want the die to have, and how
+many of them you want to roll.
+
+Underneath the custom die are the multiplier (x) and modifier (+) inputs.
+After your dice are rolled, the total is multiplied by the multiplier and then
+the modifier is added (or subtracted, if it is negative).
+
+When you've set things up to your liking, hit the "Roll" button.  The results
+of your roll will be shown in the results box to the right, including each
+individual dice roll and the total result after applying modifiers.
+
+You can repeatedly roll the same configuration by simply hitting "Roll" again.
+
+If you are sick of your current configuration and want to start again from
+scratch, that's what the "Reset" button is for.
+
+== Presets ==
+
+If you find yourself rolling a particular configuration of dice often, you
+might want to save it as a preset.  Set up the configuration as if you were
+going to roll it, and then hit the Add Preset (+) button underneath the Presets
+list.  This will save your current configuration as a new preset.
+
+Once you've saved a preset you can load its configuration by clicking on it once, and roll it by double-clicking.
+
+== Profiles ==
+
+Presets are saved under a profile.  You can maintain several separate profiles,
+so you don't need to worry about getting your wizard's attack roll confused
+with your rogue's initiative.  Just set up a profile for each of your characters.
+
+== Requirements ==
+
+You'll need a Linux or Windows system with PyGTK installed.  If you don't have
+PyGTK and you're not familiar with how to get it, then very probably the
+easiest way to install it is to install the GIMP, which is something you want
+to do anyway.
+
+== Installation (Linux) ==
+
+Extract the distribution package, cd into the directory and then type `make install`.
+
+Execute the application by running `/usr/local/bin/third.py`
+
+== Installation (Windows) ==
+
+Extract the distribution package into whatever location makes you happy, but I would recommend C:\Program Files\third.
+
+Execute the application by running third.py in whatever location you extracted it.
+
+== Uninstallation ==
+
+Just delete the installed files.  On Linux this is /usr/local/bin/third.py and /usr/local/share/third.  On Windows, it's the directory you extracted the package to.
+
+== Distribution ==
+
+You are free to download, use and redistribute third for whatever purpose and
+in whatever manner pleases you, as long as you include this README file and
+don't try to take the credit for writing it.  The usual disclaimers about
+merchantability and fitness for a particular purpose apply.
