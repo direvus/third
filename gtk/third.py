@@ -16,6 +16,7 @@ of the equation, so we can get on with the having of fun.
 """
 
 import os
+import sys
 import pygtk
 pygtk.require('2.0')
 import gtk
@@ -26,10 +27,15 @@ import pickle
 
 
 _dice_set = (2, 4, 6, 8, 10, 12, 20, 100)
-_app_dir = os.getenv("HOME") + "/.third/"
-_presets_file = _app_dir + "presets"
-_share_dir = "/usr/local/share/third/"
 
+
+if sys.platform == "win32":
+    _app_dir = os.path.join(os.getenv("APPDATA"), "third")
+    _share_dir = os.getcwd()
+else:
+    _app_dir = os.path.join(os.getenv("HOME"), ".third")
+    _share_dir = os.path.join("usr", "local", "share", "third")
+_presets_file = os.path.join(app_dir, "presets")
 
 def _roll(sides):
     return randint(1, sides)
@@ -339,7 +345,7 @@ class Die(gtk.Button):
         self.set_focus_on_click(False)
 
         self.image = gtk.Image()
-        self.image.set_from_file(''.join([_share_dir, icon, ".png"]))
+        self.image.set_from_file(os.path.join(_share_dir, icon + ".png"))
         self.add(self.image)
 
 
@@ -723,7 +729,7 @@ class THIRD(gtk.Window):
 
         self.set_border_width(5)
         self.set_title("third")
-        self.set_icon_from_file(_share_dir + "app.png")
+        self.set_icon_from_file(os.path.join(_share_dir, "app.png"))
         
         self.bold = pango.FontDescription("sans bold 10")
 
