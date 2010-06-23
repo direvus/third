@@ -47,13 +47,15 @@ might want to save it as a preset.  Set up the configuration as if you were
 going to roll it, and then hit the Add Preset (+) button underneath the Presets
 list.  This will save your current configuration as a new preset.
 
-Once you've saved a preset you can load its configuration by clicking on it once, and roll it by double-clicking.
+Once you've saved a preset you can load its configuration by clicking on it
+once, and roll it by double-clicking.
 
 == Profiles ==
 
 Presets are saved under a profile.  You can maintain several separate profiles,
 so you don't need to worry about getting your wizard's attack roll confused
-with your rogue's initiative.  Just set up a profile for each of your characters.
+with your rogue's initiative.  Just set up a profile for each of your
+characters.
 
 == Requirements ==
 
@@ -64,19 +66,24 @@ to do anyway.
 
 == Installation (Linux) ==
 
-Extract the distribution package, cd into the directory and then type `make install`.
+Extract the distribution package, cd into the directory and then type `make
+install`.
 
 Execute the application by running `/usr/local/bin/third.py`
 
 == Installation (Windows) ==
 
-Extract the distribution package into whatever location makes you happy, but I would recommend C:\Program Files\third.
+Extract the distribution package into whatever location makes you happy, but I
+would recommend C:\Program Files\third.
 
-Execute the application by running third.py in whatever location you extracted it.
+Execute the application by running third.py in whatever location you extracted
+it.
 
 == Uninstallation ==
 
-Just delete the installed files.  On Linux this is /usr/local/bin/third.py and /usr/local/share/third.  On Windows, it's the directory you extracted the package to.
+Just delete the installed files.  On Linux this is /usr/local/bin/third.py and
+/usr/local/share/third.  On Windows, it's the directory you extracted the
+package to.
 
 == Distribution ==
 
