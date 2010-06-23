@@ -1,0 +1,8 @@
+BINDIR = /usr/local/bin
+SHAREDIR = /usr/local/share/third
+
+install:
+	mkdir -p $(BINDIR)
+	install third.py $(BINDIR)/
+	mkdir -p $(SHAREDIR)
+	install include/* $(SHAREDIR)/

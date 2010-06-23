@@ -1,16 +1,21 @@
-DESTDIR = 
-BINDIR = $(DESTDIR)/usr/local/bin
-SHAREDIR = $(DESTDIR)/usr/local/share/third
+DISTDIR = ./dist
+NAME = third
+FILES = *.py include/* Makefile.dist
 
-install:
-	mkdir -p $(BINDIR)
-	install third.py $(BINDIR)/
-	mkdir -p $(SHAREDIR)
-	install include/* $(SHAREDIR)/
+dist: third.tar.bz2 third-win32.zip
 
-package: third.tar.bz2
+third.tar.bz2: $(FILES)
+	mkdir -p $(DISTDIR)/$(NAME)/include
+	install third.py $(DISTDIR)/$(NAME)
+	install Makefile.dist $(DISTDIR)/$(NAME)/Makefile
+	install include/* $(DISTDIR)/$(NAME)/include
+	tar -cjvpf $@ -C $(DISTDIR) $(NAME)/
 
-third.tar.bz2: DESTDIR = ./package
-third.tar.bz2: install
-	tar -cjvpf $@ -C $(DESTDIR) $(DESTDIR)/
+third-win32.zip: $(FILES)
+	mkdir -p $(DISTDIR)/$(NAME)
+	install third.py $(DISTDIR)/$(NAME)
+	install include/* $(DISTDIR)/$(NAME)
+	(cd $(DISTDIR) && zip -r ../$@ $(NAME))
 
+clean:
+	rm -rf $(DISTDIR)
