@@ -1,5 +1,7 @@
 .*.swp
-dist
+dist*
+build
 images/*.png
+images/*.ico
 *.zip
 *.bz2

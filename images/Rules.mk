@@ -5,6 +5,7 @@ SVGFLAGS = -z
 
 POVS = $(wildcard images/*.pov)
 SVGS = $(wildcard images/*.svg)
+ICOS = images/app.ico
 POVBMPS = $(POVS:.pov=.bmp)
 POVPNGS = $(POVS:.pov=.png)
 SVGPNGS = $(SVGS:.svg=.png)
@@ -21,3 +22,6 @@ $(POVPNGS): %.png: %.pov
 
 $(SVGPNGS): %.png: %.svg
 	$(SVG) $(SVGFLAGS) -e $@ $<
+
+$(ICOS): %.ico: %.png
+	icotool -c -o $@ $<
