@@ -754,8 +754,6 @@ class THIRD(gtk.Window):
         for new, old in aliases:
             factory.add(new, gtk.icon_factory_lookup_default(old))
 
-        tips = gtk.Tooltips()
-
         self.dbox = DieBox()
         self.dbox.connect_updates(self.update_config)
 
@@ -834,21 +832,21 @@ class THIRD(gtk.Window):
         self.addprofilebutton = gtk.Button()
         image = gtk.image_new_from_stock("third-add", size)
         self.addprofilebutton.set_image(image)
-        tips.set_tip(self.addprofilebutton, "Create a new profile")
+        self.addprofilebutton.set_tooltip_text("Create a new profile")
         self.addprofilebutton.connect("clicked", self.add_profile)
         bb.pack_start(self.addprofilebutton, True, True)
 
         self.editprofilebutton = gtk.Button()
         image = gtk.image_new_from_stock("third-rename", size)
         self.editprofilebutton.set_image(image)
-        tips.set_tip(self.editprofilebutton, "Rename the selected profile")
+        self.editprofilebutton.set_tooltip_text("Rename the selected profile")
         self.editprofilebutton.connect("clicked", self.rename_profile)
         bb.pack_start(self.editprofilebutton, True, True)
 
         self.removeprofilebutton = gtk.Button()
         image = gtk.image_new_from_stock("third-remove", size)
         self.removeprofilebutton.set_image(image)
-        tips.set_tip(self.removeprofilebutton, "Delete the selected profile")
+        self.removeprofilebutton.set_tooltip_text("Delete the selected profile")
         self.removeprofilebutton.connect("clicked", self.remove_profile)
         bb.pack_start(self.removeprofilebutton, True, True)
 
@@ -860,15 +858,15 @@ class THIRD(gtk.Window):
         self.addbutton = gtk.Button()
         image = gtk.image_new_from_stock("third-add", size)
         self.addbutton.set_image(image)
-        tips.set_tip(self.addbutton, 
-                     "Save the current configuration as a new preset")
+        self.addbutton.set_tooltip_text("Save the current configuration "
+                                        "as a new preset")
         self.addbutton.connect("clicked", self.add_preset)
         bb.pack_start(self.addbutton, True, True)
 
         self.editbutton = gtk.Button()
         image = gtk.image_new_from_stock("third-rename", size)
         self.editbutton.set_image(image)
-        tips.set_tip(self.editbutton, "Rename the selected preset")
+        self.editbutton.set_tooltip_text("Rename the selected preset")
         self.editbutton.set_sensitive(False)
         self.editbutton.connect("clicked", self.edit_preset)
         bb.pack_start(self.editbutton, True, True)
@@ -876,8 +874,8 @@ class THIRD(gtk.Window):
         self.savebutton = gtk.Button()
         image = gtk.image_new_from_stock("third-save", size)
         self.savebutton.set_image(image)
-        tips.set_tip(self.savebutton, 
-                     "Save the current configuration into the selected preset")
+        self.savebutton.set_tooltip_text("Save the current configuration "
+                                         "into the selected preset")
         self.savebutton.set_sensitive(False)
         self.savebutton.connect("clicked", self.save_preset)
         bb.pack_start(self.savebutton, True, True)
@@ -885,7 +883,7 @@ class THIRD(gtk.Window):
         self.removebutton = gtk.Button()
         image = gtk.image_new_from_stock("third-remove", size)
         self.removebutton.set_image(image)
-        tips.set_tip(self.removebutton, "Delete the selected preset")
+        self.removebutton.set_tooltip_text("Delete the selected preset")
         self.removebutton.set_sensitive(False)
         self.removebutton.connect("clicked", self.remove_preset)
         bb.pack_start(self.removebutton, True, True)
