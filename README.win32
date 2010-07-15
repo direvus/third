@@ -1,0 +1,53 @@
+Building third for win32
+
+This README is about building the win32 installer for third on
+win32 systems.  For how to install and use third, see the main
+README file in the top level of the source and the distribution
+packages.
+
+Creating an installer for Windows occurs in multiple stages.  First
+you need to build the installer source package using GNU Make.
+Then you need to use a Windows machine with all the right libraries
+installed to run p2exe, copy in some specific GTK stuff, and then
+wrap it all up into a nice user-friendly InnoSetup install file.
+I'll describe those stages in more detail.
+
+== Building the installer source package ==
+
+On a system with GNU Make, icotool, inkspace, and zip installed,
+change into the top level directory of the source code and type:
+	make win32
+
+If all goes to plan, this will create the file
+third-win32-source.zip.  It contains all the files we can build
+without going to a Windows machine.  You'll need to take this file
+and extract it on a Windows machine.
+
+== Preparing the Windows build environment ==
+
+For the Windows machine to be capable of building the installer, it
+needs to have all the prerequisites for running third already
+installed.  This includes:
+ * Python
+ * GTK+
+ * pygtk
+ * pycairo
+ * pygobject
+ * py2exe
+ * InnoSetup
+
+== Building the installer ==
+
+Go to the directory where you extracted third-win32-source.zip, and
+execute the batch file make-win32-installer.bat.  You might want to
+make sure that the paths in the batch file match the locations for
+your installations of Python and GTK+.
+
+This script will run py2exe, creating the 'build' and 'dist'
+directories in the process.  It will then copy the required GTK+
+files into 'dist' and then finally, run InnoSetup using the
+install.iss configuration file to compile the installer.
+
+If all goes well, the result will be a shiny new file called
+third-win32-installer.exe.  You should be able to execute this file
+on any Windows system and get a working copy of third.

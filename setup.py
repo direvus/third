@@ -9,7 +9,7 @@ setup(
 
     windows = [{
         "script": "third.py",
-        "icon_resources": [(1, "images/app.ico")]
+        "icon_resources": [(1, "app.ico")]
     }],
 
     options = {
@@ -19,6 +19,6 @@ setup(
         }
     },
 
-    data_files = glob("images/*.png"),
+    data_files = glob("*.png") + ["README"],
 )
 
