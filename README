@@ -67,7 +67,7 @@ to do anyway.
 == Installation (Linux) ==
 
 Extract the distribution package, cd into the directory and then type `make
-install`.
+install` as root.
 
 Execute the application by running `/usr/local/bin/third.py`
 
@@ -81,9 +81,9 @@ it.
 
 == Uninstallation ==
 
-Just delete the installed files.  On Linux this is /usr/local/bin/third.py and
-/usr/local/share/third.  On Windows, it's the directory you extracted the
-package to.
+Just delete the installed files.  On Linux these are located at
+/usr/local/bin/third.py, /usr/local/share/third and /usr/local/share/doc/third.
+On Windows, it's the directory you extracted the package to.
 
 == Distribution ==
 
