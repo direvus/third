@@ -34,7 +34,7 @@ if sys.platform == "win32":
     _share_dir = os.getcwd()
 else:
     _app_dir = os.path.join(os.getenv("HOME"), ".third")
-    _share_dir = os.path.join("usr", "local", "share", "third")
+    _share_dir = os.path.join("/", "usr", "local", "share", "third")
 _presets_file = os.path.join(_app_dir, "presets")
 
 def _roll(sides):
