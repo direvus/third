@@ -2,7 +2,14 @@ BINDIR = /usr/local/bin
 SHAREDIR = /usr/local/share/third
 
 install:
-	mkdir -p $(BINDIR)
-	install third.py $(BINDIR)/
-	mkdir -p $(SHAREDIR)
-	install include/* $(SHAREDIR)/
+	@echo "Installing third ..."
+	mkdir -vp $(BINDIR)
+	install -v third.py $(BINDIR)/
+	@echo
+	@echo "Installing shared files ..."
+	mkdir -vp $(SHAREDIR)
+	install -v share/* $(SHAREDIR)/
+	@echo
+	@echo "Installation complete."
+	@echo
+	@echo "Run third by executing $(BINDIR)/third.py."
