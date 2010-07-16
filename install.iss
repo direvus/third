@@ -31,6 +31,7 @@ Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescrip
 [Files]
 Source: "dist\third.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "vcredist_x86.exe"; DestDir: "{app}"
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
@@ -40,7 +41,9 @@ Name: "{commondesktop}\third"; Filename: "{app}\third.exe"; Tasks: desktopicon
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\third"; Filename: "{app}\third.exe"; Tasks: quicklaunchicon
 
 [Run]
+Filename: "{app}\vcredist_x86.exe"
 Filename: "{app}\third.exe"; Description: "{cm:LaunchProgram,third}"; Flags: nowait postinstall skipifsilent
+
 
 
 

@@ -5,7 +5,7 @@ REM directory, and then call InnoSetup to build the installer.
 set dist="dist"
 set py="C:\Program Files (x86)\Python26\python.exe"
 set gtk="C:\Program Files (x86)\GTK+"
-set inno=""
+set inno="C:\Program Files (x86)\Inno Setup 5\ISCC.exe"
 
 call %py% setup.py py2exe
 for %%t in ("etc" "lib" "share\locale\en_GB" "share\themes") do ^
