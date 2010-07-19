@@ -14,8 +14,9 @@ setup(
 
     options = {
         "py2exe": {
-            "packages": "encodings",
-            "includes": "cairo, pango, pangocairo, atk, gobject, gio"
+            "packages": ["encodings", "gtk"],
+            "includes": "cairo, pango, pangocairo, atk, gobject, gio, glib",
+            "dll_excludes": ["iconv.dll","intl.dll","DNSAPI.dll"]
         }
     },
 
