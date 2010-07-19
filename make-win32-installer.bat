@@ -10,4 +10,5 @@ set inno="C:\Program Files (x86)\Inno Setup 5\ISCC.exe"
 call %py% setup.py py2exe
 for %%t in ("etc" "lib" "share\locale\en_GB" "share\themes") do ^
 xcopy %gtk%\%%t %dist%\%%t\ /s /y
+copy %gtk%\bin\intl.dll %dist%\ /y
 call %inno% install.iss
