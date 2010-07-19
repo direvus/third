@@ -4,6 +4,7 @@ NAME = third
 SHARE = images/app.svg
 DOCS = README
 FILES = *.py Makefile.dist $(DOCS)
+WIN32FILES = *.py $(DOCS) images/*.png images/*.ico *.iss *.bat *.exe
 CLEAN = $(LINUX) $(WIN32)
 
 all: linux win32
@@ -26,10 +27,10 @@ third.tar.bz2: $(FILES) Makefile
 	install $(DOCS) $(LINUX)/$(NAME)/doc
 	tar -cjvpf $@ -C $(LINUX) $(NAME)/
 
-third-win32-source.zip: *.py $(DOCS) images/*.png images/*.ico Makefile *.iss *.bat
+third-win32-source.zip: $(WIN32FILES) Makefile
 	rm -rf $(WIN32)
 	mkdir -p $(WIN32)/$(NAME)
-	install *.py *.iss *.bat $(DOCS) images/*.png images/*.ico $(WIN32)/$(NAME)
+	install $(WIN32FILES) $(WIN32)/$(NAME)
 	(cd $(WIN32) && zip -r ../$@ $(NAME))
 
 clean:
