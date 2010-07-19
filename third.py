@@ -35,6 +35,11 @@ if sys.platform == "win32":
 else:
     _app_dir = os.path.join(os.getenv("HOME"), ".third")
     _share_dir = os.path.join("/", "usr", "local", "share", "third")
+
+if not os.path.exists(_app_dir):
+    os.mkdir(_app_dir)
+
+sys.stderr = open(os.path.join(_app_dir, "error.log"), 'w')
 _presets_file = os.path.join(_app_dir, "presets")
 
 def _roll(sides):
@@ -998,9 +1003,6 @@ class THIRD(gtk.Window):
         self.profilebox.set_active(0)
 
     def save_presets(self):
-        if not os.path.exists(_app_dir):
-            os.mkdir(_app_dir)
-
         f = open(_presets_file, 'w')
         pickle.dump(self.profiles, f)
         f.close()
