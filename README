@@ -31,6 +31,10 @@ Underneath the custom die are the multiplier (x) and modifier (+) inputs.
 After your dice are rolled, the total is multiplied by the multiplier and then
 the modifier is added (or subtracted, if it is negative).
 
+Left-clicking on a dice or modifier icon will add one to the count.
+Right-clicking will subtract one.  Shift-clicking will add or subtract five at
+a time, instead of one.
+
 When you've set things up to your liking, hit the "Roll" button.  The results
 of your roll will be shown in the results box to the right, including each
 individual dice roll and the total result after applying modifiers.
@@ -57,33 +61,26 @@ so you don't need to worry about getting your wizard's attack roll confused
 with your rogue's initiative.  Just set up a profile for each of your
 characters.
 
-== Requirements ==
-
-You'll need a Linux or Windows system with PyGTK installed.  If you don't have
-PyGTK and you're not familiar with how to get it, then very probably the
-easiest way to install it is to install the GIMP, which is something you want
-to do anyway.
-
 == Installation (Linux) ==
 
 Extract the distribution package, cd into the directory and then type `make
 install` as root.
 
-Execute the application by running `/usr/local/bin/third.py`
+Execute the application by running `/usr/local/bin/third.py`.
+
+To uninstall, just delete the installed files.  These are located at
+/usr/local/bin/third.py, /usr/local/share/third and /usr/local/share/doc/third.
 
 == Installation (Windows) ==
 
-Extract the distribution package into whatever location makes you happy, but I
-would recommend C:\Program Files\third.
+Download the windows installer executable and run it.
 
-Execute the application by running third.py in whatever location you extracted
-it.
+Execute the application by running third.exe in whatever location you installed
+it, or use the Start menu/Quick-launch shortcuts if you chose to create them in
+the install process.
 
-== Uninstallation ==
-
-Just delete the installed files.  On Linux these are located at
-/usr/local/bin/third.py, /usr/local/share/third and /usr/local/share/doc/third.
-On Windows, it's the directory you extracted the package to.
+To uninstall, use the provided uninstall executable in the third Start menu
+folder.
 
 == Distribution ==
 
