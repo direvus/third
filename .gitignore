@@ -1,4 +1,5 @@
 .*.swp
+.directory
 dist*
 build
 images/*.png
