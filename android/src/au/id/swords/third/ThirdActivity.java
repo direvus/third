@@ -11,7 +11,6 @@ import android.widget.TableLayout;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.LayoutInflater;
-import java.lang.reflect.Field;
 
 public class ThirdActivity extends Activity
 {
@@ -49,7 +48,31 @@ public class ThirdActivity extends Activity
 
             button = (ImageButton)findViewById(R.id.button);
             button.setImageResource(image);
+            button.setOnClickListener(new ImageButton.OnClickListener()
+            {
+                public void onClick(View v)
+                {
+                    modValue(1);
+                }
+            });
             counter = (EditText)findViewById(R.id.counter);
+        }
+
+        public Integer getValue()
+        {
+            return new Integer(counter.getText().toString());
+        }
+
+        public Integer setValue(Integer value)
+        {
+            counter.setText(value.toString());
+            return getValue();
+        }
+
+        public Integer modValue(Integer mod)
+        {
+            Integer value = getValue();
+            return setValue(value + mod);
         }
     }
 }
