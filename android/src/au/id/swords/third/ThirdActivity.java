@@ -14,6 +14,10 @@ import android.view.LayoutInflater;
 
 public class ThirdActivity extends Activity
 {
+    Counter[] dice;
+    Counter mul;
+    Counter mod;
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -21,16 +25,22 @@ public class ThirdActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
+        dice = new Counter[7];
+        dice[0] = new Counter(this, R.drawable.d2,   "d2");
+        dice[1] = new Counter(this, R.drawable.d4,   "d4");
+        dice[2] = new Counter(this, R.drawable.d8,   "d8");
+        dice[3] = new Counter(this, R.drawable.d10,  "d10");
+        dice[4] = new Counter(this, R.drawable.d12,  "d12");
+        dice[5] = new Counter(this, R.drawable.d20,  "d20");
+        dice[6] = new Counter(this, R.drawable.d100, "d100");
+        mul  = new Counter(this, R.drawable.mul,  "mul");
+        mod  = new Counter(this, R.drawable.mod,  "mod");
+
         TableLayout t = (TableLayout)findViewById(R.id.counters);
-        t.addView(new Counter(this, R.drawable.d2,   "d2"));
-        t.addView(new Counter(this, R.drawable.d4,   "d4"));
-        t.addView(new Counter(this, R.drawable.d8,   "d8"));
-        t.addView(new Counter(this, R.drawable.d10,  "d10"));
-        t.addView(new Counter(this, R.drawable.d12,  "d12"));
-        t.addView(new Counter(this, R.drawable.d20,  "d20"));
-        t.addView(new Counter(this, R.drawable.d100, "d100"));
-        t.addView(new Counter(this, R.drawable.mul,  "mul"));
-        t.addView(new Counter(this, R.drawable.mod,  "mod"));
+        for(Counter c: dice)
+            t.addView(c);
+        t.addView(mul);
+        t.addView(mod);
     }
 
     private class Counter extends TableRow
