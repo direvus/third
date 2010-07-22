@@ -23,12 +23,19 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             />
-        <TextView
+        <ListView
             android:id="@+id/log"
-            android:text=""
             android:layout_weight="1"
             android:layout_height="fill_parent"
             android:layout_width="fill_parent"
+            />
+        <TextView
+            android:id="@+id/result"
+            android:text=""
+            android:gravity="center_horizontal"
+            android:layout_weight="0"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
             />
         <LinearLayout
             android:layout_weight="0"

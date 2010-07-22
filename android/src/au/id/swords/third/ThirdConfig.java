@@ -9,7 +9,7 @@ import java.lang.StringBuilder;
 
 public class ThirdConfig
 {
-    static int[] sides = {2, 4, 8, 10, 12, 20, 100};
+    static int[] sides = {2, 4, 6, 8, 10, 12, 20, 100};
     LinkedHashMap dice = new LinkedHashMap();
     Integer mul;
     Integer mod;
@@ -25,6 +25,23 @@ public class ThirdConfig
     public Integer getDie(Integer die)
     {
         return (Integer)dice.get(die);
+    }
+
+    public Vector getDice()
+    {
+        Vector<Integer> v = new Vector<Integer>();
+        Iterator keys = dice.keySet().iterator();
+        while(keys.hasNext())
+        {
+            Integer key = (Integer)keys.next();
+            Integer val = (Integer)dice.get(key);
+            Integer sign = (val < 0) ? -1 : 1;
+            for(Integer i = 0; i < Math.abs(val); i++)
+            {
+                v.add(sign * key);
+            }
+        }
+        return v;
     }
 
     public Integer getMultiplier()

@@ -14,10 +14,13 @@ import android.view.View.OnClickListener;
 import android.view.LayoutInflater;
 import android.text.Editable;
 import android.text.TextWatcher;
+import java.util.Random;
+import java.util.Vector;
 
 public class ThirdActivity extends Activity
 {
     ThirdConfig config;
+    Random rng;
     DiceCounter[] dice;
     Counter mul;
     Counter mod;
@@ -29,21 +32,21 @@ public class ThirdActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        dice = new DiceCounter[7];
+        dice = new DiceCounter[8];
         dice[0] = new DiceCounter(this, R.drawable.d2,   2);
         dice[1] = new DiceCounter(this, R.drawable.d4,   4);
-        dice[2] = new DiceCounter(this, R.drawable.d8,   8);
-        dice[3] = new DiceCounter(this, R.drawable.d10,  10);
-        dice[4] = new DiceCounter(this, R.drawable.d12,  12);
-        dice[5] = new DiceCounter(this, R.drawable.d20,  20);
-        dice[6] = new DiceCounter(this, R.drawable.d100, 100);
+        dice[2] = new DiceCounter(this, R.drawable.d6,   6);
+        dice[3] = new DiceCounter(this, R.drawable.d8,   8);
+        dice[4] = new DiceCounter(this, R.drawable.d10,  10);
+        dice[5] = new DiceCounter(this, R.drawable.d12,  12);
+        dice[6] = new DiceCounter(this, R.drawable.d20,  20);
+        dice[7] = new DiceCounter(this, R.drawable.d100, 100);
         mul  = new Counter(this, R.drawable.mul,  "mul");
         mod  = new Counter(this, R.drawable.mod,  "mod");
 
         TableLayout t = (TableLayout)findViewById(R.id.counters);
         for(DiceCounter c: dice)
             t.addView(c);
-        t.addView(mul);
         t.addView(mod);
 
         setConfig(new ThirdConfig());
@@ -56,6 +59,17 @@ public class ThirdActivity extends Activity
                 resetCounters();
             }
         });
+
+        Button roll = (Button)findViewById(R.id.roll);
+        roll.setOnClickListener(new Button.OnClickListener()
+        {
+            public void onClick(View v)
+            {
+                roll();
+            }
+        });
+
+        rng = new Random();
     }
 
     private ThirdConfig getConfig()
@@ -93,8 +107,26 @@ public class ThirdActivity extends Activity
         label.setText(describeConfig());
     }
 
+    private Integer rollDie(Integer sides)
+    {
+        return rng.nextInt(sides) + 1;
+    }
+
     private void roll()
     {
+        Integer result = new Integer(0);
+        Vector<Integer> v = config.getDice();
+        for(Integer sides: v)
+            result += rollDie(sides);
+
+        if(config.getMultiplier() != 1)
+            result *= config.getMultiplier();
+
+        if(config.getModifier() != 0)
+            result += config.getModifier();
+
+        TextView tv = (TextView)findViewById(R.id.result);
+        tv.setText(result.toString());
     }
 
     private void resetCounters()
