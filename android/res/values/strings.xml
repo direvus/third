@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Third</string>
+    <string name="reset">Reset</string>
+    <string name="roll">Roll</string>
+    <string name="empty_config">Set up your roll</string>
 </resources>
