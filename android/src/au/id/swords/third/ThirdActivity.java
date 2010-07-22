@@ -12,6 +12,8 @@ import android.widget.TableLayout;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.LayoutInflater;
+import android.text.Editable;
+import android.text.TextWatcher;
 
 public class ThirdActivity extends Activity
 {
@@ -130,11 +132,33 @@ public class ThirdActivity extends Activity
                 }
             });
             counter = (EditText)findViewById(R.id.counter);
+            counter.addTextChangedListener(new TextWatcher()
+            {
+                public void afterTextChanged(Editable s)
+                {
+                    updateDescription();
+                }
+                public void beforeTextChanged(CharSequence s, int start,
+                                              int count, int after)
+                {
+                }
+                public void onTextChanged(CharSequence s, int start,
+                                          int before, int count)
+                {
+                }
+            });
         }
 
         public Integer getValue()
         {
-            return new Integer(counter.getText().toString());
+            try 
+            {
+                return new Integer(counter.getText().toString());
+            }
+            catch(NumberFormatException e)
+            {
+                return new Integer(0);
+            }
         }
 
         public Integer setValue(Integer value)
