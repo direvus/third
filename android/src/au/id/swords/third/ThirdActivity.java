@@ -15,7 +15,8 @@ import android.view.LayoutInflater;
 
 public class ThirdActivity extends Activity
 {
-    Counter[] dice;
+    ThirdConfig config;
+    DiceCounter[] dice;
     Counter mul;
     Counter mod;
 
@@ -26,22 +27,24 @@ public class ThirdActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        dice = new Counter[7];
-        dice[0] = new Counter(this, R.drawable.d2,   "d2");
-        dice[1] = new Counter(this, R.drawable.d4,   "d4");
-        dice[2] = new Counter(this, R.drawable.d8,   "d8");
-        dice[3] = new Counter(this, R.drawable.d10,  "d10");
-        dice[4] = new Counter(this, R.drawable.d12,  "d12");
-        dice[5] = new Counter(this, R.drawable.d20,  "d20");
-        dice[6] = new Counter(this, R.drawable.d100, "d100");
+        dice = new DiceCounter[7];
+        dice[0] = new DiceCounter(this, R.drawable.d2,   2);
+        dice[1] = new DiceCounter(this, R.drawable.d4,   4);
+        dice[2] = new DiceCounter(this, R.drawable.d8,   8);
+        dice[3] = new DiceCounter(this, R.drawable.d10,  10);
+        dice[4] = new DiceCounter(this, R.drawable.d12,  12);
+        dice[5] = new DiceCounter(this, R.drawable.d20,  20);
+        dice[6] = new DiceCounter(this, R.drawable.d100, 100);
         mul  = new Counter(this, R.drawable.mul,  "mul");
         mod  = new Counter(this, R.drawable.mod,  "mod");
 
         TableLayout t = (TableLayout)findViewById(R.id.counters);
-        for(Counter c: dice)
+        for(DiceCounter c: dice)
             t.addView(c);
         t.addView(mul);
         t.addView(mod);
+
+        setConfig(new ThirdConfig());
 
         Button reset = (Button)findViewById(R.id.reset);
         reset.setOnClickListener(new Button.OnClickListener()
@@ -53,9 +56,39 @@ public class ThirdActivity extends Activity
         });
     }
 
+    private ThirdConfig getConfig()
+    {
+        ThirdConfig conf = new ThirdConfig();
+        for(DiceCounter c: dice)
+            conf.setDie(c.sides, c.getValue());
+        conf.setMultiplier(mul.getValue());
+        conf.setModifier(mod.getValue());
+        return conf;
+    }
+
+    private void updateConfig()
+    {
+        config = getConfig();
+    }
+
+    private void setConfig(ThirdConfig conf)
+    {
+        for(DiceCounter c: dice)
+            c.setValue(conf.getDie(c.sides));
+        mul.setValue(conf.getMultiplier());
+        mod.setValue(conf.getModifier());
+    }
+
     private String describeConfig()
     {
-        return "";
+        return config.toString();
+    }
+
+    private void updateDescription()
+    {
+        updateConfig();
+        TextView label = (TextView)findViewById(R.id.config);
+        label.setText(describeConfig());
     }
 
     private void roll()
@@ -66,12 +99,14 @@ public class ThirdActivity extends Activity
     {
         for(Counter c: dice)
             c.resetValue();
-        mul.resetValue();
-        mod.resetValue();
+        mul.setValue(1);
+        mod.setValue(0);
+        updateDescription();
     }
 
     private class Counter extends TableRow
     {
+        String name;
         ImageButton button;
         EditText counter;
 
@@ -83,6 +118,7 @@ public class ThirdActivity extends Activity
             li = (LayoutInflater)ctx.getSystemService(ctx.LAYOUT_INFLATER_SERVICE);
             li.inflate(R.layout.counter, this);
 
+            this.name = name;
             button = (ImageButton)findViewById(R.id.button);
             button.setImageResource(image);
             button.setOnClickListener(new ImageButton.OnClickListener()
@@ -90,6 +126,7 @@ public class ThirdActivity extends Activity
                 public void onClick(View v)
                 {
                     modValue(1);
+                    updateDescription();
                 }
             });
             counter = (EditText)findViewById(R.id.counter);
@@ -115,6 +152,17 @@ public class ThirdActivity extends Activity
         {
             Integer value = getValue();
             return setValue(value + mod);
+        }
+    }
+
+    private class DiceCounter extends Counter
+    {
+        int sides;
+
+        public DiceCounter(Context ctx, int image, int sides)
+        {
+            super(ctx, image, String.format("d%d", sides));
+            this.sides = sides;
         }
     }
 }
