@@ -7,4 +7,7 @@
     <style name="config" parent="@android:style/TextAppearance.Large">
         <item name="android:gravity">center_horizontal</item>
     </style>
+    <style name="range" parent="@android:style/TextAppearance.Medium">
+        <item name="android:gravity">right</item>
+    </style>
 </resources>

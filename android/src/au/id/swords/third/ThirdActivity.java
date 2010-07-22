@@ -108,6 +108,9 @@ public class ThirdActivity extends Activity
         updateConfig();
         TextView label = (TextView)findViewById(R.id.config);
         label.setText(describeConfig());
+
+        TextView range = (TextView)findViewById(R.id.range);
+        range.setText(config.describeRange());
     }
 
     private void clearLog()

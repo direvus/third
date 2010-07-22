@@ -54,6 +54,38 @@ public class ThirdConfig
         return mod;
     }
 
+    public Integer getMin()
+    {
+        Integer min = new Integer(0);
+        Iterator vals = dice.values().iterator();
+        while(vals.hasNext())
+            min += (Integer)vals.next();
+
+        return (min * mul) + mod;
+    }
+
+    public Integer getMax()
+    {
+        Integer max = new Integer(0);
+        Iterator keys = dice.keySet().iterator();
+        while(keys.hasNext())
+        {
+            Integer key = (Integer)keys.next();
+            max += key * (Integer)dice.get(key);
+        }
+        return (max * mul) + mod;
+    }
+
+    public Integer getRange()
+    {
+        return getMax() - getMin();
+    }
+
+    public String describeRange()
+    {
+        return String.format("%d - %d", getMin(), getMax());
+    }
+
     public void setDie(Integer die, Integer value)
     {
         dice.put(die, value);
