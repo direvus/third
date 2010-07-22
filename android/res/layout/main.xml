@@ -18,24 +18,31 @@
         <TextView
             android:id="@+id/config"
             android:text="@string/empty_config"
-            android:gravity="center_horizontal"
             android:layout_weight="0"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            style="@style/config"
             />
-        <ListView
-            android:id="@+id/log"
+        <ScrollView
             android:layout_weight="1"
             android:layout_height="fill_parent"
             android:layout_width="fill_parent"
-            />
+            >
+            <TableLayout
+                android:id="@+id/log"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:stretchColumns="0, 1, 2"
+                >
+            </TableLayout>
+        </ScrollView>
         <TextView
             android:id="@+id/result"
             android:text=""
-            android:gravity="center_horizontal"
             android:layout_weight="0"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            style="@style/result"
             />
         <LinearLayout
             android:layout_weight="0"

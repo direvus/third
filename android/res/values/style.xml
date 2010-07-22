@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="result" parent="@android:style/TextAppearance.Large">
+        <item name="android:gravity">right</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="config" parent="@android:style/TextAppearance.Large">
+        <item name="android:gravity">center_horizontal</item>
+    </style>
+</resources>

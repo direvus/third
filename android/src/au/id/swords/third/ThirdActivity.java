@@ -11,6 +11,7 @@ import android.widget.TableRow;
 import android.widget.TableLayout;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -24,6 +25,7 @@ public class ThirdActivity extends Activity
     DiceCounter[] dice;
     Counter mul;
     Counter mod;
+    TableLayout log;
 
     /** Called when the activity is first created. */
     @Override
@@ -69,6 +71,7 @@ public class ThirdActivity extends Activity
             }
         });
 
+        log = (TableLayout)findViewById(R.id.log);
         rng = new Random();
     }
 
@@ -107,6 +110,31 @@ public class ThirdActivity extends Activity
         label.setText(describeConfig());
     }
 
+    private void clearLog()
+    {
+        log.removeAllViews();
+    }
+
+    private void addLog(String label, String outcome)
+    {
+        TableRow row = new TableRow(this);
+        log.addView(row);
+
+        TextView tv1 = new TextView(this);
+        tv1.setText(String.valueOf(log.getChildCount()));
+        tv1.setGravity(Gravity.CENTER_HORIZONTAL);
+        row.addView(tv1);
+
+        TextView tv2 = new TextView(this);
+        tv2.setText(label);
+        row.addView(tv2);
+
+        TextView tv3 = new TextView(this);
+        tv3.setText(outcome);
+        tv3.setGravity(Gravity.RIGHT);
+        row.addView(tv3);
+    }
+
     private Integer rollDie(Integer sides)
     {
         return rng.nextInt(sides) + 1;
@@ -115,15 +143,33 @@ public class ThirdActivity extends Activity
     private void roll()
     {
         Integer result = new Integer(0);
+        Integer outcome;
+
+        clearLog();
+
         Vector<Integer> v = config.getDice();
         for(Integer sides: v)
-            result += rollDie(sides);
+        {
+            outcome = rollDie(Math.abs(sides));
+            String label = String.format("d%d", Math.abs(sides));
+            addLog(label, outcome.toString());
+            result += outcome;
+        }
 
-        if(config.getMultiplier() != 1)
-            result *= config.getMultiplier();
+        Integer mul = config.getMultiplier();
+        if(mul != 1)
+        {
+            addLog("*", mul.toString());
+            result *= mul;
+        }
 
-        if(config.getModifier() != 0)
-            result += config.getModifier();
+        Integer mod = config.getModifier();
+        if(mod != 0)
+        {
+            String sign = (mod < 0) ? "-" : "+";
+            addLog(sign, String.valueOf(Math.abs(mod)));
+            result += mod;
+        }
 
         TextView tv = (TextView)findViewById(R.id.result);
         tv.setText(result.toString());
