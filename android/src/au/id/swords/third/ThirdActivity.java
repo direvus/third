@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.content.Context;
 import android.widget.TextView;
 import android.widget.EditText;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TableRow;
 import android.widget.TableLayout;
@@ -41,6 +42,32 @@ public class ThirdActivity extends Activity
             t.addView(c);
         t.addView(mul);
         t.addView(mod);
+
+        Button reset = (Button)findViewById(R.id.reset);
+        reset.setOnClickListener(new Button.OnClickListener()
+        {
+            public void onClick(View v)
+            {
+                resetCounters();
+            }
+        });
+    }
+
+    private String describeConfig()
+    {
+        return "";
+    }
+
+    private void roll()
+    {
+    }
+
+    private void resetCounters()
+    {
+        for(Counter c: dice)
+            c.resetValue();
+        mul.resetValue();
+        mod.resetValue();
     }
 
     private class Counter extends TableRow
@@ -77,6 +104,11 @@ public class ThirdActivity extends Activity
         {
             counter.setText(value.toString());
             return getValue();
+        }
+
+        public void resetValue()
+        {
+            setValue(0);
         }
 
         public Integer modValue(Integer mod)
