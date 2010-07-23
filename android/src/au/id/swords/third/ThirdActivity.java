@@ -50,6 +50,7 @@ public class ThirdActivity extends Activity
         for(DiceCounter c: dice)
             t.addView(c);
         t.addView(mod);
+        t.addView(mul);
 
         setConfig(new ThirdConfig());
 
