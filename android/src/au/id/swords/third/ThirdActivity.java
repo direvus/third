@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TableRow;
 import android.widget.TableLayout;
+import android.widget.ProgressBar;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Gravity;
@@ -112,6 +113,10 @@ public class ThirdActivity extends Activity
 
         TextView range = (TextView)findViewById(R.id.range);
         range.setText(config.describeRange());
+
+        ProgressBar bar = (ProgressBar)findViewById(R.id.result_bar);
+        bar.setMax(config.getRange());
+        bar.setProgress(0);
     }
 
     private void clearLog()
@@ -175,16 +180,16 @@ public class ThirdActivity extends Activity
             result += mod;
         }
 
+        ProgressBar bar = (ProgressBar)findViewById(R.id.result_bar);
+        bar.setProgress(result - config.getMin());
+
         TextView tv = (TextView)findViewById(R.id.result);
         tv.setText(result.toString());
     }
 
     private void resetCounters()
     {
-        for(Counter c: dice)
-            c.resetValue();
-        mul.setValue(1);
-        mod.setValue(0);
+        setConfig(new ThirdConfig());
         updateDescription();
     }
 

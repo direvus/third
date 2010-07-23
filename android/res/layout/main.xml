@@ -36,6 +36,12 @@
             android:layout_height="wrap_content"
             style="@style/range"
             />
+        <ProgressBar
+            android:id="@+id/result_bar"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            style="?android:attr/progressBarStyleHorizontal"
+            />
         <ScrollView
             android:layout_weight="1"
             android:layout_height="fill_parent"
