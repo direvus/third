@@ -10,4 +10,8 @@
     <style name="range" parent="@android:style/TextAppearance.Medium">
         <item name="android:gravity">right</item>
     </style>
+    <style name="preset" parent="@android:style/TextAppearance.Medium">
+        <item name="android:gravity">left</item>
+        <item name="android:padding">4dip</item>
+    </style>
 </resources>

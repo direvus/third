@@ -9,9 +9,12 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.TableRow;
+import android.widget.ListView;
+import android.widget.AdapterView;
 import android.widget.TableLayout;
 import android.widget.ProgressBar;
 import android.widget.ViewFlipper;
+import android.widget.ArrayAdapter;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Gravity;
@@ -24,7 +27,6 @@ import java.util.Vector;
 public class ThirdActivity extends Activity
 {
     ThirdConfig config;
-    Random rng;
     DiceCounter[] dice;
     Counter mul;
     Counter mod;
@@ -32,6 +34,8 @@ public class ThirdActivity extends Activity
     ViewFlipper flip;
     RadioButton flip_presets;
     RadioButton flip_results;
+    ArrayAdapter<ThirdConfig> presets;
+    Random rng;
 
     /** Called when the activity is first created. */
     @Override
@@ -97,6 +101,20 @@ public class ThirdActivity extends Activity
             }
         });
 
+        presets = new ArrayAdapter(this, R.layout.preset);
+
+        ListView preset_view = (ListView)findViewById(R.id.presets);
+        preset_view.setAdapter(presets);
+        preset_view.setOnItemClickListener(new ListView.OnItemClickListener()
+        {
+            public void onItemClick(AdapterView parent, View v,
+                                    int pos, long id)
+            {
+                setConfig((ThirdConfig)parent.getItemAtPosition(pos));
+                updateDescription();
+                roll();
+            }
+        });
         log = (TableLayout)findViewById(R.id.log);
         rng = new Random();
     }
@@ -126,7 +144,7 @@ public class ThirdActivity extends Activity
 
     private String describeConfig()
     {
-        return config.toString();
+        return config.describeConfig();
     }
 
     private void updateDescription()
