@@ -10,16 +10,23 @@ import java.lang.StringBuilder;
 public class ThirdConfig
 {
     static int[] sides = {2, 4, 6, 8, 10, 12, 20, 100};
+    String name;
     LinkedHashMap dice = new LinkedHashMap();
     Integer mul;
     Integer mod;
 
     public ThirdConfig()
     {
+        name = new String();
         for(int i: sides)
             dice.put(i, 0);
         mul = 1;
         mod = 0;
+    }
+
+    public String getName()
+    {
+        return name;
     }
 
     public Integer getDie(Integer die)
@@ -86,25 +93,10 @@ public class ThirdConfig
         return String.format("%d - %d", getMin(), getMax());
     }
 
-    public void setDie(Integer die, Integer value)
+    public String describeConfig()
     {
-        dice.put(die, value);
-    }
-
-    public void setMultiplier(Integer value)
-    {
-        mul = value;
-    }
-
-    public void setModifier(Integer value)
-    {
-        mod = value;
-    }
-
-    public String toString()
-    {
-        Vector<String> sv = new Vector<String>();
         StringBuilder sb = new StringBuilder();
+        Vector<String> sv = new Vector<String>();
         Iterator keys = dice.keySet().iterator();
         while(keys.hasNext())
         {
@@ -139,4 +131,30 @@ public class ThirdConfig
         }
         return sb.toString();
     }
+
+    public String toString()
+    {
+        return name + " " + describeConfig();
+    }
+
+    public void setName(String s)
+    {
+        name = s;
+    }
+
+    public void setDie(Integer die, Integer value)
+    {
+        dice.put(die, value);
+    }
+
+    public void setMultiplier(Integer value)
+    {
+        mul = value;
+    }
+
+    public void setModifier(Integer value)
+    {
+        mod = value;
+    }
+
 }
