@@ -7,9 +7,11 @@ import android.widget.TextView;
 import android.widget.EditText;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.RadioButton;
 import android.widget.TableRow;
 import android.widget.TableLayout;
 import android.widget.ProgressBar;
+import android.widget.ViewFlipper;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Gravity;
@@ -27,6 +29,9 @@ public class ThirdActivity extends Activity
     Counter mul;
     Counter mod;
     TableLayout log;
+    ViewFlipper flip;
+    RadioButton flip_presets;
+    RadioButton flip_results;
 
     /** Called when the activity is first created. */
     @Override
@@ -70,6 +75,25 @@ public class ThirdActivity extends Activity
             public void onClick(View v)
             {
                 roll();
+            }
+        });
+
+        flip = (ViewFlipper)findViewById(R.id.preset_flipper);
+        flip_results = (RadioButton)findViewById(R.id.show_results);
+        flip_presets = (RadioButton)findViewById(R.id.show_presets);
+        flip_results.setChecked(true);
+        flip_results.setOnClickListener(new Button.OnClickListener()
+        {
+            public void onClick(View v)
+            {
+                flip.setDisplayedChild(0);
+            }
+        });
+        flip_presets.setOnClickListener(new Button.OnClickListener()
+        {
+            public void onClick(View v)
+            {
+                flip.setDisplayedChild(1);
             }
         });
 
