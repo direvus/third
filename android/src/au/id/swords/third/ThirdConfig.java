@@ -1,5 +1,6 @@
 package au.id.swords.third;
 
+import android.database.Cursor;
 import java.util.Map;
 import java.util.Vector;
 import java.util.Iterator;
@@ -10,6 +11,7 @@ import java.lang.StringBuilder;
 public class ThirdConfig
 {
     static int[] sides = {2, 4, 6, 8, 10, 12, 20, 100};
+    Integer id;
     String name;
     LinkedHashMap dice = new LinkedHashMap();
     Integer mul;
@@ -22,6 +24,19 @@ public class ThirdConfig
             dice.put(i, 0);
         mul = 1;
         mod = 0;
+    }
+
+    public ThirdConfig(Cursor cur)
+    {
+        id = cur.getInt(cur.getColumnIndex("_id"));
+        name = cur.getString(cur.getColumnIndex("name"));
+        for(int i: sides)
+        {
+            String col = String.format("d%d", i);
+            dice.put(i, cur.getInt(cur.getColumnIndex(col)));
+        }
+        mul = cur.getInt(cur.getColumnIndex("multiplier"));
+        mod = cur.getInt(cur.getColumnIndex("modifier"));
     }
 
     public String getName()
@@ -156,5 +171,4 @@ public class ThirdConfig
     {
         mod = value;
     }
-
 }

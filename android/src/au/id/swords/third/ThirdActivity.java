@@ -3,29 +3,35 @@ package au.id.swords.third;
 import android.app.Activity;
 import android.os.Bundle;
 import android.content.Context;
+import android.widget.Button;
+import android.widget.Spinner;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.EditText;
-import android.widget.Button;
+import android.widget.TableRow;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
-import android.widget.TableRow;
-import android.widget.ListView;
 import android.widget.AdapterView;
 import android.widget.TableLayout;
 import android.widget.ProgressBar;
 import android.widget.ViewFlipper;
 import android.widget.ArrayAdapter;
+import android.widget.SimpleCursorAdapter;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.database.Cursor;
 import java.util.Random;
 import java.util.Vector;
 
 public class ThirdActivity extends Activity
 {
+    ThirdDb db;
     ThirdConfig config;
     DiceCounter[] dice;
     Counter mul;
@@ -35,7 +41,13 @@ public class ThirdActivity extends Activity
     RadioButton flip_presets;
     RadioButton flip_results;
     ArrayAdapter<ThirdConfig> presets;
+    SimpleCursorAdapter profiles;
+    Cursor profile_cursor;
+    Cursor preset_cursor;
+    Integer profile;
     Random rng;
+
+    private static final int ADD_PROFILE = Menu.FIRST;
 
     /** Called when the activity is first created. */
     @Override
@@ -83,17 +95,18 @@ public class ThirdActivity extends Activity
         });
 
         flip = (ViewFlipper)findViewById(R.id.preset_flipper);
-        flip_results = (RadioButton)findViewById(R.id.show_results);
+        flip.setDisplayedChild(0);
         flip_presets = (RadioButton)findViewById(R.id.show_presets);
-        flip_results.setChecked(true);
-        flip_results.setOnClickListener(new Button.OnClickListener()
+        flip_results = (RadioButton)findViewById(R.id.show_results);
+        flip_presets.setChecked(true);
+        flip_presets.setOnClickListener(new Button.OnClickListener()
         {
             public void onClick(View v)
             {
                 flip.setDisplayedChild(0);
             }
         });
-        flip_presets.setOnClickListener(new Button.OnClickListener()
+        flip_results.setOnClickListener(new Button.OnClickListener()
         {
             public void onClick(View v)
             {
@@ -101,7 +114,32 @@ public class ThirdActivity extends Activity
             }
         });
 
+        db = new ThirdDb(this);
+
+        profile_cursor = db.getAllProfiles();
+        startManagingCursor(profile_cursor);
+        String[] cols = new String[] {"name"};
+        int[] views = new int[] {android.R.id.text1};
+        profiles = new SimpleCursorAdapter(this,
+            android.R.layout.simple_spinner_item,
+            profile_cursor, cols, views);
+
+        Spinner profile_view = (Spinner)findViewById(R.id.profiles);
+        profiles.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        profile_view.setAdapter(profiles);
+
+        profile_cursor.moveToFirst();
+        profile = profile_cursor.getInt(0);
+
+        preset_cursor = db.getPresets(profile);
+        startManagingCursor(preset_cursor);
+        preset_cursor.moveToFirst();
         presets = new ArrayAdapter(this, R.layout.preset);
+        while(!preset_cursor.isAfterLast())
+        {
+            presets.add(new ThirdConfig(preset_cursor));
+            preset_cursor.moveToNext();
+        }
 
         ListView preset_view = (ListView)findViewById(R.id.presets);
         preset_view.setAdapter(presets);
@@ -117,6 +155,25 @@ public class ThirdActivity extends Activity
         });
         log = (TableLayout)findViewById(R.id.log);
         rng = new Random();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        boolean result = super.onCreateOptionsMenu(menu);
+        menu.add(0, ADD_PROFILE, 0, R.string.add_profile);
+        return result;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch(item.getItemId())
+        {
+            case ADD_PROFILE:
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private ThirdConfig getConfig()

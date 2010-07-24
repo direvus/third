@@ -6,4 +6,7 @@
     <string name="empty_config">Set up your roll</string>
     <string name="presets">Presets</string>
     <string name="results">Results</string>
+    <string name="profiles">Profiles</string>
+    <string name="add_profile">Add profile</string>
+    <string name="rename_profile">Rename profile</string>
 </resources>
