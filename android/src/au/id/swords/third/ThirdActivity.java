@@ -20,6 +20,8 @@ import android.widget.ArrayAdapter;
 import android.widget.SimpleCursorAdapter;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Gravity;
@@ -49,7 +51,11 @@ public class ThirdActivity extends Activity
     Random mRNG;
 
     private static final int ACT_NAME_PRESET = 0;
+
     private static final int ADD_PRESET = Menu.FIRST;
+    private static final int RENAME_PRESET = Menu.FIRST + 1;
+    private static final int UPDATE_PRESET = Menu.FIRST + 2;
+    private static final int DEL_PRESET = Menu.FIRST + 3;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -144,6 +150,7 @@ public class ThirdActivity extends Activity
                 roll();
             }
         });
+        registerForContextMenu(preset_view);
         loadPresets();
         mLog = (TableLayout)findViewById(R.id.log);
         mRNG = new Random();
@@ -169,6 +176,16 @@ public class ThirdActivity extends Activity
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+                                    ContextMenuInfo info)
+    {
+        super.onCreateContextMenu(menu, v, info);
+        menu.add(0, RENAME_PRESET, 0, R.string.rename_preset);
+        menu.add(0, UPDATE_PRESET, 0, R.string.update_preset);
+        menu.add(0, DEL_PRESET, 0, R.string.del_preset);
     }
 
     @Override
