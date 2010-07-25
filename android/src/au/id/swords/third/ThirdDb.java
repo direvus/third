@@ -34,6 +34,28 @@ public class ThirdDb
                         new String[] {profile.toString()}, null, null, null);
     }
 
+    public long addProfile(String name)
+    {
+        ContentValues vals = new ContentValues();
+        vals.put("name", name);
+        return mDb.insert("profile", "", vals);
+    }
+
+    public int renameProfile(int id, String name)
+    {
+        String[] args = new String[] {String.valueOf(id)};
+        ContentValues vals = new ContentValues();
+        vals.put("name", name);
+        return mDb.update("profile", vals, "_id = ?", args);
+    }
+
+    public int deleteProfile(int id)
+    {
+        String[] args = new String[] {String.valueOf(id)};
+        mDb.delete("preset", "profile = ?", args);
+        return mDb.delete("profile", "_id = ?", args);
+    }
+
     public long addPreset(int profile, ThirdConfig config)
     {
         ContentValues vals = config.getValues();

@@ -53,11 +53,15 @@ public class ThirdActivity extends Activity
     Random mRNG;
 
     private static final int ACT_NAME_PRESET = 0;
+    private static final int ACT_NAME_PROFILE = 1;
 
     private static final int ADD_PRESET = Menu.FIRST;
-    private static final int RENAME_PRESET = Menu.FIRST + 1;
-    private static final int UPDATE_PRESET = Menu.FIRST + 2;
-    private static final int DEL_PRESET = Menu.FIRST + 3;
+    private static final int ADD_PROFILE = Menu.FIRST + 1;
+    private static final int RENAME_PRESET = Menu.FIRST + 2;
+    private static final int UPDATE_PRESET = Menu.FIRST + 3;
+    private static final int DEL_PRESET = Menu.FIRST + 4;
+    private static final int RENAME_PROFILE = Menu.FIRST + 5;
+    private static final int DEL_PROFILE = Menu.FIRST + 6;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -125,21 +129,20 @@ public class ThirdActivity extends Activity
 
         mDb = new ThirdDb(this);
 
-        mProfileCursor = mDb.getAllProfiles();
-        startManagingCursor(mProfileCursor);
-        String[] cols = new String[] {"name"};
-        int[] views = new int[] {android.R.id.text1};
-        mProfiles = new SimpleCursorAdapter(this,
-            android.R.layout.simple_spinner_item,
-            mProfileCursor, cols, views);
-
         Spinner profile_view = (Spinner)findViewById(R.id.profiles);
-        mProfiles.setDropDownViewResource(
-            android.R.layout.simple_spinner_dropdown_item);
-        profile_view.setAdapter(mProfiles);
+        profile_view.setOnItemSelectedListener(
+            new AdapterView.OnItemSelectedListener()
+        {
+            public void onItemSelected(AdapterView parent, View v,
+                                       int pos, long id)
+            {
+                setProfile(new Integer((int)id));
+            }
 
-        mProfileCursor.moveToFirst();
-        mProfile = mProfileCursor.getInt(0);
+            public void onNothingSelected(AdapterView parent)
+            {
+            }
+        });
 
         ListView preset_view = (ListView)findViewById(R.id.presets);
         preset_view.setOnItemClickListener(new ListView.OnItemClickListener()
@@ -152,7 +155,7 @@ public class ThirdActivity extends Activity
             }
         });
         registerForContextMenu(preset_view);
-        loadPresets();
+        loadProfiles();
         mLog = (TableLayout)findViewById(R.id.log);
         mRNG = new Random();
     }
@@ -161,19 +164,25 @@ public class ThirdActivity extends Activity
     public boolean onCreateOptionsMenu(Menu menu)
     {
         boolean result = super.onCreateOptionsMenu(menu);
-        menu.add(0, ADD_PRESET, 0, R.string.add_preset);
+        menu.add(Menu.NONE, ADD_PRESET, Menu.NONE, R.string.add_preset);
+        menu.add(Menu.NONE, ADD_PROFILE, Menu.NONE, R.string.add_profile);
         return result;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
+        Intent i;
         switch(item.getItemId())
         {
             case ADD_PRESET:
-                Intent i = new Intent(this, ThirdNamePreset.class);
+                i = new Intent(this, ThirdNamePreset.class);
                 i.putExtra("config", describeConfig());
                 startActivityForResult(i, ACT_NAME_PRESET);
+                return true;
+            case ADD_PROFILE:
+                i = new Intent(this, ThirdNameProfile.class);
+                startActivityForResult(i, ACT_NAME_PROFILE);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -184,9 +193,9 @@ public class ThirdActivity extends Activity
                                     ContextMenuInfo info)
     {
         super.onCreateContextMenu(menu, v, info);
-        menu.add(0, RENAME_PRESET, 0, R.string.rename_preset);
-        menu.add(0, UPDATE_PRESET, 0, R.string.update_preset);
-        menu.add(0, DEL_PRESET, 0, R.string.del_preset);
+        menu.add(Menu.NONE, RENAME_PRESET, Menu.NONE, R.string.rename_preset);
+        menu.add(Menu.NONE, UPDATE_PRESET, Menu.NONE, R.string.update_preset);
+        menu.add(Menu.NONE, DEL_PRESET, Menu.NONE, R.string.del_preset);
     }
 
     @Override
@@ -226,19 +235,59 @@ public class ThirdActivity extends Activity
         switch(reqCode)
         {
             case ACT_NAME_PRESET:
-                String name = intent.getStringExtra("name");
-                Integer id = intent.getIntExtra("id", 0);
-                if(id != 0)
                 {
-                    mDb.renamePreset(id, name);
+                    String name = intent.getStringExtra("name");
+                    Integer id = intent.getIntExtra("id", 0);
+                    if(id != 0)
+                    {
+                        mDb.renamePreset(id, name);
+                    }
+                    else
+                    {
+                        mConfig.setName(name);
+                        mDb.addPreset(mProfile, mConfig);
+                    }
+                    loadPresets();
                 }
-                else
-                {
-                    mConfig.setName(name);
-                    mDb.addPreset(mProfile, mConfig);
-                }
-                loadPresets();
                 break;
+            case ACT_NAME_PROFILE:
+                {
+                    String name = intent.getStringExtra("name");
+                    Integer id = intent.getIntExtra("id", 0);
+                    if(id != 0)
+                    {
+                        mDb.renameProfile(id, name);
+                    }
+                    else
+                    {
+                        mDb.addProfile(name);
+                    }
+                    loadProfiles();
+                }
+                break;
+        }
+    }
+
+    private void loadProfiles()
+    {
+        mProfileCursor = mDb.getAllProfiles();
+        startManagingCursor(mProfileCursor);
+        String[] cols = new String[] {"name"};
+        int[] views = new int[] {android.R.id.text1};
+        mProfiles = new SimpleCursorAdapter(this,
+            android.R.layout.simple_spinner_item,
+            mProfileCursor, cols, views);
+        mProfiles.setDropDownViewResource(
+            android.R.layout.simple_spinner_dropdown_item);
+
+        Spinner profile_view = (Spinner)findViewById(R.id.profiles);
+        profile_view.setAdapter(mProfiles);
+
+        if(mProfile == null)
+        {
+            int index = mProfileCursor.getColumnIndex("_id");
+            mProfileCursor.moveToFirst();
+            setProfile(new Integer(mProfileCursor.getInt(index)));
         }
     }
 
@@ -256,6 +305,12 @@ public class ThirdActivity extends Activity
 
         ListView preset_view = (ListView)findViewById(R.id.presets);
         preset_view.setAdapter(mPresets);
+    }
+
+    private void setProfile(Integer profile)
+    {
+        mProfile = profile;
+        loadPresets();
     }
 
     private void updateConfig()

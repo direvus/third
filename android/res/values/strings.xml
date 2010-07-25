@@ -9,11 +9,13 @@
     <string name="profiles">Profiles</string>
     <string name="add_profile">Add profile</string>
     <string name="rename_profile">Rename profile</string>
+    <string name="del_profile">Delete profile</string>
     <string name="add_preset">Add preset</string>
     <string name="rename_preset">Rename preset</string>
     <string name="update_preset">Update preset</string>
     <string name="del_preset">Delete preset</string>
-    <string name="name_preset">Enter a name for the following configuration:</string>
+    <string name="name_profile">Enter a name for the profile:</string>
+    <string name="name_preset">Enter a name for this configuration:</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
 </resources>
