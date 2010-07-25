@@ -32,49 +32,48 @@ import java.util.Vector;
 
 public class ThirdActivity extends Activity
 {
-    ThirdDb db;
-    ThirdConfig config;
-    DiceCounter[] dice;
-    Counter mul;
-    Counter mod;
-    TableLayout log;
-    ViewFlipper flip;
-    RadioButton flip_presets;
-    RadioButton flip_results;
-    ArrayAdapter<ThirdConfig> presets;
-    SimpleCursorAdapter profiles;
-    Cursor profile_cursor;
-    Cursor preset_cursor;
-    Integer profile;
-    Random rng;
+    ThirdDb mDb;
+    ThirdConfig mConfig;
+    DiceCounter[] mDice;
+    Counter mMul;
+    Counter mMod;
+    TableLayout mLog;
+    ViewFlipper mFlip;
+    RadioButton mFlipPresets;
+    RadioButton mFlipResults;
+    ArrayAdapter<ThirdConfig> mPresets;
+    SimpleCursorAdapter mProfiles;
+    Cursor mProfileCursor;
+    Cursor mPresetCursor;
+    Integer mProfile;
+    Random mRNG;
 
     private static final int ACT_NAME_PRESET = 0;
     private static final int ADD_PRESET = Menu.FIRST;
 
-    /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        dice = new DiceCounter[8];
-        dice[0] = new DiceCounter(this, R.drawable.d2,   2);
-        dice[1] = new DiceCounter(this, R.drawable.d4,   4);
-        dice[2] = new DiceCounter(this, R.drawable.d6,   6);
-        dice[3] = new DiceCounter(this, R.drawable.d8,   8);
-        dice[4] = new DiceCounter(this, R.drawable.d10,  10);
-        dice[5] = new DiceCounter(this, R.drawable.d12,  12);
-        dice[6] = new DiceCounter(this, R.drawable.d20,  20);
-        dice[7] = new DiceCounter(this, R.drawable.d100, 100);
-        mul  = new Counter(this, R.drawable.mul,  "mul");
-        mod  = new Counter(this, R.drawable.mod,  "mod");
+        mDice = new DiceCounter[8];
+        mDice[0] = new DiceCounter(this, R.drawable.d2,   2);
+        mDice[1] = new DiceCounter(this, R.drawable.d4,   4);
+        mDice[2] = new DiceCounter(this, R.drawable.d6,   6);
+        mDice[3] = new DiceCounter(this, R.drawable.d8,   8);
+        mDice[4] = new DiceCounter(this, R.drawable.d10,  10);
+        mDice[5] = new DiceCounter(this, R.drawable.d12,  12);
+        mDice[6] = new DiceCounter(this, R.drawable.d20,  20);
+        mDice[7] = new DiceCounter(this, R.drawable.d100, 100);
+        mMul  = new Counter(this, R.drawable.mul,  "mul");
+        mMod  = new Counter(this, R.drawable.mod,  "mod");
 
         TableLayout t = (TableLayout)findViewById(R.id.counters);
-        for(DiceCounter c: dice)
+        for(DiceCounter c: mDice)
             t.addView(c);
-        t.addView(mod);
-        t.addView(mul);
+        t.addView(mMod);
+        t.addView(mMul);
 
         setConfig(new ThirdConfig());
 
@@ -96,42 +95,43 @@ public class ThirdActivity extends Activity
             }
         });
 
-        flip = (ViewFlipper)findViewById(R.id.preset_flipper);
-        flip.setDisplayedChild(0);
-        flip_presets = (RadioButton)findViewById(R.id.show_presets);
-        flip_results = (RadioButton)findViewById(R.id.show_results);
-        flip_presets.setChecked(true);
-        flip_presets.setOnClickListener(new Button.OnClickListener()
+        mFlip = (ViewFlipper)findViewById(R.id.preset_flipper);
+        mFlip.setDisplayedChild(0);
+        mFlipPresets = (RadioButton)findViewById(R.id.show_presets);
+        mFlipResults = (RadioButton)findViewById(R.id.show_results);
+        mFlipPresets.setChecked(true);
+        mFlipPresets.setOnClickListener(new Button.OnClickListener()
         {
             public void onClick(View v)
             {
-                flip.setDisplayedChild(0);
+                mFlip.setDisplayedChild(0);
             }
         });
-        flip_results.setOnClickListener(new Button.OnClickListener()
+        mFlipResults.setOnClickListener(new Button.OnClickListener()
         {
             public void onClick(View v)
             {
-                flip.setDisplayedChild(1);
+                mFlip.setDisplayedChild(1);
             }
         });
 
-        db = new ThirdDb(this);
+        mDb = new ThirdDb(this);
 
-        profile_cursor = db.getAllProfiles();
-        startManagingCursor(profile_cursor);
+        mProfileCursor = mDb.getAllProfiles();
+        startManagingCursor(mProfileCursor);
         String[] cols = new String[] {"name"};
         int[] views = new int[] {android.R.id.text1};
-        profiles = new SimpleCursorAdapter(this,
+        mProfiles = new SimpleCursorAdapter(this,
             android.R.layout.simple_spinner_item,
-            profile_cursor, cols, views);
+            mProfileCursor, cols, views);
 
         Spinner profile_view = (Spinner)findViewById(R.id.profiles);
-        profiles.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        profile_view.setAdapter(profiles);
+        mProfiles.setDropDownViewResource(
+            android.R.layout.simple_spinner_dropdown_item);
+        profile_view.setAdapter(mProfiles);
 
-        profile_cursor.moveToFirst();
-        profile = profile_cursor.getInt(0);
+        mProfileCursor.moveToFirst();
+        mProfile = mProfileCursor.getInt(0);
 
         ListView preset_view = (ListView)findViewById(R.id.presets);
         preset_view.setOnItemClickListener(new ListView.OnItemClickListener()
@@ -145,8 +145,8 @@ public class ThirdActivity extends Activity
             }
         });
         loadPresets();
-        log = (TableLayout)findViewById(R.id.log);
-        rng = new Random();
+        mLog = (TableLayout)findViewById(R.id.log);
+        mRNG = new Random();
     }
 
     @Override
@@ -182,8 +182,8 @@ public class ThirdActivity extends Activity
         {
             case ACT_NAME_PRESET:
                 String name = intent.getStringExtra("name");
-                config.setName(name);
-                db.addPreset(profile, config);
+                mConfig.setName(name);
+                mDb.addPreset(mProfile, mConfig);
                 loadPresets();
                 break;
         }
@@ -193,45 +193,45 @@ public class ThirdActivity extends Activity
     private ThirdConfig getConfig()
     {
         ThirdConfig conf = new ThirdConfig();
-        for(DiceCounter c: dice)
+        for(DiceCounter c: mDice)
             conf.setDie(c.sides, c.getValue());
-        conf.setMultiplier(mul.getValue());
-        conf.setModifier(mod.getValue());
+        conf.setMultiplier(mMul.getValue());
+        conf.setModifier(mMod.getValue());
         return conf;
     }
 
     private void loadPresets()
     {
-        preset_cursor = db.getPresets(profile);
-        startManagingCursor(preset_cursor);
-        preset_cursor.moveToFirst();
-        presets = new ArrayAdapter(this, R.layout.preset);
-        while(!preset_cursor.isAfterLast())
+        mPresetCursor = mDb.getPresets(mProfile);
+        startManagingCursor(mPresetCursor);
+        mPresetCursor.moveToFirst();
+        mPresets = new ArrayAdapter(this, R.layout.preset);
+        while(!mPresetCursor.isAfterLast())
         {
-            presets.add(new ThirdConfig(preset_cursor));
-            preset_cursor.moveToNext();
+            mPresets.add(new ThirdConfig(mPresetCursor));
+            mPresetCursor.moveToNext();
         }
 
         ListView preset_view = (ListView)findViewById(R.id.presets);
-        preset_view.setAdapter(presets);
+        preset_view.setAdapter(mPresets);
     }
 
     private void updateConfig()
     {
-        config = getConfig();
+        mConfig = getConfig();
     }
 
     private void setConfig(ThirdConfig conf)
     {
-        for(DiceCounter c: dice)
+        for(DiceCounter c: mDice)
             c.setValue(conf.getDie(c.sides));
-        mul.setValue(conf.getMultiplier());
-        mod.setValue(conf.getModifier());
+        mMul.setValue(conf.getMultiplier());
+        mMod.setValue(conf.getModifier());
     }
 
     private String describeConfig()
     {
-        return config.describeConfig();
+        return mConfig.describeConfig();
     }
 
     private void updateDescription()
@@ -241,25 +241,25 @@ public class ThirdActivity extends Activity
         label.setText(describeConfig());
 
         TextView range = (TextView)findViewById(R.id.range);
-        range.setText(config.describeRange());
+        range.setText(mConfig.describeRange());
 
         ProgressBar bar = (ProgressBar)findViewById(R.id.result_bar);
-        bar.setMax(config.getRange());
+        bar.setMax(mConfig.getRange());
         bar.setProgress(0);
     }
 
     private void clearLog()
     {
-        log.removeAllViews();
+        mLog.removeAllViews();
     }
 
     private void addLog(String label, String outcome)
     {
         TableRow row = new TableRow(this);
-        log.addView(row);
+        mLog.addView(row);
 
         TextView tv1 = new TextView(this);
-        tv1.setText(String.valueOf(log.getChildCount()));
+        tv1.setText(String.valueOf(mLog.getChildCount()));
         tv1.setGravity(Gravity.CENTER_HORIZONTAL);
         row.addView(tv1);
 
@@ -275,7 +275,7 @@ public class ThirdActivity extends Activity
 
     private Integer rollDie(Integer sides)
     {
-        return rng.nextInt(sides) + 1;
+        return mRNG.nextInt(sides) + 1;
     }
 
     private void roll()
@@ -285,7 +285,7 @@ public class ThirdActivity extends Activity
 
         clearLog();
 
-        Vector<Integer> v = config.getDice();
+        Vector<Integer> v = mConfig.getDice();
         for(Integer sides: v)
         {
             outcome = rollDie(Math.abs(sides));
@@ -294,14 +294,14 @@ public class ThirdActivity extends Activity
             result += outcome;
         }
 
-        Integer mul = config.getMultiplier();
+        Integer mul = mConfig.getMultiplier();
         if(mul != 1)
         {
             addLog("*", mul.toString());
             result *= mul;
         }
 
-        Integer mod = config.getModifier();
+        Integer mod = mConfig.getModifier();
         if(mod != 0)
         {
             String sign = (mod < 0) ? "-" : "+";
@@ -310,7 +310,7 @@ public class ThirdActivity extends Activity
         }
 
         ProgressBar bar = (ProgressBar)findViewById(R.id.result_bar);
-        bar.setProgress(result - config.getMin());
+        bar.setProgress(result - mConfig.getMin());
 
         TextView tv = (TextView)findViewById(R.id.result);
         tv.setText(result.toString());

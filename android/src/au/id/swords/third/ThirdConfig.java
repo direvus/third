@@ -11,20 +11,20 @@ import java.lang.StringBuilder;
 
 public class ThirdConfig
 {
-    static int[] sides = {2, 4, 6, 8, 10, 12, 20, 100};
-    Integer id;
-    String name;
-    LinkedHashMap dice = new LinkedHashMap();
-    Integer mul;
-    Integer mod;
+    static int[] mSides = {2, 4, 6, 8, 10, 12, 20, 100};
+    Integer mId;
+    String mName;
+    LinkedHashMap mDice = new LinkedHashMap();
+    Integer mMul;
+    Integer mMod;
 
     public ThirdConfig()
     {
-        name = new String();
-        for(int i: sides)
-            dice.put(i, 0);
-        mul = 1;
-        mod = 0;
+        mName = new String();
+        for(int i: mSides)
+            mDice.put(i, 0);
+        mMul = 1;
+        mMod = 0;
     }
 
     public String colName(int sides)
@@ -34,46 +34,46 @@ public class ThirdConfig
 
     public ThirdConfig(Cursor cur)
     {
-        id = cur.getInt(cur.getColumnIndex("_id"));
-        name = cur.getString(cur.getColumnIndex("name"));
-        for(int i: sides)
-            dice.put(i, cur.getInt(cur.getColumnIndex(colName(i))));
+        mId = cur.getInt(cur.getColumnIndex("_id"));
+        mName = cur.getString(cur.getColumnIndex("name"));
+        for(int i: mSides)
+            mDice.put(i, cur.getInt(cur.getColumnIndex(colName(i))));
 
-        mul = cur.getInt(cur.getColumnIndex("multiplier"));
-        mod = cur.getInt(cur.getColumnIndex("modifier"));
+        mMul = cur.getInt(cur.getColumnIndex("multiplier"));
+        mMod = cur.getInt(cur.getColumnIndex("modifier"));
     }
 
     public ContentValues getValues()
     {
         ContentValues vals = new ContentValues();
-        vals.put("name", name);
-        for(int i: sides)
+        vals.put("name", mName);
+        for(int i: mSides)
             vals.put(colName(i), getDie(i));
 
-        vals.put("multiplier", mul);
-        vals.put("modifier", mod);
+        vals.put("multiplier", mMul);
+        vals.put("modifier", mMod);
         vals.put("dx", 0);
         return vals;
     }
 
     public String getName()
     {
-        return name;
+        return mName;
     }
 
     public Integer getDie(Integer die)
     {
-        return (Integer)dice.get(die);
+        return (Integer)mDice.get(die);
     }
 
     public Vector getDice()
     {
         Vector<Integer> v = new Vector<Integer>();
-        Iterator keys = dice.keySet().iterator();
+        Iterator keys = mDice.keySet().iterator();
         while(keys.hasNext())
         {
             Integer key = (Integer)keys.next();
-            Integer val = (Integer)dice.get(key);
+            Integer val = (Integer)mDice.get(key);
             Integer sign = (val < 0) ? -1 : 1;
             for(Integer i = 0; i < Math.abs(val); i++)
             {
@@ -85,34 +85,34 @@ public class ThirdConfig
 
     public Integer getMultiplier()
     {
-        return mul;
+        return mMul;
     }
 
     public Integer getModifier()
     {
-        return mod;
+        return mMod;
     }
 
     public Integer getMin()
     {
         Integer min = new Integer(0);
-        Iterator vals = dice.values().iterator();
+        Iterator vals = mDice.values().iterator();
         while(vals.hasNext())
             min += (Integer)vals.next();
 
-        return (min * mul) + mod;
+        return (min * mMul) + mMod;
     }
 
     public Integer getMax()
     {
         Integer max = new Integer(0);
-        Iterator keys = dice.keySet().iterator();
+        Iterator keys = mDice.keySet().iterator();
         while(keys.hasNext())
         {
             Integer key = (Integer)keys.next();
-            max += key * (Integer)dice.get(key);
+            max += key * (Integer)mDice.get(key);
         }
-        return (max * mul) + mod;
+        return (max * mMul) + mMod;
     }
 
     public Integer getRange()
@@ -129,11 +129,11 @@ public class ThirdConfig
     {
         StringBuilder sb = new StringBuilder();
         Vector<String> sv = new Vector<String>();
-        Iterator keys = dice.keySet().iterator();
+        Iterator keys = mDice.keySet().iterator();
         while(keys.hasNext())
         {
             Integer k = (Integer)keys.next();
-            Integer v = (Integer)dice.get(k);
+            Integer v = (Integer)mDice.get(k);
             if(v != 0)
             {
                 if(v == 1)
@@ -151,41 +151,41 @@ public class ThirdConfig
                 sb.append(" + ");
         }
 
-        if(mul != 1)
-            sb.append(String.format(" * %d", mul));
+        if(mMul != 1)
+            sb.append(String.format(" * %d", mMul));
 
-        if(mod != 0)
+        if(mMod != 0)
         {
-            if(mod < 0)
-                sb.append(String.format(" - %d", Math.abs(mod)));
+            if(mMod < 0)
+                sb.append(String.format(" - %d", Math.abs(mMod)));
             else
-                sb.append(String.format(" + %d", Math.abs(mod)));
+                sb.append(String.format(" + %d", Math.abs(mMod)));
         }
         return sb.toString();
     }
 
     public String toString()
     {
-        return name + " " + describeConfig();
+        return mName + " " + describeConfig();
     }
 
     public void setName(String s)
     {
-        name = s;
+        mName = s;
     }
 
     public void setDie(Integer die, Integer value)
     {
-        dice.put(die, value);
+        mDice.put(die, value);
     }
 
     public void setMultiplier(Integer value)
     {
-        mul = value;
+        mMul = value;
     }
 
     public void setModifier(Integer value)
     {
-        mod = value;
+        mMod = value;
     }
 }

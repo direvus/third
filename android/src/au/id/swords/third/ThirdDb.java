@@ -10,27 +10,27 @@ public class ThirdDb
 {
     private static final int DB_VERSION = 1;
     private static final String DB_NAME = "presets";
-    private SQLiteDatabase db;
+    private SQLiteDatabase mDb;
 
     public ThirdDb(Context ctx)
     {
         ThirdDbOpener dbo = new ThirdDbOpener(ctx);
-        db = dbo.getWritableDatabase();
+        mDb = dbo.getWritableDatabase();
     }
 
     public void close()
     {
-        db.close();
+        mDb.close();
     }
 
     public Cursor getAllProfiles()
     {
-        return db.query("profile", null, null, null, null, null, "_id");
+        return mDb.query("profile", null, null, null, null, null, "_id");
     }
 
     public Cursor getPresets(Integer profile)
     {
-        return db.query("preset", null, "profile = ?",
+        return mDb.query("preset", null, "profile = ?",
                         new String[] {profile.toString()}, null, null, null);
     }
 
@@ -38,7 +38,7 @@ public class ThirdDb
     {
         ContentValues vals = config.getValues();
         vals.put("profile", profile);
-        return db.insert("preset", "", vals);
+        return mDb.insert("preset", "", vals);
     }
 
     public class ThirdDbOpener extends SQLiteOpenHelper
