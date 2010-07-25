@@ -37,6 +37,7 @@ public class ThirdActivity extends Activity
 {
     ThirdDb mDb;
     ThirdConfig mConfig;
+    boolean mConfigImmutable = false;
     DiceCounter[] mDice;
     Counter mMul;
     Counter mMod;
@@ -73,8 +74,8 @@ public class ThirdActivity extends Activity
         mDice[5] = new DiceCounter(this, R.drawable.d12,  12);
         mDice[6] = new DiceCounter(this, R.drawable.d20,  20);
         mDice[7] = new DiceCounter(this, R.drawable.d100, 100);
-        mMul  = new Counter(this, R.drawable.mul,  "mul");
-        mMod  = new Counter(this, R.drawable.mod,  "mod");
+        mMul = new Counter(this, R.drawable.mul, "mul");
+        mMod = new Counter(this, R.drawable.mod, "mod");
 
         TableLayout t = (TableLayout)findViewById(R.id.counters);
         for(DiceCounter c: mDice)
@@ -147,7 +148,6 @@ public class ThirdActivity extends Activity
                                     int pos, long id)
             {
                 setConfig((ThirdConfig)parent.getItemAtPosition(pos));
-                updateDescription();
                 roll();
             }
         });
@@ -192,17 +192,25 @@ public class ThirdActivity extends Activity
     @Override
     public boolean onContextItemSelected(MenuItem item)
     {
+        AdapterContextMenuInfo info;
+        info = (AdapterContextMenuInfo)item.getMenuInfo();
+        ThirdConfig conf = mPresets.getItem(info.position);
         switch(item.getItemId())
         {
             case RENAME_PRESET:
                 Intent i = new Intent(this, ThirdNamePreset.class);
-                AdapterContextMenuInfo info;
-                info = (AdapterContextMenuInfo)item.getMenuInfo();
-                ThirdConfig conf = mPresets.getItem(info.position);
                 i.putExtra("id", conf.getId());
                 i.putExtra("name", conf.getName());
-                i.putExtra("config", conf.describeConfig());
+                i.putExtra("config", conf.describe());
                 startActivityForResult(i, ACT_NAME_PRESET);
+                return true;
+            case UPDATE_PRESET:
+                mDb.updatePreset(conf.getId(), mConfig);
+                loadPresets();
+                return true;
+            case DEL_PRESET:
+                mDb.deletePreset(conf.getId());
+                loadPresets();
                 return true;
         }
         return super.onContextItemSelected(item);
@@ -234,16 +242,6 @@ public class ThirdActivity extends Activity
         }
     }
 
-    private ThirdConfig getConfig()
-    {
-        ThirdConfig conf = new ThirdConfig();
-        for(DiceCounter c: mDice)
-            conf.setDie(c.sides, c.getValue());
-        conf.setMultiplier(mMul.getValue());
-        conf.setModifier(mMod.getValue());
-        return conf;
-    }
-
     private void loadPresets()
     {
         mPresetCursor = mDb.getPresets(mProfile);
@@ -262,25 +260,31 @@ public class ThirdActivity extends Activity
 
     private void updateConfig()
     {
-        mConfig = getConfig();
+        if(mConfigImmutable)
+            return;
+
+        for(DiceCounter c: mDice)
+            mConfig.setDie(c.sides, c.getValue());
+        mConfig.setMultiplier(mMul.getValue());
+        mConfig.setModifier(mMod.getValue());
     }
 
     private void setConfig(ThirdConfig conf)
     {
-        for(DiceCounter c: mDice)
-            c.setValue(conf.getDie(c.sides));
-        mMul.setValue(conf.getMultiplier());
-        mMod.setValue(conf.getModifier());
+        mConfig = conf;
+        updateFromConfig();
     }
 
-    private String describeConfig()
+    private void updateCounters()
     {
-        return mConfig.describeConfig();
+        for(DiceCounter c: mDice)
+            c.setValue(mConfig.getDie(c.sides));
+        mMul.setValue(mConfig.getMultiplier());
+        mMod.setValue(mConfig.getModifier());
     }
 
     private void updateDescription()
     {
-        updateConfig();
         TextView label = (TextView)findViewById(R.id.config);
         label.setText(describeConfig());
 
@@ -290,6 +294,19 @@ public class ThirdActivity extends Activity
         ProgressBar bar = (ProgressBar)findViewById(R.id.result_bar);
         bar.setMax(mConfig.getRange());
         bar.setProgress(0);
+    }
+
+    private void updateFromConfig()
+    {
+        mConfigImmutable = true;
+        updateCounters();
+        updateDescription();
+        mConfigImmutable = false;
+    }
+
+    private String describeConfig()
+    {
+        return mConfig.describe();
     }
 
     private void clearLog()
@@ -362,8 +379,8 @@ public class ThirdActivity extends Activity
 
     private void resetCounters()
     {
-        setConfig(new ThirdConfig());
-        updateDescription();
+        mConfig.reset();
+        updateFromConfig();
     }
 
     private class Counter extends TableRow
@@ -388,6 +405,7 @@ public class ThirdActivity extends Activity
                 public void onClick(View v)
                 {
                     modValue(1);
+                    updateConfig();
                     updateDescription();
                 }
             });
@@ -396,6 +414,7 @@ public class ThirdActivity extends Activity
             {
                 public void afterTextChanged(Editable s)
                 {
+                    updateConfig();
                     updateDescription();
                 }
                 public void beforeTextChanged(CharSequence s, int start,

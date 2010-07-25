@@ -20,11 +20,22 @@ public class ThirdConfig
 
     public ThirdConfig()
     {
+        mId = 0;
         mName = new String();
+        init();
+    }
+
+    public void init()
+    {
         for(int i: mSides)
             mDice.put(i, 0);
         mMul = 1;
         mMod = 0;
+    }
+
+    public void reset()
+    {
+        init();
     }
 
     public String colName(int sides)
@@ -130,7 +141,7 @@ public class ThirdConfig
         return String.format("%d - %d", getMin(), getMax());
     }
 
-    public String describeConfig()
+    public String describe()
     {
         StringBuilder sb = new StringBuilder();
         Vector<String> sv = new Vector<String>();
@@ -171,7 +182,7 @@ public class ThirdConfig
 
     public String toString()
     {
-        return mName + " " + describeConfig();
+        return mName + " " + describe();
     }
 
     public void setName(String s)

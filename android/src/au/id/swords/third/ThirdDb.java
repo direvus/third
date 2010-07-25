@@ -49,6 +49,19 @@ public class ThirdDb
         return mDb.update("preset", vals, "_id = ?", args);
     }
 
+    public int updatePreset(int id, ThirdConfig config)
+    {
+        String[] args = new String[] {String.valueOf(id)};
+        ContentValues vals = config.getValues();
+        return mDb.update("preset", vals, "_id = ?", args);
+    }
+
+    public int deletePreset(int id)
+    {
+        String[] args = new String[] {String.valueOf(id)};
+        return mDb.delete("preset", "_id = ?", args);
+    }
+
     public class ThirdDbOpener extends SQLiteOpenHelper
     {
         private static final String INIT_PROFILE = 
