@@ -11,6 +11,7 @@ import android.view.View;
 
 public class ThirdNamePreset extends Activity
 {
+    private Integer mId;
     private EditText mName;
     private TextView mConfig;
     private Button mOK;
@@ -28,6 +29,7 @@ public class ThirdNamePreset extends Activity
         mCancel = (Button)findViewById(R.id.cancel);
 
         Intent intent = getIntent();
+        mId = intent.getIntExtra("id", 0);
         String config = intent.getStringExtra("config");
         if(config != null)
             mConfig.setText(config);
@@ -41,6 +43,7 @@ public class ThirdNamePreset extends Activity
             public void onClick(View v)
             {
                 Intent intent = new Intent();
+                intent.putExtra("id", mId);
                 intent.putExtra("name", mName.getText().toString());
                 setResult(RESULT_OK, intent);
                 finish();

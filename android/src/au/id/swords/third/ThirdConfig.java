@@ -56,6 +56,11 @@ public class ThirdConfig
         return vals;
     }
 
+    public Integer getId()
+    {
+        return mId;
+    }
+
     public String getName()
     {
         return mName;

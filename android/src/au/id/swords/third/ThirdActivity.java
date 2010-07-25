@@ -18,6 +18,7 @@ import android.widget.ProgressBar;
 import android.widget.ViewFlipper;
 import android.widget.ArrayAdapter;
 import android.widget.SimpleCursorAdapter;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ContextMenu;
@@ -189,6 +190,25 @@ public class ThirdActivity extends Activity
     }
 
     @Override
+    public boolean onContextItemSelected(MenuItem item)
+    {
+        switch(item.getItemId())
+        {
+            case RENAME_PRESET:
+                Intent i = new Intent(this, ThirdNamePreset.class);
+                AdapterContextMenuInfo info;
+                info = (AdapterContextMenuInfo)item.getMenuInfo();
+                ThirdConfig conf = mPresets.getItem(info.position);
+                i.putExtra("id", conf.getId());
+                i.putExtra("name", conf.getName());
+                i.putExtra("config", conf.describeConfig());
+                startActivityForResult(i, ACT_NAME_PRESET);
+                return true;
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    @Override
     protected void onActivityResult(int reqCode, int resCode, Intent intent)
     {
         super.onActivityResult(reqCode, resCode, intent);
@@ -199,13 +219,20 @@ public class ThirdActivity extends Activity
         {
             case ACT_NAME_PRESET:
                 String name = intent.getStringExtra("name");
-                mConfig.setName(name);
-                mDb.addPreset(mProfile, mConfig);
+                Integer id = intent.getIntExtra("id", 0);
+                if(id != 0)
+                {
+                    mDb.renamePreset(id, name);
+                }
+                else
+                {
+                    mConfig.setName(name);
+                    mDb.addPreset(mProfile, mConfig);
+                }
                 loadPresets();
                 break;
         }
     }
-
 
     private ThirdConfig getConfig()
     {

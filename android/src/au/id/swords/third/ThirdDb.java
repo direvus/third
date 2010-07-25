@@ -41,6 +41,14 @@ public class ThirdDb
         return mDb.insert("preset", "", vals);
     }
 
+    public int renamePreset(int id, String name)
+    {
+        String[] args = new String[] {String.valueOf(id)};
+        ContentValues vals = new ContentValues();
+        vals.put("name", name);
+        return mDb.update("preset", vals, "_id = ?", args);
+    }
+
     public class ThirdDbOpener extends SQLiteOpenHelper
     {
         private static final String INIT_PROFILE = 
