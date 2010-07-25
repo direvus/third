@@ -45,15 +45,18 @@ public class ThirdActivity extends Activity
     ViewFlipper mFlip;
     RadioButton mFlipPresets;
     RadioButton mFlipResults;
-    ArrayAdapter<ThirdConfig> mPresets;
     SimpleCursorAdapter mProfiles;
+    ArrayAdapter<ThirdConfig> mPresets;
     Cursor mProfileCursor;
     Cursor mPresetCursor;
+    Spinner mProfileView;
+    ListView mPresetView;
     Integer mProfile;
     Random mRNG;
 
     private static final int ACT_NAME_PRESET = 0;
     private static final int ACT_NAME_PROFILE = 1;
+    private static final int ACT_DEL_PROFILE = 2;
 
     private static final int ADD_PRESET = Menu.FIRST;
     private static final int ADD_PROFILE = Menu.FIRST + 1;
@@ -129,8 +132,8 @@ public class ThirdActivity extends Activity
 
         mDb = new ThirdDb(this);
 
-        Spinner profile_view = (Spinner)findViewById(R.id.profiles);
-        profile_view.setOnItemSelectedListener(
+        mProfileView = (Spinner)findViewById(R.id.profiles);
+        mProfileView.setOnItemSelectedListener(
             new AdapterView.OnItemSelectedListener()
         {
             public void onItemSelected(AdapterView parent, View v,
@@ -144,8 +147,8 @@ public class ThirdActivity extends Activity
             }
         });
 
-        ListView preset_view = (ListView)findViewById(R.id.presets);
-        preset_view.setOnItemClickListener(new ListView.OnItemClickListener()
+        mPresetView = (ListView)findViewById(R.id.presets);
+        mPresetView.setOnItemClickListener(new ListView.OnItemClickListener()
         {
             public void onItemClick(AdapterView parent, View v,
                                     int pos, long id)
@@ -154,7 +157,7 @@ public class ThirdActivity extends Activity
                 roll();
             }
         });
-        registerForContextMenu(preset_view);
+        registerForContextMenu(mPresetView);
         loadProfiles();
         mLog = (TableLayout)findViewById(R.id.log);
         mRNG = new Random();
@@ -166,6 +169,11 @@ public class ThirdActivity extends Activity
         boolean result = super.onCreateOptionsMenu(menu);
         menu.add(Menu.NONE, ADD_PRESET, Menu.NONE, R.string.add_preset);
         menu.add(Menu.NONE, ADD_PROFILE, Menu.NONE, R.string.add_profile);
+        menu.add(Menu.NONE, RENAME_PROFILE, Menu.NONE, R.string.rename_profile);
+        if(mProfileView.getCount() > 1)
+        {
+            menu.add(Menu.NONE, DEL_PROFILE, Menu.NONE, R.string.del_profile);
+        }
         return result;
     }
 
@@ -183,6 +191,18 @@ public class ThirdActivity extends Activity
             case ADD_PROFILE:
                 i = new Intent(this, ThirdNameProfile.class);
                 startActivityForResult(i, ACT_NAME_PROFILE);
+                return true;
+            case RENAME_PROFILE:
+                i = new Intent(this, ThirdNameProfile.class);
+                i.putExtra("id", mProfile);
+                i.putExtra("name", getProfileName());
+                startActivityForResult(i, ACT_NAME_PROFILE);
+                return true;
+            case DEL_PROFILE:
+                i = new Intent(this, ThirdDelProfile.class);
+                i.putExtra("id", mProfile);
+                i.putExtra("name", getProfileName());
+                startActivityForResult(i, ACT_DEL_PROFILE);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -265,6 +285,19 @@ public class ThirdActivity extends Activity
                     loadProfiles();
                 }
                 break;
+            case ACT_DEL_PROFILE:
+                {
+                    Integer id = intent.getIntExtra("id", 0);
+                    if(id != 0)
+                    {
+                        mDb.deleteProfile(id);
+                        if(mProfile == id)
+                            unsetProfile();
+                        loadProfiles();
+                    }
+                }
+                break;
+
         }
     }
 
@@ -280,9 +313,7 @@ public class ThirdActivity extends Activity
         mProfiles.setDropDownViewResource(
             android.R.layout.simple_spinner_dropdown_item);
 
-        Spinner profile_view = (Spinner)findViewById(R.id.profiles);
-        profile_view.setAdapter(mProfiles);
-
+        mProfileView.setAdapter(mProfiles);
         if(mProfile == null)
         {
             int index = mProfileCursor.getColumnIndex("_id");
@@ -302,15 +333,18 @@ public class ThirdActivity extends Activity
             mPresets.add(new ThirdConfig(mPresetCursor));
             mPresetCursor.moveToNext();
         }
-
-        ListView preset_view = (ListView)findViewById(R.id.presets);
-        preset_view.setAdapter(mPresets);
+        mPresetView.setAdapter(mPresets);
     }
 
     private void setProfile(Integer profile)
     {
         mProfile = profile;
         loadPresets();
+    }
+
+    private void unsetProfile()
+    {
+        mProfile = null;
     }
 
     private void updateConfig()
@@ -362,6 +396,13 @@ public class ThirdActivity extends Activity
     private String describeConfig()
     {
         return mConfig.describe();
+    }
+
+    private String getProfileName()
+    {
+        int pos = mProfileView.getSelectedItemPosition();
+        int index = mProfileCursor.getColumnIndex("name");
+        return mProfileCursor.getString(index);
     }
 
     private void clearLog()

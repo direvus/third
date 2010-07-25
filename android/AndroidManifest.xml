@@ -15,5 +15,6 @@
         </activity>
         <activity android:name=".ThirdNamePreset"/>
         <activity android:name=".ThirdNameProfile"/>
+        <activity android:name=".ThirdDelProfile"/>
     </application>
 </manifest> 
