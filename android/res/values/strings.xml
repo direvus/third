@@ -9,4 +9,8 @@
     <string name="profiles">Profiles</string>
     <string name="add_profile">Add profile</string>
     <string name="rename_profile">Rename profile</string>
+    <string name="add_preset">Add preset</string>
+    <string name="name_preset">Enter a name for the following configuration:</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
 </resources>

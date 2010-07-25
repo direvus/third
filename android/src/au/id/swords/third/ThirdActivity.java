@@ -1,7 +1,8 @@
 package au.id.swords.third;
 
-import android.app.Activity;
 import android.os.Bundle;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.Context;
 import android.widget.Button;
 import android.widget.Spinner;
@@ -47,7 +48,8 @@ public class ThirdActivity extends Activity
     Integer profile;
     Random rng;
 
-    private static final int ADD_PROFILE = Menu.FIRST;
+    private static final int ACT_NAME_PRESET = 0;
+    private static final int ADD_PRESET = Menu.FIRST;
 
     /** Called when the activity is first created. */
     @Override
@@ -131,6 +133,75 @@ public class ThirdActivity extends Activity
         profile_cursor.moveToFirst();
         profile = profile_cursor.getInt(0);
 
+        ListView preset_view = (ListView)findViewById(R.id.presets);
+        preset_view.setOnItemClickListener(new ListView.OnItemClickListener()
+        {
+            public void onItemClick(AdapterView parent, View v,
+                                    int pos, long id)
+            {
+                setConfig((ThirdConfig)parent.getItemAtPosition(pos));
+                updateDescription();
+                roll();
+            }
+        });
+        loadPresets();
+        log = (TableLayout)findViewById(R.id.log);
+        rng = new Random();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        boolean result = super.onCreateOptionsMenu(menu);
+        menu.add(0, ADD_PRESET, 0, R.string.add_preset);
+        return result;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch(item.getItemId())
+        {
+            case ADD_PRESET:
+                Intent i = new Intent(this, ThirdNamePreset.class);
+                i.putExtra("config", describeConfig());
+                startActivityForResult(i, ACT_NAME_PRESET);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int reqCode, int resCode, Intent intent)
+    {
+        super.onActivityResult(reqCode, resCode, intent);
+        if(resCode == RESULT_CANCELED)
+            return;
+
+        switch(reqCode)
+        {
+            case ACT_NAME_PRESET:
+                String name = intent.getStringExtra("name");
+                config.setName(name);
+                db.addPreset(profile, config);
+                loadPresets();
+                break;
+        }
+    }
+
+
+    private ThirdConfig getConfig()
+    {
+        ThirdConfig conf = new ThirdConfig();
+        for(DiceCounter c: dice)
+            conf.setDie(c.sides, c.getValue());
+        conf.setMultiplier(mul.getValue());
+        conf.setModifier(mod.getValue());
+        return conf;
+    }
+
+    private void loadPresets()
+    {
         preset_cursor = db.getPresets(profile);
         startManagingCursor(preset_cursor);
         preset_cursor.moveToFirst();
@@ -143,47 +214,6 @@ public class ThirdActivity extends Activity
 
         ListView preset_view = (ListView)findViewById(R.id.presets);
         preset_view.setAdapter(presets);
-        preset_view.setOnItemClickListener(new ListView.OnItemClickListener()
-        {
-            public void onItemClick(AdapterView parent, View v,
-                                    int pos, long id)
-            {
-                setConfig((ThirdConfig)parent.getItemAtPosition(pos));
-                updateDescription();
-                roll();
-            }
-        });
-        log = (TableLayout)findViewById(R.id.log);
-        rng = new Random();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        boolean result = super.onCreateOptionsMenu(menu);
-        menu.add(0, ADD_PROFILE, 0, R.string.add_profile);
-        return result;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        switch(item.getItemId())
-        {
-            case ADD_PROFILE:
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private ThirdConfig getConfig()
-    {
-        ThirdConfig conf = new ThirdConfig();
-        for(DiceCounter c: dice)
-            conf.setDie(c.sides, c.getValue());
-        conf.setMultiplier(mul.getValue());
-        conf.setModifier(mod.getValue());
-        return conf;
     }
 
     private void updateConfig()

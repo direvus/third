@@ -1,5 +1,6 @@
 package au.id.swords.third;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import java.util.Map;
 import java.util.Vector;
@@ -26,17 +27,33 @@ public class ThirdConfig
         mod = 0;
     }
 
+    public String colName(int sides)
+    {
+        return String.format("d%d", sides);
+    }
+
     public ThirdConfig(Cursor cur)
     {
         id = cur.getInt(cur.getColumnIndex("_id"));
         name = cur.getString(cur.getColumnIndex("name"));
         for(int i: sides)
-        {
-            String col = String.format("d%d", i);
-            dice.put(i, cur.getInt(cur.getColumnIndex(col)));
-        }
+            dice.put(i, cur.getInt(cur.getColumnIndex(colName(i))));
+
         mul = cur.getInt(cur.getColumnIndex("multiplier"));
         mod = cur.getInt(cur.getColumnIndex("modifier"));
+    }
+
+    public ContentValues getValues()
+    {
+        ContentValues vals = new ContentValues();
+        vals.put("name", name);
+        for(int i: sides)
+            vals.put(colName(i), getDie(i));
+
+        vals.put("multiplier", mul);
+        vals.put("modifier", mod);
+        vals.put("dx", 0);
+        return vals;
     }
 
     public String getName()

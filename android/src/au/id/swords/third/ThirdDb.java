@@ -34,6 +34,13 @@ public class ThirdDb
                         new String[] {profile.toString()}, null, null, null);
     }
 
+    public long addPreset(int profile, ThirdConfig config)
+    {
+        ContentValues vals = config.getValues();
+        vals.put("profile", profile);
+        return db.insert("preset", "", vals);
+    }
+
     public class ThirdDbOpener extends SQLiteOpenHelper
     {
         private static final String INIT_PROFILE = 
