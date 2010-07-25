@@ -44,7 +44,7 @@ android/bin/third-debug.apk: $(DROIDFILES) Makefile
 	mkdir -p $(DROID)/res/drawable
 	install images/*.png $(DROID)/res/drawable
 	(cd android && ant debug)
-	adb install -r $@
+	adb start-server && adb install -r $@
 
 clean:
 	rm -rf $(CLEAN)
