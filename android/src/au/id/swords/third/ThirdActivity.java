@@ -526,8 +526,6 @@ public class ThirdActivity extends Activity
                 public void onClick(View v)
                 {
                     modValue(1);
-                    updateConfig();
-                    updateDescription();
                 }
             });
             counter = (EditText)findViewById(R.id.counter);
