@@ -10,12 +10,15 @@ DROIDFILES = images/*.png android/res/layout/* android/res/values/* \
 			 android/*.xml android/*.properties \
 			 android/src/au/id/swords/third/*.java
 CLEAN = $(LINUX) $(WIN32)
+KEY = ~/.keys/android-dev.keystore
 
-all: linux win32
+all: linux win32 android
 
 linux: third.tar.bz2
 
 win32: third-win32-source.zip
+
+android: android/bin/third.apk
 
 android-debug: android/bin/third-debug.apk
 
@@ -38,6 +41,19 @@ third-win32-source.zip: $(WIN32FILES) Makefile
 	mkdir -p $(WIN32)/$(NAME)
 	install $(WIN32FILES) $(WIN32)/$(NAME)
 	(cd $(WIN32) && zip -r ../$@ $(NAME))
+
+android/bin/third-unsigned.apk: $(DROIDFILES) Makefile
+	rm -rf $(DROID)/bin/*
+	mkdir -p $(DROID)/res/drawable
+	install images/*.png $(DROID)/res/drawable
+	(cd android && ant release)
+
+android/bin/third-unaligned.apk: android/bin/third-unsigned.apk
+	cp $< $@
+	jarsigner -verbose -keystore $(KEY) $@ android
+
+android/bin/third.apk: android/bin/third-unaligned.apk
+	zipalign -f -v 4 $< $@
 
 android/bin/third-debug.apk: $(DROIDFILES) Makefile
 	rm -rf $(DROID)/bin/*
