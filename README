@@ -84,7 +84,6 @@ folder.
 
 == Distribution ==
 
-You are free to download, use and redistribute third for whatever purpose and
-in whatever manner pleases you, as long as you include this README file and
-don't try to take the credit for writing it.  The usual disclaimers about
-merchantability and fitness for a particular purpose apply.
+third is open-source, licensed under the Simplified BSD license.  A copy of
+this license can be found in the file named LICENSE in the topmost directory of
+the source code.
