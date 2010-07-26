@@ -39,6 +39,7 @@ public class ThirdActivity extends Activity
     ThirdConfig mConfig;
     boolean mConfigImmutable = false;
     DiceCounter[] mDice;
+    DxCounter mDx;
     ButtonCounter mMul;
     ButtonCounter mMod;
     TableLayout mLog;
@@ -85,12 +86,14 @@ public class ThirdActivity extends Activity
         mDice[7] = new DiceCounter(this, 100, R.drawable.d100);
         mMul = new ButtonCounter(this, "mul", R.drawable.mul);
         mMod = new ButtonCounter(this, "mod", R.drawable.mod);
+        mDx = new DxCounter(this);
 
         TableLayout t = (TableLayout)findViewById(R.id.counters);
         for(DiceCounter c: mDice)
             t.addView(c);
         t.addView(mMod);
         t.addView(mMul);
+        t.addView(mDx);
 
         setConfig(new ThirdConfig());
 
@@ -363,7 +366,9 @@ public class ThirdActivity extends Activity
             return;
 
         for(DiceCounter c: mDice)
-            mConfig.setDie(c.sides, c.getValue());
+            mConfig.setDie(c.getSides(), c.getValue());
+        mConfig.setDx(mDx.getValue());
+        mConfig.setDxSides(mDx.getSides());
         mConfig.setMultiplier(mMul.getValue());
         mConfig.setModifier(mMod.getValue());
     }
@@ -377,7 +382,9 @@ public class ThirdActivity extends Activity
     private void updateCounters()
     {
         for(DiceCounter c: mDice)
-            c.setValue(mConfig.getDie(c.sides));
+            c.setValue(mConfig.getDie(c.getSides()));
+        mDx.setValue(mConfig.getDx());
+        mDx.setSides(mConfig.getDxSides());
         mMul.setValue(mConfig.getMultiplier());
         mMod.setValue(mConfig.getModifier());
     }
@@ -442,7 +449,10 @@ public class ThirdActivity extends Activity
 
     private Integer rollDie(Integer sides)
     {
-        return mRNG.nextInt(sides) + 1;
+        Integer result = mRNG.nextInt(Math.abs(sides)) + 1;
+        if(sides < 0)
+            result = -result;
+        return result;
     }
 
     private void roll()
@@ -455,7 +465,7 @@ public class ThirdActivity extends Activity
         Vector<Integer> v = mConfig.getDice();
         for(Integer sides: v)
         {
-            outcome = rollDie(Math.abs(sides));
+            outcome = rollDie(sides);
             String label = String.format("d%d", Math.abs(sides));
             addLog(label, outcome.toString());
             result += outcome;
@@ -537,7 +547,7 @@ public class ThirdActivity extends Activity
 
         public Integer getValue()
         {
-            try 
+            try
             {
                 return new Integer(mCounter.getText().toString());
             }
@@ -594,12 +604,70 @@ public class ThirdActivity extends Activity
 
     private class DiceCounter extends ButtonCounter
     {
-        int sides;
+        int mSides;
 
         public DiceCounter(Context ctx, int sides, int image)
         {
             super(ctx, String.format("d%d", sides), image);
-            this.sides = sides;
+            mSides = sides;
+        }
+
+        public int getSides()
+        {
+            return mSides;
+        }
+    }
+
+    private class DxCounter extends Counter
+    {
+        EditText mSides;
+
+        public DxCounter(Context ctx)
+        {
+            super(ctx, "dx");
+
+            LayoutInflater li;
+            li = (LayoutInflater)ctx.getSystemService(
+                ctx.LAYOUT_INFLATER_SERVICE);
+            li.inflate(R.layout.dx, this);
+
+            mSides = (EditText)findViewById(R.id.dx_sides);
+            mSides.addTextChangedListener(new TextWatcher()
+            {
+                public void afterTextChanged(Editable s)
+                {
+                    updateConfig();
+                    updateDescription();
+                }
+                public void beforeTextChanged(CharSequence s, int start,
+                                              int count, int after)
+                {
+                }
+                public void onTextChanged(CharSequence s, int start,
+                                          int before, int count)
+                {
+                }
+            });
+
+            mCounter = (EditText)findViewById(R.id.dx);
+            initCounter();
+        }
+
+        public Integer getSides()
+        {
+            try
+            {
+                return new Integer(mSides.getText().toString());
+            }
+            catch(NumberFormatException e)
+            {
+                return new Integer(0);
+            }
+        }
+
+        public void setSides(Integer sides)
+        {
+            mSides.setText(sides.toString());
         }
     }
 }

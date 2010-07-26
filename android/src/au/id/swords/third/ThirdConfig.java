@@ -15,6 +15,8 @@ public class ThirdConfig
     Integer mId;
     String mName;
     LinkedHashMap mDice = new LinkedHashMap();
+    Integer mDxSides;
+    Integer mDx;
     Integer mMul;
     Integer mMod;
 
@@ -29,6 +31,8 @@ public class ThirdConfig
     {
         for(int i: mSides)
             mDice.put(i, 0);
+        mDx = 0;
+        mDxSides = 3;
         mMul = 1;
         mMod = 0;
     }
@@ -50,6 +54,8 @@ public class ThirdConfig
         for(int i: mSides)
             mDice.put(i, cur.getInt(cur.getColumnIndex(colName(i))));
 
+        mDx = cur.getInt(cur.getColumnIndex("dx"));
+        mDxSides = cur.getInt(cur.getColumnIndex("dx_sides"));
         mMul = cur.getInt(cur.getColumnIndex("multiplier"));
         mMod = cur.getInt(cur.getColumnIndex("modifier"));
     }
@@ -61,9 +67,10 @@ public class ThirdConfig
         for(int i: mSides)
             vals.put(colName(i), getDie(i));
 
+        vals.put("dx", mDx);
+        vals.put("dx_sides", mDxSides);
         vals.put("multiplier", mMul);
         vals.put("modifier", mMod);
-        vals.put("dx", 0);
         return vals;
     }
 
@@ -86,17 +93,33 @@ public class ThirdConfig
     {
         Vector<Integer> v = new Vector<Integer>();
         Iterator keys = mDice.keySet().iterator();
+        Integer sign;
         while(keys.hasNext())
         {
             Integer key = (Integer)keys.next();
             Integer val = (Integer)mDice.get(key);
-            Integer sign = (val < 0) ? -1 : 1;
+            sign = (val < 0) ? -1 : 1;
             for(Integer i = 0; i < Math.abs(val); i++)
-            {
                 v.add(sign * key);
-            }
+        }
+
+        if(mDx != 0 && mDxSides != 0)
+        {
+            sign = (mDx < 0) ? -1 : 1;
+            for(Integer i = 0; i < Math.abs(mDx); i++)
+                v.add(sign * mDxSides);
         }
         return v;
+    }
+
+    public Integer getDx()
+    {
+        return mDx;
+    }
+
+    public Integer getDxSides()
+    {
+        return mDxSides;
     }
 
     public Integer getMultiplier()
@@ -116,6 +139,7 @@ public class ThirdConfig
         while(vals.hasNext())
             min += (Integer)vals.next();
 
+        min += mDx;
         return (min * mMul) + mMod;
     }
 
@@ -128,6 +152,7 @@ public class ThirdConfig
             Integer key = (Integer)keys.next();
             max += key * (Integer)mDice.get(key);
         }
+        max += mDxSides * mDx;
         return (max * mMul) + mMod;
     }
 
@@ -157,6 +182,14 @@ public class ThirdConfig
                 else
                     sv.add(String.format("%dd%d", v, k));
             }
+        }
+
+        if(mDx != 0 && mDxSides != 0)
+        {
+            if(mDx == 1)
+                sv.add(String.format("d%d", mDxSides));
+            else
+                sv.add(String.format("%dd%d", mDx, mDxSides));
         }
 
         Iterator it = sv.iterator();
@@ -193,6 +226,16 @@ public class ThirdConfig
     public void setDie(Integer die, Integer value)
     {
         mDice.put(die, value);
+    }
+
+    public void setDx(Integer value)
+    {
+        mDx = value;
+    }
+
+    public void setDxSides(Integer sides)
+    {
+        mDxSides = sides;
     }
 
     public void setMultiplier(Integer value)
