@@ -167,7 +167,7 @@ public class ThirdConfig
                 sb.append(" + ");
         }
 
-        if(mMul != 1)
+        if(mMul != 1 && sb.length() > 0)
             sb.append(String.format(" * %d", mMul));
 
         if(mMod != 0)
