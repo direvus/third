@@ -39,8 +39,8 @@ public class ThirdActivity extends Activity
     ThirdConfig mConfig;
     boolean mConfigImmutable = false;
     DiceCounter[] mDice;
-    Counter mMul;
-    Counter mMod;
+    ButtonCounter mMul;
+    ButtonCounter mMod;
     TableLayout mLog;
     ViewFlipper mFlip;
     RadioButton mFlipPresets;
@@ -75,16 +75,16 @@ public class ThirdActivity extends Activity
         setContentView(R.layout.main);
 
         mDice = new DiceCounter[8];
-        mDice[0] = new DiceCounter(this, R.drawable.d2,   2);
-        mDice[1] = new DiceCounter(this, R.drawable.d4,   4);
-        mDice[2] = new DiceCounter(this, R.drawable.d6,   6);
-        mDice[3] = new DiceCounter(this, R.drawable.d8,   8);
-        mDice[4] = new DiceCounter(this, R.drawable.d10,  10);
-        mDice[5] = new DiceCounter(this, R.drawable.d12,  12);
-        mDice[6] = new DiceCounter(this, R.drawable.d20,  20);
-        mDice[7] = new DiceCounter(this, R.drawable.d100, 100);
-        mMul = new Counter(this, R.drawable.mul, "mul");
-        mMod = new Counter(this, R.drawable.mod, "mod");
+        mDice[0] = new DiceCounter(this,   2, R.drawable.d2);
+        mDice[1] = new DiceCounter(this,   4, R.drawable.d4);
+        mDice[2] = new DiceCounter(this,   6, R.drawable.d6);
+        mDice[3] = new DiceCounter(this,   8, R.drawable.d8);
+        mDice[4] = new DiceCounter(this,  10, R.drawable.d10);
+        mDice[5] = new DiceCounter(this,  12, R.drawable.d12);
+        mDice[6] = new DiceCounter(this,  20, R.drawable.d20);
+        mDice[7] = new DiceCounter(this, 100, R.drawable.d100);
+        mMul = new ButtonCounter(this, "mul", R.drawable.mul);
+        mMod = new ButtonCounter(this, "mod", R.drawable.mod);
 
         TableLayout t = (TableLayout)findViewById(R.id.counters);
         for(DiceCounter c: mDice)
@@ -504,32 +504,20 @@ public class ThirdActivity extends Activity
         updateFromConfig();
     }
 
-    private class Counter extends TableRow
+    abstract private class Counter extends TableRow
     {
-        String name;
-        ImageButton button;
-        EditText counter;
+        String mName;
+        EditText mCounter;
 
-        public Counter(Context ctx, int image, String name)
+        public Counter(Context ctx, String name)
         {
             super(ctx);
+            mName = name;
+        }
 
-            LayoutInflater li;
-            li = (LayoutInflater)ctx.getSystemService(ctx.LAYOUT_INFLATER_SERVICE);
-            li.inflate(R.layout.counter, this);
-
-            this.name = name;
-            button = (ImageButton)findViewById(R.id.button);
-            button.setImageResource(image);
-            button.setOnClickListener(new ImageButton.OnClickListener()
-            {
-                public void onClick(View v)
-                {
-                    modValue(1);
-                }
-            });
-            counter = (EditText)findViewById(R.id.counter);
-            counter.addTextChangedListener(new TextWatcher()
+        protected void initCounter()
+        {
+            mCounter.addTextChangedListener(new TextWatcher()
             {
                 public void afterTextChanged(Editable s)
                 {
@@ -551,7 +539,7 @@ public class ThirdActivity extends Activity
         {
             try 
             {
-                return new Integer(counter.getText().toString());
+                return new Integer(mCounter.getText().toString());
             }
             catch(NumberFormatException e)
             {
@@ -561,7 +549,7 @@ public class ThirdActivity extends Activity
 
         public Integer setValue(Integer value)
         {
-            counter.setText(value.toString());
+            mCounter.setText(value.toString());
             return getValue();
         }
 
@@ -577,13 +565,40 @@ public class ThirdActivity extends Activity
         }
     }
 
-    private class DiceCounter extends Counter
+    private class ButtonCounter extends Counter
+    {
+        ImageButton mButton;
+
+        public ButtonCounter(Context ctx, String name, int image)
+        {
+            super(ctx, name);
+
+            LayoutInflater li;
+            li = (LayoutInflater)ctx.getSystemService(
+                ctx.LAYOUT_INFLATER_SERVICE);
+            li.inflate(R.layout.counter, this);
+
+            mButton = (ImageButton)findViewById(R.id.button);
+            mButton.setImageResource(image);
+            mButton.setOnClickListener(new ImageButton.OnClickListener()
+            {
+                public void onClick(View v)
+                {
+                    modValue(1);
+                }
+            });
+            mCounter = (EditText)findViewById(R.id.counter);
+            initCounter();
+        }
+    }
+
+    private class DiceCounter extends ButtonCounter
     {
         int sides;
 
-        public DiceCounter(Context ctx, int image, int sides)
+        public DiceCounter(Context ctx, int sides, int image)
         {
-            super(ctx, image, String.format("d%d", sides));
+            super(ctx, String.format("d%d", sides), image);
             this.sides = sides;
         }
     }
