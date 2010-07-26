@@ -51,6 +51,8 @@ public class ThirdActivity extends Activity
     Cursor mPresetCursor;
     Spinner mProfileView;
     ListView mPresetView;
+    TextView mResult;
+    Vector<TextView> mResultLog;
     Integer mProfile;
     Random mRNG;
 
@@ -160,6 +162,14 @@ public class ThirdActivity extends Activity
         registerForContextMenu(mPresetView);
         loadProfiles();
         mLog = (TableLayout)findViewById(R.id.log);
+        mResult = (TextView)findViewById(R.id.result);
+
+        mResultLog = new Vector<TextView>();
+        mResultLog.add((TextView)findViewById(R.id.result_log1));
+        mResultLog.add((TextView)findViewById(R.id.result_log2));
+        mResultLog.add((TextView)findViewById(R.id.result_log3));
+        mResultLog.add((TextView)findViewById(R.id.result_log4));
+
         mRNG = new Random();
     }
 
@@ -469,8 +479,23 @@ public class ThirdActivity extends Activity
         ProgressBar bar = (ProgressBar)findViewById(R.id.result_bar);
         bar.setProgress(result - mConfig.getMin());
 
-        TextView tv = (TextView)findViewById(R.id.result);
-        tv.setText(result.toString());
+        shiftResults();
+        mResult.setText(result.toString());
+    }
+
+    private void shiftResults()
+    {
+        String value = mResult.getText().toString();
+        String next;
+        for(TextView v: mResultLog)
+        {
+            if(value == "")
+                break;
+
+            next = v.getText().toString();
+            v.setText(value);
+            value = next;
+        }
     }
 
     private void resetCounters()

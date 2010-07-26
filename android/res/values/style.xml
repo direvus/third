@@ -4,6 +4,12 @@
         <item name="android:gravity">right</item>
         <item name="android:textStyle">bold</item>
     </style>
+    <style name="result_log1" parent="@android:style/TextAppearance.Medium">
+        <item name="android:gravity">right</item>
+    </style>
+    <style name="result_log" parent="@android:style/TextAppearance.Small">
+        <item name="android:gravity">right</item>
+    </style>
     <style name="config" parent="@android:style/TextAppearance.Large">
         <item name="android:gravity">center_horizontal</item>
     </style>
