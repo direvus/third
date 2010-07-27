@@ -70,9 +70,9 @@ public class ThirdActivity extends Activity
     private static final int DEL_PROFILE = Menu.FIRST + 6;
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
+    public void onCreate(Bundle state)
     {
-        super.onCreate(savedInstanceState);
+        super.onCreate(state);
         setContentView(R.layout.main);
 
         mDice = new DiceCounter[8];
@@ -174,6 +174,26 @@ public class ThirdActivity extends Activity
         mResultLog.add((TextView)findViewById(R.id.result_log4));
 
         mRNG = new Random();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle state)
+    {
+        for(DiceCounter c: mDice)
+            state.putInt(c.getName(), c.getValue());
+        state.putInt("mul", mMul.getValue());
+        state.putInt("mod", mMod.getValue());
+        super.onSaveInstanceState(state);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle state)
+    {
+        super.onRestoreInstanceState(state);
+        for(DiceCounter c: mDice)
+            c.setValue(state.getInt(c.getName()));
+        mMul.setValue(state.getInt("mul"));
+        mMod.setValue(state.getInt("mod"));
     }
 
     @Override
@@ -543,6 +563,11 @@ public class ThirdActivity extends Activity
                 {
                 }
             });
+        }
+
+        public String getName()
+        {
+            return mName;
         }
 
         public Integer getValue()
