@@ -1,9 +1,18 @@
 #!/usr/bin/env python
-"""THIR: That's How I Roll
+"""
+third: That's How I Roll Dice
+    A dice roller for roleplaying nerds.
+        http://swords.id.au/third/
 
-A dice roller for roleplaying nerds.
+Copyright (c) 2010, Brendan Jurd <bj@swords.id.au>
+All rights reserved.
 
-THIR provides all of the common dice used in roleplaying: d2, d4, d6, d8, d10,
+third is open-source, licensed under the Simplified BSD License, a copy of
+which can be found in the file LICENSE at the top level of the source code.
+
+----
+
+third provides all of the common dice used in roleplaying: d2, d4, d6, d8, d10,
 d12, d20 and d100.  It also lets you roll dice with an arbitrary number of
 sides.
 
