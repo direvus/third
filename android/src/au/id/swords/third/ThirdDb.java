@@ -19,7 +19,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class ThirdDb
 {
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2;
     private static final String DB_NAME = "presets";
     private SQLiteDatabase mDb;
 
@@ -45,6 +45,11 @@ public class ThirdDb
                         new String[] {profile.toString()}, null, null, null);
     }
 
+    public Cursor getIncludes()
+    {
+        return mDb.query("include", null, null, null, null, null, "preset");
+    }
+
     public long addProfile(String name)
     {
         ContentValues vals = new ContentValues();
@@ -63,8 +68,20 @@ public class ThirdDb
     public int deleteProfile(int id)
     {
         String[] args = new String[] {String.valueOf(id)};
-        mDb.delete("preset", "profile = ?", args);
-        return mDb.delete("profile", "_id = ?", args);
+        mDb.beginTransaction();
+        int res;
+        try
+        {
+            mDb.delete("include", "preset IN (SELECT _id FROM preset WHERE profile = ?)", args);
+            mDb.delete("preset", "profile = ?", args);
+            res = mDb.delete("profile", "_id = ?", args);
+            mDb.setTransactionSuccessful();
+        }
+        finally
+        {
+            mDb.endTransaction();
+        }
+        return res;
     }
 
     public long addPreset(int profile, ThirdConfig config)
@@ -92,7 +109,34 @@ public class ThirdDb
     public int deletePreset(int id)
     {
         String[] args = new String[] {String.valueOf(id)};
-        return mDb.delete("preset", "_id = ?", args);
+        int res;
+        mDb.beginTransaction();
+        try
+        {
+            mDb.delete("include", "? IN (preset, includes)", args);
+            res = mDb.delete("preset", "_id = ?", args);
+            mDb.setTransactionSuccessful();
+        }
+        finally
+        {
+            mDb.endTransaction();
+        }
+        return res;
+    }
+
+    public long addInclude(int preset, int includes)
+    {
+        ContentValues vals = new ContentValues();
+        vals.put("preset", preset);
+        vals.put("includes", includes);
+        return mDb.insert("include", "", vals);
+    }
+
+    public int deleteInclude(int preset, int includes)
+    {
+        String[] args = new String[] {
+            String.valueOf(preset), String.valueOf(includes)};
+        return mDb.delete("include", "preset = ? AND includes = ?", args);
     }
 
     public class ThirdDbOpener extends SQLiteOpenHelper
@@ -106,18 +150,23 @@ public class ThirdDb
             " _id INTEGER PRIMARY KEY AUTOINCREMENT," +
             " profile INT NOT NULL REFERENCES profile(_id)," +
             " name TEXT," +
-            " d2 INTEGER NOT NULL," +
-            " d4 INTEGER NOT NULL," +
-            " d6 INTEGER NOT NULL," +
-            " d8 INTEGER NOT NULL," +
-            " d10 INTEGER NOT NULL," +
-            " d12 INTEGER NOT NULL," +
-            " d20 INTEGER NOT NULL," +
-            " d100 INTEGER NOT NULL," +
-            " dx INTEGER NOT NULL," +
+            " d2 INTEGER NOT NULL DEFAULT 0," +
+            " d4 INTEGER NOT NULL DEFAULT 0," +
+            " d6 INTEGER NOT NULL DEFAULT 0," +
+            " d8 INTEGER NOT NULL DEFAULT 0," +
+            " d10 INTEGER NOT NULL DEFAULT 0," +
+            " d12 INTEGER NOT NULL DEFAULT 0," +
+            " d20 INTEGER NOT NULL DEFAULT 0," +
+            " d100 INTEGER NOT NULL DEFAULT 0," +
+            " dx INTEGER NOT NULL DEFAULT 0," +
             " dx_sides INTEGER," +
-            " multiplier INTEGER NOT NULL," +
-            " modifier INTEGER NOT NULL);";
+            " multiplier INTEGER NOT NULL DEFAULT 1," +
+            " modifier INTEGER NOT NULL DEFAULT 0);";
+        private static final String INIT_INCLUDE =
+            "CREATE TABLE include (" +
+            " _id INTEGER PRIMARY KEY AUTOINCREMENT," +
+            " preset INTEGER NOT NULL REFERENCES preset(_id)," +
+            " includes INTEGER NOT NULL REFERENCES preset(_id));";
 
         public ThirdDbOpener(Context ctx)
         {
@@ -129,6 +178,7 @@ public class ThirdDb
         {
             db.execSQL(INIT_PROFILE);
             db.execSQL(INIT_PRESET);
+            db.execSQL(INIT_INCLUDE);
 
             ContentValues def = new ContentValues();
             def.put("name", "Default");
@@ -138,9 +188,17 @@ public class ThirdDb
         @Override
         public void onUpgrade(SQLiteDatabase db, int v1, int v2)
         {
-            db.execSQL("DROP TABLE IF EXISTS preset;");
-            db.execSQL("DROP TABLE IF EXISTS profile;");
-            onCreate(db);
+            if (v1 < 1)
+            {
+                db.execSQL("DROP TABLE IF EXISTS preset;");
+                db.execSQL("DROP TABLE IF EXISTS profile;");
+                db.execSQL("DROP TABLE IF EXISTS include;");
+                onCreate(db);
+            }
+            else if (v1 < 2)
+            {
+                db.execSQL(INIT_INCLUDE);
+            }
         }
     }
 }

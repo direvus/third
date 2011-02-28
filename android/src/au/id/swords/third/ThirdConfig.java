@@ -16,6 +16,7 @@ import android.database.Cursor;
 import java.util.Map;
 import java.util.Vector;
 import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Enumeration;
 import java.lang.StringBuilder;
@@ -25,6 +26,7 @@ public class ThirdConfig
     static int[] mSides = {2, 4, 6, 8, 10, 12, 20, 100};
     Integer mId;
     String mName;
+    ArrayList<ThirdConfig> mIncludes = new ArrayList<ThirdConfig>();
     LinkedHashMap mDice = new LinkedHashMap();
     Integer mDxSides;
     Integer mDx;
@@ -69,6 +71,11 @@ public class ThirdConfig
         mDxSides = cur.getInt(cur.getColumnIndex("dx_sides"));
         mMul = cur.getInt(cur.getColumnIndex("multiplier"));
         mMod = cur.getInt(cur.getColumnIndex("modifier"));
+    }
+
+    public void addInclude(ThirdConfig include)
+    {
+        mIncludes.add(include);
     }
 
     public ContentValues getValues()
@@ -143,9 +150,20 @@ public class ThirdConfig
         return mMod;
     }
 
+    public ArrayList<ThirdConfig> getIncludes()
+    {
+        return mIncludes;
+    }
+
     public Integer getMin()
     {
         Integer min = new Integer(0);
+
+        for(ThirdConfig inc: mIncludes)
+        {
+            min += inc.getMin();
+        }
+
         Iterator vals = mDice.values().iterator();
         while(vals.hasNext())
             min += (Integer)vals.next();
@@ -157,6 +175,12 @@ public class ThirdConfig
     public Integer getMax()
     {
         Integer max = new Integer(0);
+
+        for(ThirdConfig inc: mIncludes)
+        {
+            max += inc.getMax();
+        }
+
         Iterator keys = mDice.keySet().iterator();
         while(keys.hasNext())
         {
@@ -181,6 +205,12 @@ public class ThirdConfig
     {
         StringBuilder sb = new StringBuilder();
         Vector<String> sv = new Vector<String>();
+
+        for(ThirdConfig inc: mIncludes)
+        {
+            sv.add(inc.describeInclude());
+        }
+
         Iterator keys = mDice.keySet().iterator();
         while(keys.hasNext())
         {
@@ -222,6 +252,11 @@ public class ThirdConfig
                 sb.append(String.format(" + %d", Math.abs(mMod)));
         }
         return sb.toString();
+    }
+
+    public String describeInclude()
+    {
+        return "[" + mName + "]";
     }
 
     public String toString()

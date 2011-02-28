@@ -1,4 +1,5 @@
 /*
+ *
  * third: That's How I Roll Dice
  *     A dice roller for roleplaying nerds.
  *         http://swords.id.au/third/
@@ -43,6 +44,7 @@ import android.text.TextWatcher;
 import android.database.Cursor;
 import java.util.Random;
 import java.util.Vector;
+import java.util.LinkedHashMap;
 
 public class ThirdActivity extends Activity
 {
@@ -58,9 +60,11 @@ public class ThirdActivity extends Activity
     RadioButton mFlipPresets;
     RadioButton mFlipResults;
     SimpleCursorAdapter mProfiles;
-    ArrayAdapter<ThirdConfig> mPresets;
+    LinkedHashMap<Integer, ThirdConfig> mPresets;
+    ArrayAdapter<ThirdConfig> mPresetAdapter;
     Cursor mProfileCursor;
     Cursor mPresetCursor;
+    Cursor mIncludeCursor;
     Spinner mProfileView;
     ListView mPresetView;
     TextView mResult;
@@ -79,6 +83,7 @@ public class ThirdActivity extends Activity
     private static final int DEL_PRESET = Menu.FIRST + 4;
     private static final int RENAME_PROFILE = Menu.FIRST + 5;
     private static final int DEL_PROFILE = Menu.FIRST + 6;
+    private static final int ADD_PRESET_INC = Menu.FIRST + 7;
 
     @Override
     public void onCreate(Bundle state)
@@ -98,6 +103,9 @@ public class ThirdActivity extends Activity
         mMul = new ButtonCounter(this, "mul", R.drawable.mul);
         mMod = new ButtonCounter(this, "mod", R.drawable.mod);
         mDx = new DxCounter(this);
+
+        mPresets = new LinkedHashMap<Integer, ThirdConfig>();
+        mPresetAdapter = new ArrayAdapter<ThirdConfig>(this, R.layout.preset);
 
         TableLayout t = (TableLayout)findViewById(R.id.counters);
         for(DiceCounter c: mDice)
@@ -259,22 +267,30 @@ public class ThirdActivity extends Activity
         super.onCreateContextMenu(menu, v, info);
         menu.add(Menu.NONE, RENAME_PRESET, Menu.NONE, R.string.rename_preset);
         menu.add(Menu.NONE, UPDATE_PRESET, Menu.NONE, R.string.update_preset);
+        menu.add(Menu.NONE, ADD_PRESET_INC, Menu.NONE, R.string.add_preset_inc);
         menu.add(Menu.NONE, DEL_PRESET, Menu.NONE, R.string.del_preset);
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item)
     {
+        Intent i;
         AdapterContextMenuInfo info;
         info = (AdapterContextMenuInfo)item.getMenuInfo();
-        ThirdConfig conf = mPresets.getItem(info.position);
+        ThirdConfig conf = mPresetAdapter.getItem(info.position);
         switch(item.getItemId())
         {
             case RENAME_PRESET:
-                Intent i = new Intent(this, ThirdNamePreset.class);
+                i = new Intent(this, ThirdNamePreset.class);
                 i.putExtra("id", conf.getId());
                 i.putExtra("name", conf.getName());
                 i.putExtra("config", conf.describe());
+                startActivityForResult(i, ACT_NAME_PRESET);
+                return true;
+            case ADD_PRESET_INC:
+                i = new Intent(this, ThirdNamePreset.class);
+                i.putExtra("config", conf.describeInclude());
+                i.putExtra("include", conf.getId());
                 startActivityForResult(i, ACT_NAME_PRESET);
                 return true;
             case UPDATE_PRESET:
@@ -302,9 +318,19 @@ public class ThirdActivity extends Activity
                 {
                     String name = intent.getStringExtra("name");
                     Integer id = intent.getIntExtra("id", 0);
+                    Integer inc = intent.getIntExtra("include", 0);
                     if(id != 0)
                     {
                         mDb.renamePreset(id, name);
+                    }
+                    else if(inc != 0)
+                    {
+                        ThirdConfig conf = new ThirdConfig();
+                        conf.setName(name);
+                        conf.addInclude(mPresets.get(inc));
+
+                        long preset = mDb.addPreset(mProfile, conf);
+                        mDb.addInclude((int) preset, inc.intValue());
                     }
                     else
                     {
@@ -371,13 +397,35 @@ public class ThirdActivity extends Activity
         mPresetCursor = mDb.getPresets(mProfile);
         startManagingCursor(mPresetCursor);
         mPresetCursor.moveToFirst();
-        mPresets = new ArrayAdapter(this, R.layout.preset);
+        mPresets.clear();
         while(!mPresetCursor.isAfterLast())
         {
-            mPresets.add(new ThirdConfig(mPresetCursor));
+            ThirdConfig conf = new ThirdConfig(mPresetCursor);
+            mPresets.put(conf.getId(), conf);
             mPresetCursor.moveToNext();
         }
-        mPresetView.setAdapter(mPresets);
+        mPresetAdapter.clear();
+        for(ThirdConfig conf: mPresets.values())
+        {
+            mPresetAdapter.add(conf);
+        }
+        mPresetView.setAdapter(mPresetAdapter);
+
+        mIncludeCursor = mDb.getIncludes();
+        startManagingCursor(mIncludeCursor);
+        int presetCol = mIncludeCursor.getColumnIndex("preset");
+        int includeCol = mIncludeCursor.getColumnIndex("includes");
+        mIncludeCursor.moveToFirst();
+        while(!mIncludeCursor.isAfterLast())
+        {
+            Integer preset = mIncludeCursor.getInt(presetCol);
+            Integer include = mIncludeCursor.getInt(includeCol);
+            if(mPresets.containsKey(preset) && mPresets.containsKey(include))
+            {
+                mPresets.get(preset).addInclude(mPresets.get(include));
+            }
+            mIncludeCursor.moveToNext();
+        }
     }
 
     private void setProfile(Integer profile)
@@ -488,12 +536,27 @@ public class ThirdActivity extends Activity
 
     private void roll()
     {
+        clearLog();
+        Integer result = roll(mConfig);
+
+        ProgressBar bar = (ProgressBar)findViewById(R.id.result_bar);
+        bar.setProgress(result - mConfig.getMin());
+
+        shiftResults();
+        mResult.setText(result.toString());
+    }
+
+    private Integer roll(ThirdConfig conf)
+    {
         Integer result = new Integer(0);
         Integer outcome;
 
-        clearLog();
+        for(ThirdConfig inc: conf.getIncludes())
+        {
+            result += roll(inc);
+        }
 
-        Vector<Integer> v = mConfig.getDice();
+        Vector<Integer> v = conf.getDice();
         for(Integer sides: v)
         {
             outcome = rollDie(sides);
@@ -502,26 +565,21 @@ public class ThirdActivity extends Activity
             result += outcome;
         }
 
-        Integer mul = mConfig.getMultiplier();
+        Integer mul = conf.getMultiplier();
         if(mul != 1)
         {
             addLog("*", mul.toString());
             result *= mul;
         }
 
-        Integer mod = mConfig.getModifier();
+        Integer mod = conf.getModifier();
         if(mod != 0)
         {
             String sign = (mod < 0) ? "-" : "+";
             addLog(sign, String.valueOf(Math.abs(mod)));
             result += mod;
         }
-
-        ProgressBar bar = (ProgressBar)findViewById(R.id.result_bar);
-        bar.setProgress(result - mConfig.getMin());
-
-        shiftResults();
-        mResult.setText(result.toString());
+        return result;
     }
 
     private void shiftResults()

@@ -23,6 +23,7 @@ import android.view.View;
 public class ThirdNamePreset extends Activity
 {
     private Integer mId;
+    private Integer mInclude;
     private EditText mName;
     private TextView mConfig;
     private Button mOK;
@@ -41,6 +42,7 @@ public class ThirdNamePreset extends Activity
 
         Intent intent = getIntent();
         mId = intent.getIntExtra("id", 0);
+        mInclude = intent.getIntExtra("include", 0);
         String config = intent.getStringExtra("config");
         if(config != null)
             mConfig.setText(config);
@@ -56,6 +58,7 @@ public class ThirdNamePreset extends Activity
                 Intent intent = new Intent();
                 intent.putExtra("id", mId);
                 intent.putExtra("name", mName.getText().toString());
+                intent.putExtra("include", mInclude);
                 setResult(RESULT_OK, intent);
                 finish();
             }
