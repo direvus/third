@@ -17,14 +17,21 @@
     >
     <TextView
         android:id="@+id/header"
-        android:text="@string/name_profile"
+        android:text="@string/add_inc_msg"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         />
-    <EditText
-        android:id="@+id/profile_name"
+    <TextView
+        android:id="@+id/config"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        style="@style/config"
+        />
+    <Spinner
+        android:id="@+id/presets"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:prompt="@string/add_inc_msg"
         />
     <LinearLayout
         android:layout_width="fill_parent"

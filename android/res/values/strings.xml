@@ -25,6 +25,8 @@
     <string name="rename_preset">Rename preset</string>
     <string name="update_preset">Update preset</string>
     <string name="add_preset_inc">Use in new preset</string>
+    <string name="add_inc">Include a preset</string>
+    <string name="add_inc_msg">Select a preset to include</string>
     <string name="del_preset">Delete preset</string>
     <string name="name_profile">Enter a name for the profile:</string>
     <string name="name_preset">Enter a name for this configuration:</string>

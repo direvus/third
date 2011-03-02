@@ -32,7 +32,7 @@ public class ThirdNameProfile extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.name_profile);
 
-        mName = (EditText)findViewById(R.id.name);
+        mName = (EditText)findViewById(R.id.profile_name);
         mOK = (Button)findViewById(R.id.ok);
         mCancel = (Button)findViewById(R.id.cancel);
 

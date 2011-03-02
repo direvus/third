@@ -12,8 +12,8 @@
     -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="au.id.swords.third"
-          android:versionCode="2"
-          android:versionName="1.01">
+          android:versionCode="3"
+          android:versionName="1.1">
     <application android:label="@string/app_name"
                  android:icon="@drawable/app_48"
                  android:theme="@android:style/Theme.NoTitleBar">
@@ -29,6 +29,7 @@
         <activity android:name=".ThirdNamePreset"/>
         <activity android:name=".ThirdNameProfile"/>
         <activity android:name=".ThirdDelProfile"/>
+        <activity android:name=".ThirdAddInclude"/>
     </application>
     <uses-sdk android:minSdkVersion="3"/>
 </manifest> 

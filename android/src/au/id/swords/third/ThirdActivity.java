@@ -62,6 +62,7 @@ public class ThirdActivity extends Activity
     SimpleCursorAdapter mProfiles;
     LinkedHashMap<Integer, ThirdConfig> mPresets;
     ArrayAdapter<ThirdConfig> mPresetAdapter;
+    ArrayAdapter<ThirdConfig> mOtherAdapter;
     Cursor mProfileCursor;
     Cursor mPresetCursor;
     Cursor mIncludeCursor;
@@ -75,6 +76,7 @@ public class ThirdActivity extends Activity
     private static final int ACT_NAME_PRESET = 0;
     private static final int ACT_NAME_PROFILE = 1;
     private static final int ACT_DEL_PROFILE = 2;
+    private static final int ACT_ADD_INC = 3;
 
     private static final int ADD_PRESET = Menu.FIRST;
     private static final int ADD_PROFILE = Menu.FIRST + 1;
@@ -84,6 +86,7 @@ public class ThirdActivity extends Activity
     private static final int RENAME_PROFILE = Menu.FIRST + 5;
     private static final int DEL_PROFILE = Menu.FIRST + 6;
     private static final int ADD_PRESET_INC = Menu.FIRST + 7;
+    private static final int ADD_INC = Menu.FIRST + 8;
 
     @Override
     public void onCreate(Bundle state)
@@ -106,8 +109,10 @@ public class ThirdActivity extends Activity
 
         mPresets = new LinkedHashMap<Integer, ThirdConfig>();
         mPresetAdapter = new ArrayAdapter<ThirdConfig>(this, R.layout.preset);
+        mOtherAdapter = new ArrayAdapter<ThirdConfig>(this,
+                android.R.layout.simple_spinner_item);
 
-        TableLayout t = (TableLayout)findViewById(R.id.counters);
+        TableLayout t = (TableLayout) findViewById(R.id.counters);
         for(DiceCounter c: mDice)
             t.addView(c);
         t.addView(mMod);
@@ -116,7 +121,7 @@ public class ThirdActivity extends Activity
 
         setConfig(new ThirdConfig());
 
-        Button reset = (Button)findViewById(R.id.reset);
+        Button reset = (Button) findViewById(R.id.reset);
         reset.setOnClickListener(new Button.OnClickListener()
         {
             public void onClick(View v)
@@ -125,7 +130,7 @@ public class ThirdActivity extends Activity
             }
         });
 
-        Button roll = (Button)findViewById(R.id.roll);
+        Button roll = (Button) findViewById(R.id.roll);
         roll.setOnClickListener(new Button.OnClickListener()
         {
             public void onClick(View v)
@@ -134,10 +139,10 @@ public class ThirdActivity extends Activity
             }
         });
 
-        mFlip = (ViewFlipper)findViewById(R.id.preset_flipper);
+        mFlip = (ViewFlipper) findViewById(R.id.preset_flipper);
         mFlip.setDisplayedChild(0);
-        mFlipPresets = (RadioButton)findViewById(R.id.show_presets);
-        mFlipResults = (RadioButton)findViewById(R.id.show_results);
+        mFlipPresets = (RadioButton) findViewById(R.id.show_presets);
+        mFlipResults = (RadioButton) findViewById(R.id.show_results);
         mFlipPresets.setChecked(true);
         mFlipPresets.setOnClickListener(new Button.OnClickListener()
         {
@@ -156,14 +161,14 @@ public class ThirdActivity extends Activity
 
         mDb = new ThirdDb(this);
 
-        mProfileView = (Spinner)findViewById(R.id.profiles);
+        mProfileView = (Spinner) findViewById(R.id.profiles);
         mProfileView.setOnItemSelectedListener(
             new AdapterView.OnItemSelectedListener()
         {
             public void onItemSelected(AdapterView parent, View v,
                                        int pos, long id)
             {
-                setProfile(new Integer((int)id));
+                setProfile(new Integer((int) id));
             }
 
             public void onNothingSelected(AdapterView parent)
@@ -171,26 +176,26 @@ public class ThirdActivity extends Activity
             }
         });
 
-        mPresetView = (ListView)findViewById(R.id.presets);
+        mPresetView = (ListView) findViewById(R.id.presets);
         mPresetView.setOnItemClickListener(new ListView.OnItemClickListener()
         {
             public void onItemClick(AdapterView parent, View v,
                                     int pos, long id)
             {
-                setConfig((ThirdConfig)parent.getItemAtPosition(pos));
+                setConfig((ThirdConfig) parent.getItemAtPosition(pos));
                 roll();
             }
         });
         registerForContextMenu(mPresetView);
         loadProfiles();
-        mLog = (TableLayout)findViewById(R.id.log);
-        mResult = (TextView)findViewById(R.id.result);
+        mLog = (TableLayout) findViewById(R.id.log);
+        mResult = (TextView) findViewById(R.id.result);
 
         mResultLog = new Vector<TextView>();
-        mResultLog.add((TextView)findViewById(R.id.result_log1));
-        mResultLog.add((TextView)findViewById(R.id.result_log2));
-        mResultLog.add((TextView)findViewById(R.id.result_log3));
-        mResultLog.add((TextView)findViewById(R.id.result_log4));
+        mResultLog.add((TextView) findViewById(R.id.result_log1));
+        mResultLog.add((TextView) findViewById(R.id.result_log2));
+        mResultLog.add((TextView) findViewById(R.id.result_log3));
+        mResultLog.add((TextView) findViewById(R.id.result_log4));
 
         mRNG = new Random();
     }
@@ -268,30 +273,56 @@ public class ThirdActivity extends Activity
         menu.add(Menu.NONE, RENAME_PRESET, Menu.NONE, R.string.rename_preset);
         menu.add(Menu.NONE, UPDATE_PRESET, Menu.NONE, R.string.update_preset);
         menu.add(Menu.NONE, ADD_PRESET_INC, Menu.NONE, R.string.add_preset_inc);
+        if(mPresets.size() > 1)
+        {
+            menu.add(Menu.NONE, ADD_INC, Menu.NONE, R.string.add_inc);
+        }
         menu.add(Menu.NONE, DEL_PRESET, Menu.NONE, R.string.del_preset);
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item)
     {
-        Intent i;
+        Intent intent;
         AdapterContextMenuInfo info;
-        info = (AdapterContextMenuInfo)item.getMenuInfo();
+        info = (AdapterContextMenuInfo) item.getMenuInfo();
         ThirdConfig conf = mPresetAdapter.getItem(info.position);
         switch(item.getItemId())
         {
             case RENAME_PRESET:
-                i = new Intent(this, ThirdNamePreset.class);
-                i.putExtra("id", conf.getId());
-                i.putExtra("name", conf.getName());
-                i.putExtra("config", conf.describe());
-                startActivityForResult(i, ACT_NAME_PRESET);
+                intent = new Intent(this, ThirdNamePreset.class);
+                intent.putExtra("id", conf.getId());
+                intent.putExtra("name", conf.getName());
+                intent.putExtra("config", conf.describe());
+                startActivityForResult(intent, ACT_NAME_PRESET);
                 return true;
             case ADD_PRESET_INC:
-                i = new Intent(this, ThirdNamePreset.class);
-                i.putExtra("config", conf.describeInclude());
-                i.putExtra("include", conf.getId());
-                startActivityForResult(i, ACT_NAME_PRESET);
+                intent = new Intent(this, ThirdNamePreset.class);
+                intent.putExtra("config", conf.describeInclude());
+                intent.putExtra("include", conf.getId());
+                startActivityForResult(intent, ACT_NAME_PRESET);
+                return true;
+            case ADD_INC:
+                intent = new Intent(this, ThirdAddInclude.class);
+                intent.putExtra("id", conf.getId());
+                intent.putExtra("config", conf.describe());
+
+                int[] ids = new int[mPresets.size() - 1];
+                String[] labels = new String[mPresets.size() - 1];
+                int i = 0;
+
+                for(ThirdConfig c: mPresets.values())
+                {
+                    if(c.getId() != conf.getId())
+                    {
+                        ids[i] = c.getId();
+                        labels[i] = c.toString();
+                    }
+                    i++;
+                }
+                intent.putExtra("ids", ids);
+                intent.putExtra("labels", labels);
+                startActivityForResult(intent, ACT_ADD_INC);
                 return true;
             case UPDATE_PRESET:
                 mDb.updatePreset(conf.getId(), mConfig);
@@ -355,6 +386,17 @@ public class ThirdActivity extends Activity
                     loadProfiles();
                 }
                 break;
+            case ACT_ADD_INC:
+                {
+                    Integer id = intent.getIntExtra("id", 0);
+                    Integer inc = intent.getIntExtra("include", 0);
+                    if(id != inc && id != 0 && inc != 0)
+                    {
+                        mDb.addInclude(id, inc);
+                    }
+                    loadPresets();
+                }
+                break;
             case ACT_DEL_PROFILE:
                 {
                     Integer id = intent.getIntExtra("id", 0);
@@ -367,7 +409,6 @@ public class ThirdActivity extends Activity
                     }
                 }
                 break;
-
         }
     }
 
@@ -470,13 +511,13 @@ public class ThirdActivity extends Activity
 
     private void updateDescription()
     {
-        TextView label = (TextView)findViewById(R.id.config);
+        TextView label = (TextView) findViewById(R.id.config);
         label.setText(describeConfig());
 
-        TextView range = (TextView)findViewById(R.id.range);
+        TextView range = (TextView) findViewById(R.id.range);
         range.setText(mConfig.describeRange());
 
-        ProgressBar bar = (ProgressBar)findViewById(R.id.result_bar);
+        ProgressBar bar = (ProgressBar) findViewById(R.id.result_bar);
         bar.setMax(mConfig.getRange());
         bar.setProgress(0);
     }
@@ -539,7 +580,7 @@ public class ThirdActivity extends Activity
         clearLog();
         Integer result = roll(mConfig);
 
-        ProgressBar bar = (ProgressBar)findViewById(R.id.result_bar);
+        ProgressBar bar = (ProgressBar) findViewById(R.id.result_bar);
         bar.setProgress(result - mConfig.getMin());
 
         shiftResults();
@@ -678,11 +719,11 @@ public class ThirdActivity extends Activity
             super(ctx, name);
 
             LayoutInflater li;
-            li = (LayoutInflater)ctx.getSystemService(
+            li = (LayoutInflater) ctx.getSystemService(
                 ctx.LAYOUT_INFLATER_SERVICE);
             li.inflate(R.layout.counter, this);
 
-            mButton = (ImageButton)findViewById(R.id.button);
+            mButton = (ImageButton) findViewById(R.id.button);
             mButton.setImageResource(image);
             mButton.setOnClickListener(new ImageButton.OnClickListener()
             {
@@ -691,7 +732,7 @@ public class ThirdActivity extends Activity
                     modValue(1);
                 }
             });
-            mCounter = (EditText)findViewById(R.id.counter);
+            mCounter = (EditText) findViewById(R.id.counter);
             initCounter();
         }
     }
@@ -721,11 +762,11 @@ public class ThirdActivity extends Activity
             super(ctx, "dx");
 
             LayoutInflater li;
-            li = (LayoutInflater)ctx.getSystemService(
+            li = (LayoutInflater) ctx.getSystemService(
                 ctx.LAYOUT_INFLATER_SERVICE);
             li.inflate(R.layout.dx, this);
 
-            mSides = (EditText)findViewById(R.id.dx_sides);
+            mSides = (EditText) findViewById(R.id.dx_sides);
             mSides.addTextChangedListener(new TextWatcher()
             {
                 public void afterTextChanged(Editable s)
@@ -743,7 +784,7 @@ public class ThirdActivity extends Activity
                 }
             });
 
-            mCounter = (EditText)findViewById(R.id.dx);
+            mCounter = (EditText) findViewById(R.id.dx);
             initCounter();
         }
 

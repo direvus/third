@@ -103,6 +103,7 @@ public class ThirdDb
     {
         String[] args = new String[] {String.valueOf(id)};
         ContentValues vals = config.getValues();
+        vals.remove("name");
         return mDb.update("preset", vals, "_id = ?", args);
     }
 
