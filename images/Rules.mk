@@ -8,7 +8,7 @@ SVGPNGS_48 = $(SVGS:.svg=_48.png)
 
 SHARE += $(SVGPNGS)
 FILES += $(SVGPNGS)
-DROIDFILES += $(SVGPNGS)
+DROIDFILES += $(SVGPNGS) images/app_48.png
 CLEAN += $(SVGPNGS)
 
 $(SVGPNGS): %.png: %.svg
