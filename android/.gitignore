@@ -1,3 +1,10 @@
 bin/
 gen/
 res/drawable
+out/
+.gradle/
+gradle/
+.idea/
+*.iml
+gradlew*
+local.properties
