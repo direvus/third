@@ -13,13 +13,11 @@ package au.id.swords.third;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import java.util.Map;
-import java.util.Vector;
-import java.util.Iterator;
+
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.Enumeration;
-import java.lang.StringBuilder;
+import java.util.Vector;
 
 public class ThirdConfig
 {

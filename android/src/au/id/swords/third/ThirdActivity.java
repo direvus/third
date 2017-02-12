@@ -12,39 +12,39 @@
  */
 package au.id.swords.third;
 
-import android.os.Bundle;
 import android.app.Activity;
-import android.content.Intent;
 import android.content.Context;
-import android.widget.Button;
-import android.widget.Spinner;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.EditText;
-import android.widget.TableRow;
-import android.widget.ImageButton;
-import android.widget.RadioButton;
-import android.widget.AdapterView;
-import android.widget.TableLayout;
-import android.widget.ProgressBar;
-import android.widget.ViewFlipper;
-import android.widget.ArrayAdapter;
-import android.widget.SimpleCursorAdapter;
-import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.Gravity;
-import android.view.LayoutInflater;
+import android.content.Intent;
+import android.database.Cursor;
+import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.database.Cursor;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.SimpleCursorAdapter;
+import android.widget.Spinner;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
+import android.widget.ViewFlipper;
+
+import java.util.LinkedHashMap;
 import java.util.Random;
 import java.util.Vector;
-import java.util.LinkedHashMap;
 
 public class ThirdActivity extends Activity
 {

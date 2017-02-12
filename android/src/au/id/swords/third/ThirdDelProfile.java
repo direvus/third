@@ -11,13 +11,12 @@
  */
 package au.id.swords.third;
 
-import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.Context;
+import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.view.View;
 
 public class ThirdDelProfile extends Activity
 {

@@ -11,16 +11,15 @@
  */
 package au.id.swords.third;
 
-import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.Context;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Spinner;
-import android.widget.ArrayAdapter;
-import android.widget.AdapterView;
+import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 public class ThirdAddInclude extends Activity
 {
