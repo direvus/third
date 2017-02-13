@@ -14,6 +14,7 @@
     <string name="app_name">Third</string>
     <string name="reset">Reset</string>
     <string name="roll">Roll</string>
+    <string name="range">Range:</string>
     <string name="empty_config">Set up your roll</string>
     <string name="presets">Presets</string>
     <string name="results">Results</string>
