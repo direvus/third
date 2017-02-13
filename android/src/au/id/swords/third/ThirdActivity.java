@@ -12,7 +12,6 @@
  */
 package au.id.swords.third;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -26,6 +25,8 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
@@ -46,7 +47,7 @@ import java.util.LinkedHashMap;
 import java.util.Random;
 import java.util.Vector;
 
-public class ThirdActivity extends Activity
+public class ThirdActivity extends AppCompatActivity
 {
     ThirdDb mDb;
     ThirdConfig mConfig;
@@ -78,13 +79,9 @@ public class ThirdActivity extends Activity
     private static final int ACT_DEL_PROFILE = 2;
     private static final int ACT_ADD_INC = 3;
 
-    private static final int ADD_PRESET = Menu.FIRST;
-    private static final int ADD_PROFILE = Menu.FIRST + 1;
     private static final int RENAME_PRESET = Menu.FIRST + 2;
     private static final int UPDATE_PRESET = Menu.FIRST + 3;
     private static final int DEL_PRESET = Menu.FIRST + 4;
-    private static final int RENAME_PROFILE = Menu.FIRST + 5;
-    private static final int DEL_PROFILE = Menu.FIRST + 6;
     private static final int ADD_PRESET_INC = Menu.FIRST + 7;
     private static final int ADD_INC = Menu.FIRST + 8;
 
@@ -93,6 +90,9 @@ public class ThirdActivity extends Activity
     {
         super.onCreate(state);
         setContentView(R.layout.main);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        setSupportActionBar(toolbar);
 
         mDice = new DiceCounter[8];
         mDice[0] = new DiceCounter(this,   2, R.drawable.d2);
@@ -223,15 +223,15 @@ public class ThirdActivity extends Activity
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        boolean result = super.onCreateOptionsMenu(menu);
-        menu.add(Menu.NONE, ADD_PRESET, Menu.NONE, R.string.add_preset);
-        menu.add(Menu.NONE, ADD_PROFILE, Menu.NONE, R.string.add_profile);
-        menu.add(Menu.NONE, RENAME_PROFILE, Menu.NONE, R.string.rename_profile);
-        if(mProfileView.getCount() > 1)
-        {
-            menu.add(Menu.NONE, DEL_PROFILE, Menu.NONE, R.string.del_profile);
-        }
-        return result;
+        getMenuInflater().inflate(R.menu.main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu)
+    {
+        menu.findItem(R.id.action_delete_profile).setEnabled(mProfileView.getCount() > 1);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -240,22 +240,22 @@ public class ThirdActivity extends Activity
         Intent i;
         switch(item.getItemId())
         {
-            case ADD_PRESET:
+            case R.id.action_add_preset:
                 i = new Intent(this, ThirdNamePreset.class);
                 i.putExtra("config", describeConfig());
                 startActivityForResult(i, ACT_NAME_PRESET);
                 return true;
-            case ADD_PROFILE:
+            case R.id.action_add_profile:
                 i = new Intent(this, ThirdNameProfile.class);
                 startActivityForResult(i, ACT_NAME_PROFILE);
                 return true;
-            case RENAME_PROFILE:
+            case R.id.action_rename_profile:
                 i = new Intent(this, ThirdNameProfile.class);
                 i.putExtra("id", mProfile);
                 i.putExtra("name", getProfileName());
                 startActivityForResult(i, ACT_NAME_PROFILE);
                 return true;
-            case DEL_PROFILE:
+            case R.id.action_delete_profile:
                 i = new Intent(this, ThirdDelProfile.class);
                 i.putExtra("id", mProfile);
                 i.putExtra("name", getProfileName());
@@ -410,6 +410,7 @@ public class ThirdActivity extends Activity
                 }
                 break;
         }
+        invalidateOptionsMenu();
     }
 
     private void loadProfiles()
@@ -720,7 +721,7 @@ public class ThirdActivity extends Activity
 
             LayoutInflater li;
             li = (LayoutInflater) ctx.getSystemService(
-                ctx.LAYOUT_INFLATER_SERVICE);
+                LAYOUT_INFLATER_SERVICE);
             li.inflate(R.layout.counter, this);
 
             mButton = (ImageButton) findViewById(R.id.button);
@@ -763,7 +764,7 @@ public class ThirdActivity extends Activity
 
             LayoutInflater li;
             li = (LayoutInflater) ctx.getSystemService(
-                ctx.LAYOUT_INFLATER_SERVICE);
+                LAYOUT_INFLATER_SERVICE);
             li.inflate(R.layout.dx, this);
 
             mSides = (EditText) findViewById(R.id.dx_sides);

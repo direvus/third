@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+    <item android:id="@+id/action_add_preset"
+          android:icon="@drawable/ic_bookmark_black_24dp"
+          android:title="@string/add_preset"
+          app:showAsAction="ifRoom"/>
+    <item android:id="@+id/action_add_profile"
+          android:icon="@drawable/ic_person_add_black_24dp"
+          android:title="@string/add_profile"
+          app:showAsAction="ifRoom"/>
+    <item android:id="@+id/action_rename_profile"
+          android:icon="@drawable/ic_person_black_24dp"
+          android:title="@string/rename_profile"
+          app:showAsAction="ifRoom"/>
+    <item android:id="@+id/action_delete_profile"
+          android:icon="@drawable/ic_delete_black_24dp"
+          android:title="@string/del_profile"
+          app:showAsAction="ifRoom"/>
+</menu>
