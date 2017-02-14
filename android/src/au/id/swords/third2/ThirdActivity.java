@@ -44,6 +44,7 @@ import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import java.util.LinkedHashMap;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Vector;
 
@@ -301,7 +302,7 @@ public class ThirdActivity extends AppCompatActivity
 
                 for(ThirdConfig c: mPresets.values())
                 {
-                    if(c.getId() != conf.getId())
+                    if(!Objects.equals(c.getId(), conf.getId()))
                     {
                         ids[i] = c.getId();
                         labels[i] = c.toString();
@@ -378,7 +379,7 @@ public class ThirdActivity extends AppCompatActivity
                 {
                     Integer id = intent.getIntExtra("id", 0);
                     Integer inc = intent.getIntExtra("include", 0);
-                    if(id != inc && id != 0 && inc != 0)
+                    if(!Objects.equals(id, inc) && id != 0 && inc != 0)
                     {
                         mDb.addInclude(id, inc);
                     }
@@ -391,7 +392,7 @@ public class ThirdActivity extends AppCompatActivity
                     if(id != 0)
                     {
                         mDb.deleteProfile(id);
-                        if(mProfile == id)
+                        if(Objects.equals(mProfile, id))
                             unsetProfile();
                         loadProfiles();
                     }
@@ -617,7 +618,7 @@ public class ThirdActivity extends AppCompatActivity
         String next;
         for(TextView v: mResultLog)
         {
-            if(value == "")
+            if(Objects.equals(value, ""))
                 break;
 
             next = v.getText().toString();
