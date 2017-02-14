@@ -11,7 +11,7 @@
           android:icon="@drawable/ic_autorenew_black_24dp"
           android:title="@string/update_preset"
           app:showAsAction="ifRoom"/>
-    <item android:id="@+id/action_add_preset_inc"
+    <item android:id="@+id/action_add_inc_preset"
           android:icon="@drawable/ic_bookmark_black_24dp"
           android:title="@string/add_preset_inc"
           app:showAsAction="ifRoom"/>
@@ -19,7 +19,7 @@
           android:icon="@drawable/ic_file_download_black_24dp"
           android:title="@string/add_inc"
           app:showAsAction="ifRoom"/>
-    <item android:id="@+id/action_delete_preset"
+    <item android:id="@+id/action_del_preset"
           android:icon="@drawable/ic_delete_black_24dp"
           android:title="@string/del_preset"
           app:showAsAction="ifRoom"/>

@@ -285,7 +285,7 @@ public class ThirdActivity extends AppCompatActivity
                 intent.putExtra("config", conf.describe());
                 startActivityForResult(intent, ACT_NAME_PRESET);
                 return true;
-            case R.id.action_add_preset_inc:
+            case R.id.action_add_inc_preset:
                 intent = new Intent(this, ThirdNamePreset.class);
                 intent.putExtra("config", conf.describeInclude());
                 intent.putExtra("include", conf.getId());
