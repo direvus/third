@@ -302,7 +302,7 @@ public class ThirdActivity extends AppCompatActivity
 
                 for(ThirdConfig c: mPresets.values())
                 {
-                    if(!Objects.equals(c.getId(), conf.getId()))
+                    if(!c.getId().equals(conf.getId()))
                     {
                         ids[i] = c.getId();
                         labels[i] = c.toString();
@@ -379,7 +379,7 @@ public class ThirdActivity extends AppCompatActivity
                 {
                     Integer id = intent.getIntExtra("id", 0);
                     Integer inc = intent.getIntExtra("include", 0);
-                    if(!Objects.equals(id, inc) && id != 0 && inc != 0)
+                    if(!id.equals(inc) && !id.equals(0) && !inc.equals(0))
                     {
                         mDb.addInclude(id, inc);
                     }
@@ -392,7 +392,7 @@ public class ThirdActivity extends AppCompatActivity
                     if(id != 0)
                     {
                         mDb.deleteProfile(id);
-                        if(Objects.equals(mProfile, id))
+                        if(mProfile.equals(id))
                             unsetProfile();
                         loadProfiles();
                     }
@@ -618,7 +618,7 @@ public class ThirdActivity extends AppCompatActivity
         String next;
         for(TextView v: mResultLog)
         {
-            if(Objects.equals(value, ""))
+            if(value.equals(""))
                 break;
 
             next = v.getText().toString();
