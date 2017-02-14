@@ -9,7 +9,7 @@
  * third is open-source, licensed under the Simplified BSD License, a copy of
  * which can be found in the file LICENSE at the top level of the source code.
  */
-package au.id.swords.third;
+package au.id.swords.third2;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -34,7 +34,7 @@ public class ThirdConfig
     public ThirdConfig()
     {
         mId = 0;
-        mName = new String();
+        mName = "";
         init();
     }
 

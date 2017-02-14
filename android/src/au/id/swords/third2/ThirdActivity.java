@@ -10,7 +10,7 @@
  * third is open-source, licensed under the Simplified BSD License, a copy of
  * which can be found in the file LICENSE at the top level of the source code.
  */
-package au.id.swords.third;
+package au.id.swords.third2;
 
 import android.content.Context;
 import android.content.Intent;
@@ -538,7 +538,6 @@ public class ThirdActivity extends AppCompatActivity
 
     private String getProfileName()
     {
-        int pos = mProfileView.getSelectedItemPosition();
         int index = mProfileCursor.getColumnIndex("name");
         return mProfileCursor.getString(index);
     }
