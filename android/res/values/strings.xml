@@ -12,7 +12,7 @@
     -->
 <resources>
     <string name="app_name">THIRD</string>
-    <string name="reset">Reset</string>
+    <string name="reset">Clear</string>
     <string name="roll">Roll</string>
     <string name="range">Range:</string>
     <string name="empty_config">Set up your roll</string>

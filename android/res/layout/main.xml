@@ -203,6 +203,13 @@
                 android:orientation="horizontal"
                 >
                 <Button
+                    android:id="@+id/reset"
+                    android:text="@string/reset"
+                    android:layout_weight="1"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    />
+                <Button
                     android:id="@+id/roll"
                     android:text="@string/roll"
                     android:layout_weight="1"
@@ -212,13 +219,6 @@
                     >
                     <requestFocus/>
                 </Button>
-                <Button
-                    android:id="@+id/reset"
-                    android:text="@string/reset"
-                    android:layout_weight="1"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
