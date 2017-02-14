@@ -1,6 +1,6 @@
 bin/
 gen/
-res/drawable
+res/drawable*
 out/
 .gradle/
 gradle/
