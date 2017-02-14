@@ -25,6 +25,8 @@
         android:id="@+id/profile_name"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:inputType="text"
+        android:hint="@string/name_profile_hint"
         />
     <LinearLayout
         android:layout_width="fill_parent"
