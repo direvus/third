@@ -79,12 +79,6 @@ public class ThirdActivity extends AppCompatActivity
     private static final int ACT_DEL_PROFILE = 2;
     private static final int ACT_ADD_INC = 3;
 
-    private static final int RENAME_PRESET = Menu.FIRST + 2;
-    private static final int UPDATE_PRESET = Menu.FIRST + 3;
-    private static final int DEL_PRESET = Menu.FIRST + 4;
-    private static final int ADD_PRESET_INC = Menu.FIRST + 7;
-    private static final int ADD_INC = Menu.FIRST + 8;
-
     @Override
     public void onCreate(Bundle state)
     {
@@ -270,14 +264,8 @@ public class ThirdActivity extends AppCompatActivity
                                     ContextMenuInfo info)
     {
         super.onCreateContextMenu(menu, v, info);
-        menu.add(Menu.NONE, RENAME_PRESET, Menu.NONE, R.string.rename_preset);
-        menu.add(Menu.NONE, UPDATE_PRESET, Menu.NONE, R.string.update_preset);
-        menu.add(Menu.NONE, ADD_PRESET_INC, Menu.NONE, R.string.add_preset_inc);
-        if(mPresets.size() > 1)
-        {
-            menu.add(Menu.NONE, ADD_INC, Menu.NONE, R.string.add_inc);
-        }
-        menu.add(Menu.NONE, DEL_PRESET, Menu.NONE, R.string.del_preset);
+        getMenuInflater().inflate(R.menu.preset_context, menu);
+        menu.findItem(R.id.action_add_inc_preset).setEnabled(mPresets.size() > 1);
     }
 
     @Override
@@ -289,20 +277,20 @@ public class ThirdActivity extends AppCompatActivity
         ThirdConfig conf = mPresetAdapter.getItem(info.position);
         switch(item.getItemId())
         {
-            case RENAME_PRESET:
+            case R.id.action_rename_preset:
                 intent = new Intent(this, ThirdNamePreset.class);
                 intent.putExtra("id", conf.getId());
                 intent.putExtra("name", conf.getName());
                 intent.putExtra("config", conf.describe());
                 startActivityForResult(intent, ACT_NAME_PRESET);
                 return true;
-            case ADD_PRESET_INC:
+            case R.id.action_add_preset_inc:
                 intent = new Intent(this, ThirdNamePreset.class);
                 intent.putExtra("config", conf.describeInclude());
                 intent.putExtra("include", conf.getId());
                 startActivityForResult(intent, ACT_NAME_PRESET);
                 return true;
-            case ADD_INC:
+            case R.id.action_add_inc:
                 intent = new Intent(this, ThirdAddInclude.class);
                 intent.putExtra("id", conf.getId());
                 intent.putExtra("config", conf.describe());
@@ -324,11 +312,11 @@ public class ThirdActivity extends AppCompatActivity
                 intent.putExtra("labels", labels);
                 startActivityForResult(intent, ACT_ADD_INC);
                 return true;
-            case UPDATE_PRESET:
+            case R.id.action_update_preset:
                 mDb.updatePreset(conf.getId(), mConfig);
                 loadPresets();
                 return true;
-            case DEL_PRESET:
+            case R.id.action_del_preset:
                 mDb.deletePreset(conf.getId());
                 loadPresets();
                 return true;

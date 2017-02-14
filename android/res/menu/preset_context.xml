@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+    <item android:id="@+id/action_rename_preset"
+          android:icon="@drawable/ic_mode_edit_black_24dp"
+          android:title="@string/rename_preset"
+          app:showAsAction="ifRoom"/>
+    <item android:id="@+id/action_update_preset"
+          android:icon="@drawable/ic_autorenew_black_24dp"
+          android:title="@string/update_preset"
+          app:showAsAction="ifRoom"/>
+    <item android:id="@+id/action_add_preset_inc"
+          android:icon="@drawable/ic_bookmark_black_24dp"
+          android:title="@string/add_preset_inc"
+          app:showAsAction="ifRoom"/>
+    <item android:id="@+id/action_add_inc"
+          android:icon="@drawable/ic_download_black_24dp"
+          android:title="@string/add_inc"
+          app:showAsAction="ifRoom"/>
+    <item android:id="@+id/action_delete_preset"
+          android:icon="@drawable/ic_delete_black_24dp"
+          android:title="@string/del_preset"
+          app:showAsAction="ifRoom"/>
+</menu>
