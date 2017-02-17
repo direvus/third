@@ -12,10 +12,14 @@
  */
 package au.id.swords.third2;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.ContextMenu;
@@ -25,6 +29,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.widget.AdapterView;
@@ -77,7 +82,6 @@ public class ThirdActivity extends AppCompatActivity
 
     private static final int ACT_NAME_PRESET = 0;
     private static final int ACT_NAME_PROFILE = 1;
-    private static final int ACT_DEL_PROFILE = 2;
     private static final int ACT_ADD_INC = 3;
 
     @Override
@@ -255,10 +259,13 @@ public class ThirdActivity extends AppCompatActivity
                 startActivityForResult(i, ACT_NAME_PROFILE);
                 return true;
             case R.id.action_delete_profile:
-                i = new Intent(this, ThirdDelProfile.class);
-                i.putExtra("id", mProfile);
-                i.putExtra("name", getProfileName());
-                startActivityForResult(i, ACT_DEL_PROFILE);
+                DialogFragment dialog = new DeleteProfileDialogFragment();
+                ThirdProfile profile = getProfile(mProfile);
+                Bundle bundle = new Bundle();
+                bundle.putInt("index", mProfile);
+                bundle.putString("label", profile.toString());
+                dialog.setArguments(bundle);
+                dialog.show(getSupportFragmentManager(), "delete_profile");
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -431,31 +438,6 @@ public class ThirdActivity extends AppCompatActivity
                     loadProfiles();
                 }
                 break;
-            case ACT_DEL_PROFILE:
-                {
-                    int id = intent.getIntExtra("id", 0);
-                    if(id >= 0 && id < mProfiles.size())
-                    {
-                        if(mProfiles.size() <= 1)
-                        {
-                            showToast(getString(
-                                        R.string.error_del_last_profile));
-                            break;
-                        }
-                        mProfiles.remove(id);
-                        if(mProfile == id)
-                        {
-                            unsetProfile();
-                        }
-                        else if(mProfile > id)
-                        {
-                            mProfile -= 1;
-                        }
-                        saveProfiles();
-                        loadProfiles();
-                    }
-                }
-                break;
         }
         invalidateOptionsMenu();
     }
@@ -554,6 +536,30 @@ public class ThirdActivity extends AppCompatActivity
     private void unsetProfile()
     {
         mProfile = null;
+    }
+
+    public void deleteProfile(int index)
+    {
+        if(index < 0 || index >= mProfiles.size())
+            return;
+
+        if(mProfiles.size() <= 1)
+        {
+            showToast(getString(
+                        R.string.error_del_last_profile));
+            return;
+        }
+        mProfiles.remove(index);
+        if(mProfile == index)
+        {
+            unsetProfile();
+        }
+        else if(mProfile > index)
+        {
+            mProfile -= 1;
+        }
+        saveProfiles();
+        loadProfiles();
     }
 
     private void updateConfig()
@@ -878,6 +884,40 @@ public class ThirdActivity extends AppCompatActivity
         public void setSides(Integer sides)
         {
             mSides.setText(sides.toString());
+        }
+    }
+
+    public static class DeleteProfileDialogFragment extends DialogFragment
+    {
+        @Override
+        @NonNull
+        public Dialog onCreateDialog(Bundle state)
+        {
+            Bundle args = getArguments();
+            String message = String.format(
+                    getString(R.string.confirm_del_profile),
+                    args.getString("label"));
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.del_profile)
+                .setMessage(message)
+                .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(DialogInterface dialog, int id)
+                            {
+                                int index = DeleteProfileDialogFragment.this.getArguments().getInt("index");
+                                ThirdActivity activity = (ThirdActivity) getActivity();
+                                activity.deleteProfile(index);
+                                dialog.dismiss();
+                            }
+                        })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(DialogInterface dialog, int id)
+                            {
+                                dialog.dismiss();
+                            }
+                        });
+            return builder.create();
         }
     }
 }

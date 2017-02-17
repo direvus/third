@@ -30,7 +30,6 @@
         </activity>
         <activity android:name="au.id.swords.third2.ThirdNamePreset"/>
         <activity android:name="au.id.swords.third2.ThirdNameProfile"/>
-        <activity android:name="au.id.swords.third2.ThirdDelProfile"/>
         <activity android:name="au.id.swords.third2.ThirdAddInclude"/>
     </application>
 </manifest> 
