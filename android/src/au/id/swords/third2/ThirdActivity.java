@@ -305,14 +305,14 @@ public class ThirdActivity extends AppCompatActivity
                 String[] labels = new String[mPresets.size() - 1];
                 int i = 0;
 
-                for(ThirdConfig c: mPresets.values())
+                for(ThirdConfig preset: mPresets.values())
                 {
-                    if(c.getId() != conf.getId())
+                    if(preset.getId() != conf.getId())
                     {
-                        ids[i] = c.getId();
-                        labels[i] = c.toString();
+                        ids[i] = preset.getId();
+                        labels[i] = preset.toString();
+                        i++;
                     }
-                    i++;
                 }
                 intent.putExtra("ids", ids);
                 intent.putExtra("labels", labels);
