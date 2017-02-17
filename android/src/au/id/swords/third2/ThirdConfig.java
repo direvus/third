@@ -12,75 +12,118 @@
 package au.id.swords.third2;
 
 import android.content.ContentValues;
-import android.database.Cursor;
+import android.util.SparseIntArray;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Vector;
 
-public class ThirdConfig
-{
-    static int[] mSides = {2, 4, 6, 8, 10, 12, 20, 100};
-    Integer mId;
-    String mName;
-    ArrayList<ThirdConfig> mIncludes = new ArrayList<ThirdConfig>();
-    LinkedHashMap mDice = new LinkedHashMap();
-    Integer mDxSides;
-    Integer mDx;
-    Integer mMul;
-    Integer mMod;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-    public ThirdConfig()
+class ThirdConfig
+{
+    static final int DEFAULT_DX_SIDES = 3;
+    static int[] SIDES = {2, 4, 6, 8, 10, 12, 20, 100};
+
+    private int mId;
+    private String mName;
+    private Vector<ThirdConfig> mIncludes = new Vector<>();
+    private SparseIntArray mDice = new SparseIntArray();
+    private int mDxSides;
+    private int mDx;
+    private int mMul;
+    private int mMod;
+
+    ThirdConfig()
     {
-        mId = 0;
+        mId = -1;
         mName = "";
         init();
     }
 
-    public void init()
+    ThirdConfig(JSONObject json)
     {
-        for(int i: mSides)
-            mDice.put(i, 0);
-        mDx = 0;
-        mDxSides = 3;
-        mMul = 1;
-        mMod = 0;
+        mId = json.optInt("id");
+        mName = json.optString("name");
+        mDxSides = json.optInt("dx_sides");
+        mDx = json.optInt("dx");
+        mMul = json.optInt("multiplier");
+        mMod = json.optInt("modifier");
+
+        if(mDxSides == 0)
+            mDxSides = DEFAULT_DX_SIDES;
+
+        if(mMul == 0)
+            mMul = 1;
+
+        for(int i: SIDES)
+            mDice.put(i, json.optInt(colName(i)));
     }
 
-    public void reset()
+    ThirdConfig(int id, String name)
     {
+        mId = id;
+        mName = name;
         init();
     }
 
-    public String colName(int sides)
+    ThirdConfig(int id, ThirdConfig config)
+    {
+        mId = id;
+        mName = config.getName();
+        update(config);
+    }
+
+    void update(ThirdConfig config)
+    {
+        init();
+        mDxSides = config.getDxSides();
+        mDx = config.getDx();
+        mMul = config.getMultiplier();
+        mMod = config.getModifier();
+        for(int i: SIDES)
+            mDice.put(i, config.getDie(i));
+
+        for(ThirdConfig include: config.getIncludes())
+            mIncludes.add(include);
+    }
+
+    void init()
+    {
+        mDx = 0;
+        mDxSides = DEFAULT_DX_SIDES;
+        mMul = 1;
+        mMod = 0;
+
+        mDice.clear();
+        for(int i: SIDES)
+            mDice.put(i, 0);
+
+        mIncludes.clear();
+    }
+
+    void reset()
+    {
+        mName = "";
+        init();
+    }
+
+    String colName(int sides)
     {
         return String.format("d%d", sides);
     }
 
-    public ThirdConfig(Cursor cur)
-    {
-        mId = cur.getInt(cur.getColumnIndex("_id"));
-        mName = cur.getString(cur.getColumnIndex("name"));
-        for(int i: mSides)
-            mDice.put(i, cur.getInt(cur.getColumnIndex(colName(i))));
-
-        mDx = cur.getInt(cur.getColumnIndex("dx"));
-        mDxSides = cur.getInt(cur.getColumnIndex("dx_sides"));
-        mMul = cur.getInt(cur.getColumnIndex("multiplier"));
-        mMod = cur.getInt(cur.getColumnIndex("modifier"));
-    }
-
-    public void addInclude(ThirdConfig include)
+    void addInclude(ThirdConfig include)
     {
         mIncludes.add(include);
     }
 
-    public ContentValues getValues()
+    ContentValues getValues()
     {
         ContentValues vals = new ContentValues();
         vals.put("name", mName);
-        for(int i: mSides)
+        for(int i: SIDES)
             vals.put(colName(i), getDie(i));
 
         vals.put("dx", mDx);
@@ -90,136 +133,150 @@ public class ThirdConfig
         return vals;
     }
 
-    public Integer getId()
+    JSONObject toJSON()
+    {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("id", mId);
+            json.put("name", mName);
+            json.put("dx_sides", mDxSides);
+            json.put("dx", mDx);
+            json.put("multiplier", mMul);
+            json.put("modifier", mMod);
+            for(int i: SIDES)
+                json.put(colName(i), mDice.get(i));
+
+            json.put("includes", new JSONArray());
+            for(ThirdConfig include: mIncludes)
+                json.accumulate("includes", include.getId());
+        }
+        catch(JSONException e)
+        {
+        }
+
+        return json;
+    }
+
+    int getId()
     {
         return mId;
     }
 
-    public String getName()
+    String getName()
     {
         return mName;
     }
 
-    public Integer getDie(Integer die)
+    int getDie(int die)
     {
-        return (Integer)mDice.get(die);
+        return mDice.get(die);
     }
 
-    public Vector getDice()
+    Vector getDice()
     {
-        Vector<Integer> v = new Vector<Integer>();
-        Iterator keys = mDice.keySet().iterator();
-        Integer sign;
-        while(keys.hasNext())
+        Vector<Integer> v = new Vector<>();
+        for(int sides: SIDES)
         {
-            Integer key = (Integer)keys.next();
-            Integer val = (Integer)mDice.get(key);
-            sign = (val < 0) ? -1 : 1;
-            for(Integer i = 0; i < Math.abs(val); i++)
-                v.add(sign * key);
+            int count = mDice.get(sides, 0);
+            int die = sides;
+            if(count < 0)
+                die = -sides;
+            for(int i = 0; i < Math.abs(count); i++)
+                v.add(die);
         }
 
         if(mDx != 0 && mDxSides != 0)
         {
-            sign = (mDx < 0) ? -1 : 1;
-            for(Integer i = 0; i < Math.abs(mDx); i++)
-                v.add(sign * mDxSides);
+            int die = mDxSides;
+            if(mDx < 0)
+                die = -mDxSides;
+
+            for(int i = 0; i < Math.abs(mDx); i++)
+                v.add(die);
         }
         return v;
     }
 
-    public Integer getDx()
+    Integer getDx()
     {
         return mDx;
     }
 
-    public Integer getDxSides()
+    Integer getDxSides()
     {
         return mDxSides;
     }
 
-    public Integer getMultiplier()
+    Integer getMultiplier()
     {
         return mMul;
     }
 
-    public Integer getModifier()
+    Integer getModifier()
     {
         return mMod;
     }
 
-    public ArrayList<ThirdConfig> getIncludes()
+    Vector<ThirdConfig> getIncludes()
     {
         return mIncludes;
     }
 
-    public Integer getMin()
+    int getMin()
     {
-        Integer min = new Integer(0);
+        int min = 0;
 
         for(ThirdConfig inc: mIncludes)
-        {
             min += inc.getMin();
-        }
 
-        Iterator vals = mDice.values().iterator();
-        while(vals.hasNext())
-            min += (Integer)vals.next();
+        for(int sides: SIDES)
+            min += mDice.get(sides, 0);
 
         min += mDx;
         return (min * mMul) + mMod;
     }
 
-    public Integer getMax()
+    int getMax()
     {
-        Integer max = new Integer(0);
+        int max = 0;
 
         for(ThirdConfig inc: mIncludes)
-        {
             max += inc.getMax();
-        }
 
-        Iterator keys = mDice.keySet().iterator();
-        while(keys.hasNext())
-        {
-            Integer key = (Integer)keys.next();
-            max += key * (Integer)mDice.get(key);
-        }
+        for(int sides: SIDES)
+            max += sides * mDice.get(sides);
+
         max += mDxSides * mDx;
         return (max * mMul) + mMod;
     }
 
-    public Integer getRange()
+    Integer getRange()
     {
         return getMax() - getMin();
     }
 
-    public String describeRange()
+    String describeRange()
     {
         return String.format("%d - %d", getMin(), getMax());
     }
 
-    public String describe()
+    String describe()
     {
         StringBuilder sb = new StringBuilder();
         Vector<String> sv = new Vector<String>();
 
         for(ThirdConfig inc: mIncludes)
-        {
             sv.add(inc.describeInclude());
-        }
 
-        Iterator keys = mDice.keySet().iterator();
-        while(keys.hasNext())
+        for(int sides: SIDES)
         {
-            Integer k = (Integer)keys.next();
-            Integer v = (Integer)mDice.get(k);
-            if(v != 0)
+            int count = mDice.get(sides);
+            if(count != 0)
             {
-                if(v == 1)
-                    sv.add(String.format("d%d", k));
+                if(count == 1)
+                    sv.add(String.format("d%d", sides));
                 else
-                    sv.add(String.format("%dd%d", v, k));
+                    sv.add(String.format("%dd%d", count, sides));
             }
         }
 
@@ -252,42 +309,43 @@ public class ThirdConfig
         return sb.toString();
     }
 
-    public String describeInclude()
+    String describeInclude()
     {
         return "[" + mName + "]";
     }
 
+    @Override
     public String toString()
     {
         return mName + " " + describe();
     }
 
-    public void setName(String s)
+    void setName(String s)
     {
         mName = s;
     }
 
-    public void setDie(Integer die, Integer value)
+    void setDie(Integer die, Integer value)
     {
         mDice.put(die, value);
     }
 
-    public void setDx(Integer value)
+    void setDx(Integer value)
     {
         mDx = value;
     }
 
-    public void setDxSides(Integer sides)
+    void setDxSides(Integer sides)
     {
         mDxSides = sides;
     }
 
-    public void setMultiplier(Integer value)
+    void setMultiplier(Integer value)
     {
         mMul = value;
     }
 
-    public void setModifier(Integer value)
+    void setModifier(Integer value)
     {
         mMod = value;
     }

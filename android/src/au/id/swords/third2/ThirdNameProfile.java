@@ -36,7 +36,7 @@ public class ThirdNameProfile extends Activity
         mCancel = (Button)findViewById(R.id.cancel);
 
         Intent intent = getIntent();
-        mId = intent.getIntExtra("id", 0);
+        mId = intent.getIntExtra("id", -1);
 
         String name = intent.getStringExtra("name");
         if(name != null)

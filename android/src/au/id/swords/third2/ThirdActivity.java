@@ -14,7 +14,7 @@ package au.id.swords.third2;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -36,22 +36,23 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
-import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import java.util.LinkedHashMap;
-import java.util.Objects;
 import java.util.Random;
 import java.util.Vector;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 public class ThirdActivity extends AppCompatActivity
 {
-    ThirdDb mDb;
-    ThirdConfig mConfig;
+    ThirdConfig mConfig = new ThirdConfig();
     boolean mConfigImmutable = false;
     DiceCounter[] mDice;
     DxCounter mDx;
@@ -61,13 +62,12 @@ public class ThirdActivity extends AppCompatActivity
     ViewFlipper mFlip;
     RadioButton mFlipPresets;
     RadioButton mFlipResults;
-    SimpleCursorAdapter mProfiles;
-    LinkedHashMap<Integer, ThirdConfig> mPresets;
+    SharedPreferences mPrefs;
+    Vector<ThirdProfile> mProfiles = new Vector<>();
+    LinkedHashMap<Integer, ThirdConfig> mPresets = new LinkedHashMap<>();
+    ArrayAdapter<String> mProfileAdapter;
     ArrayAdapter<ThirdConfig> mPresetAdapter;
     ArrayAdapter<ThirdConfig> mOtherAdapter;
-    Cursor mProfileCursor;
-    Cursor mPresetCursor;
-    Cursor mIncludeCursor;
     Spinner mProfileView;
     ListView mPresetView;
     TextView mResult;
@@ -102,9 +102,17 @@ public class ThirdActivity extends AppCompatActivity
         mMod = new ButtonCounter(this, "mod", R.drawable.mod);
         mDx = new DxCounter(this);
 
-        mPresets = new LinkedHashMap<Integer, ThirdConfig>();
-        mPresetAdapter = new ArrayAdapter<ThirdConfig>(this, R.layout.preset);
-        mOtherAdapter = new ArrayAdapter<ThirdConfig>(this,
+        mPrefs = getPreferences(MODE_PRIVATE);
+
+        mProfileAdapter = new ArrayAdapter<>(this,
+            android.R.layout.simple_spinner_item);
+
+        mProfileAdapter.setDropDownViewResource(
+            android.R.layout.simple_spinner_dropdown_item);
+
+        mPresets = new LinkedHashMap<>();
+        mPresetAdapter = new ArrayAdapter<>(this, R.layout.preset);
+        mOtherAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item);
 
         TableLayout t = (TableLayout) findViewById(R.id.counters);
@@ -113,8 +121,6 @@ public class ThirdActivity extends AppCompatActivity
         t.addView(mMod);
         t.addView(mMul);
         t.addView(mDx);
-
-        setConfig(new ThirdConfig());
 
         Button reset = (Button) findViewById(R.id.reset);
         reset.setOnClickListener(new Button.OnClickListener()
@@ -154,8 +160,6 @@ public class ThirdActivity extends AppCompatActivity
             }
         });
 
-        mDb = new ThirdDb(this);
-
         mProfileView = (Spinner) findViewById(R.id.profiles);
         mProfileView.setOnItemSelectedListener(
             new AdapterView.OnItemSelectedListener()
@@ -163,7 +167,7 @@ public class ThirdActivity extends AppCompatActivity
             public void onItemSelected(AdapterView parent, View v,
                                        int pos, long id)
             {
-                setProfile(new Integer((int) id));
+                setProfile((int) id);
             }
 
             public void onNothingSelected(AdapterView parent)
@@ -186,7 +190,7 @@ public class ThirdActivity extends AppCompatActivity
         mLog = (TableLayout) findViewById(R.id.log);
         mResult = (TextView) findViewById(R.id.result);
 
-        mResultLog = new Vector<TextView>();
+        mResultLog = new Vector<>();
         mResultLog.add((TextView) findViewById(R.id.result_log1));
         mResultLog.add((TextView) findViewById(R.id.result_log2));
         mResultLog.add((TextView) findViewById(R.id.result_log3));
@@ -276,6 +280,7 @@ public class ThirdActivity extends AppCompatActivity
         AdapterContextMenuInfo info;
         info = (AdapterContextMenuInfo) item.getMenuInfo();
         ThirdConfig conf = mPresetAdapter.getItem(info.position);
+        ThirdProfile profile = getProfile(mProfile);
         switch(item.getItemId())
         {
             case R.id.action_rename_preset:
@@ -302,7 +307,7 @@ public class ThirdActivity extends AppCompatActivity
 
                 for(ThirdConfig c: mPresets.values())
                 {
-                    if(!c.getId().equals(conf.getId()))
+                    if(c.getId() != conf.getId())
                     {
                         ids[i] = c.getId();
                         labels[i] = c.toString();
@@ -314,12 +319,14 @@ public class ThirdActivity extends AppCompatActivity
                 startActivityForResult(intent, ACT_ADD_INC);
                 return true;
             case R.id.action_update_preset:
-                mDb.updatePreset(conf.getId(), mConfig);
-                loadPresets();
+                conf.update(mConfig);
+                saveProfiles();
+                loadProfiles();
                 return true;
             case R.id.action_del_preset:
-                mDb.deletePreset(conf.getId());
-                loadPresets();
+                profile.removePreset(conf.getId());
+                saveProfiles();
+                loadProfiles();
                 return true;
         }
         return super.onContextItemSelected(item);
@@ -337,63 +344,114 @@ public class ThirdActivity extends AppCompatActivity
             case ACT_NAME_PRESET:
                 {
                     String name = intent.getStringExtra("name");
-                    Integer id = intent.getIntExtra("id", 0);
-                    Integer inc = intent.getIntExtra("include", 0);
-                    if(id != 0)
-                    {
-                        mDb.renamePreset(id, name);
-                    }
-                    else if(inc != 0)
-                    {
-                        ThirdConfig conf = new ThirdConfig();
-                        conf.setName(name);
-                        conf.addInclude(mPresets.get(inc));
+                    int id = intent.getIntExtra("id", -1);
+                    int inc = intent.getIntExtra("include", -1);
 
-                        long preset = mDb.addPreset(mProfile, conf);
-                        mDb.addInclude((int) preset, inc.intValue());
+                    if(name == null)
+                        name = "";
+
+                    name = name.trim();
+                    if(name.length() == 0)
+                    {
+                        showToast(getString(R.string.error_empty_name));
+                        break;
+                    }
+
+                    ThirdProfile profile = getProfile(mProfile);
+
+                    if(id >= 0)
+                    {
+                        ThirdConfig preset = profile.getPreset(id);
+                        if(preset == null)
+                            break;
+
+                        preset.setName(name);
+                    }
+                    else if(inc >= 0)
+                    {
+                        ThirdConfig include = profile.getPreset(inc);
+                        if(include == null)
+                            break;
+
+                        ThirdConfig preset = profile.createPreset(name);
+                        preset.addInclude(include);
                     }
                     else
                     {
                         mConfig.setName(name);
-                        mDb.addPreset(mProfile, mConfig);
+                        profile.createPreset(mConfig);
                     }
-                    loadPresets();
+                    saveProfiles();
+                    loadProfiles();
                 }
                 break;
             case ACT_NAME_PROFILE:
                 {
                     String name = intent.getStringExtra("name");
-                    Integer id = intent.getIntExtra("id", 0);
-                    if(id != 0)
+                    if(name == null)
+                        name = "";
+
+                    name = name.trim();
+                    if(name.length() == 0)
                     {
-                        mDb.renameProfile(id, name);
+                        showToast(getString(R.string.error_empty_name));
+                        break;
+                    }
+
+                    int id = intent.getIntExtra("id", -1);
+                    if(id >= 0 && id < mProfiles.size())
+                    {
+                        mProfiles.get(id).setName(name);
                     }
                     else
                     {
-                        mDb.addProfile(name);
+                        mProfiles.add(new ThirdProfile(name));
                     }
+                    saveProfiles();
                     loadProfiles();
                 }
                 break;
             case ACT_ADD_INC:
                 {
-                    Integer id = intent.getIntExtra("id", 0);
-                    Integer inc = intent.getIntExtra("include", 0);
-                    if(!id.equals(inc) && !id.equals(0) && !inc.equals(0))
-                    {
-                        mDb.addInclude(id, inc);
-                    }
-                    loadPresets();
+                    int id = intent.getIntExtra("id", -1);
+                    int inc = intent.getIntExtra("include", -1);
+
+                    if(id < 0 || inc < 0 || id == inc)
+                        break;
+
+                    ThirdProfile profile = getProfile(mProfile);
+                    ThirdConfig preset = profile.getPreset(id);
+                    ThirdConfig include = profile.getPreset(inc);
+
+                    if(preset == null || include == null)
+                        break;
+
+                    preset.addInclude(include);
+                    saveProfiles();
+                    loadProfiles();
                 }
                 break;
             case ACT_DEL_PROFILE:
                 {
-                    Integer id = intent.getIntExtra("id", 0);
-                    if(id != 0)
+                    int id = intent.getIntExtra("id", 0);
+                    if(id >= 0 && id < mProfiles.size())
                     {
-                        mDb.deleteProfile(id);
-                        if(mProfile.equals(id))
+                        if(mProfiles.size() <= 1)
+                        {
+                            showToast(getString(
+                                        R.string.error_del_last_profile));
+                            break;
+                        }
+                        mProfiles.remove(id);
+                        if(mProfile == id)
+                        {
                             unsetProfile();
+                        }
+                        else if(mProfile > id)
+                        {
+                            mProfile -= 1;
+                        }
+                        saveProfiles();
                         loadProfiles();
                     }
                 }
@@ -402,67 +460,95 @@ public class ThirdActivity extends AppCompatActivity
         invalidateOptionsMenu();
     }
 
+    private void showToast(String text)
+    {
+        Toast.makeText(
+                getApplicationContext(),
+                text,
+                Toast.LENGTH_SHORT).show();
+    }
+
     private void loadProfiles()
     {
-        mProfileCursor = mDb.getAllProfiles();
-        startManagingCursor(mProfileCursor);
-        String[] cols = new String[] {"name"};
-        int[] views = new int[] {android.R.id.text1};
-        mProfiles = new SimpleCursorAdapter(this,
-            android.R.layout.simple_spinner_item,
-            mProfileCursor, cols, views);
-        mProfiles.setDropDownViewResource(
-            android.R.layout.simple_spinner_dropdown_item);
-
-        mProfileView.setAdapter(mProfiles);
-        if(mProfile == null)
+        JSONArray json;
+        try
         {
-            int index = mProfileCursor.getColumnIndex("_id");
-            mProfileCursor.moveToFirst();
-            setProfile(new Integer(mProfileCursor.getInt(index)));
+            json = new JSONArray(mPrefs.getString("profiles", "[]"));
         }
+        catch(JSONException e)
+        {
+            json = new JSONArray();
+        }
+
+        mProfiles.clear();
+        for(int i = 0; i < json.length(); i++)
+        {
+            mProfiles.add(new ThirdProfile(json.optJSONObject(i)));
+        }
+
+        if(mProfiles.size() == 0)
+        {
+            mProfiles.add(new ThirdProfile(
+                        getString(R.string.default_profile_name)));
+        }
+
+        mProfileAdapter.clear();
+        for(int i = 0; i < mProfiles.size(); i++)
+        {
+            ThirdProfile profile = mProfiles.get(i);
+            String name = profile.getName();
+            if(name.length() == 0)
+            {
+                name = String.format("Profile %d", i + 1);
+            }
+
+            mProfileAdapter.add(name);
+            if(mProfile == null || mProfile == i)
+            {
+                setProfile(i, profile);
+            }
+        }
+        mProfileView.setAdapter(mProfileAdapter);
     }
 
-    private void loadPresets()
+    private void saveProfiles()
     {
-        mPresetCursor = mDb.getPresets(mProfile);
-        startManagingCursor(mPresetCursor);
-        mPresetCursor.moveToFirst();
+        SharedPreferences.Editor edit = mPrefs.edit();
+        JSONArray json = new JSONArray();
+        for(ThirdProfile profile: mProfiles)
+            json.put(profile.toJSON());
+        edit.putString("profiles", json.toString());
+        edit.commit();
+    }
+
+    private void loadPresets(ThirdProfile profile)
+    {
+        LinkedHashMap<Integer, ThirdConfig> presets = profile.getPresets();
         mPresets.clear();
-        while(!mPresetCursor.isAfterLast())
-        {
-            ThirdConfig conf = new ThirdConfig(mPresetCursor);
-            mPresets.put(conf.getId(), conf);
-            mPresetCursor.moveToNext();
-        }
         mPresetAdapter.clear();
-        for(ThirdConfig conf: mPresets.values())
+        for(ThirdConfig conf: presets.values())
         {
+            mPresets.put(conf.getId(), conf);
             mPresetAdapter.add(conf);
         }
-        mPresetView.setAdapter(mPresetAdapter);
 
-        mIncludeCursor = mDb.getIncludes();
-        startManagingCursor(mIncludeCursor);
-        int presetCol = mIncludeCursor.getColumnIndex("preset");
-        int includeCol = mIncludeCursor.getColumnIndex("includes");
-        mIncludeCursor.moveToFirst();
-        while(!mIncludeCursor.isAfterLast())
-        {
-            Integer preset = mIncludeCursor.getInt(presetCol);
-            Integer include = mIncludeCursor.getInt(includeCol);
-            if(mPresets.containsKey(preset) && mPresets.containsKey(include))
-            {
-                mPresets.get(preset).addInclude(mPresets.get(include));
-            }
-            mIncludeCursor.moveToNext();
-        }
+        mPresetView.setAdapter(mPresetAdapter);
     }
 
-    private void setProfile(Integer profile)
+    private ThirdProfile getProfile(int index)
     {
-        mProfile = profile;
-        loadPresets();
+        return mProfiles.get(index);
+    }
+
+    private void setProfile(int index, ThirdProfile profile)
+    {
+        mProfile = index;
+        loadPresets(profile);
+    }
+
+    private void setProfile(int index)
+    {
+        setProfile(index, getProfile(index));
     }
 
     private void unsetProfile()
@@ -485,7 +571,8 @@ public class ThirdActivity extends AppCompatActivity
 
     private void setConfig(ThirdConfig conf)
     {
-        mConfig = conf;
+        mConfig.setName(conf.getName());
+        mConfig.update(conf);
         updateFromConfig();
     }
 
@@ -502,7 +589,7 @@ public class ThirdActivity extends AppCompatActivity
     private void updateDescription()
     {
         TextView label = (TextView) findViewById(R.id.config);
-        label.setText(describeConfig());
+        label.setText(mConfig.toString());
 
         TextView range = (TextView) findViewById(R.id.range);
         range.setText(mConfig.describeRange());
@@ -527,8 +614,7 @@ public class ThirdActivity extends AppCompatActivity
 
     private String getProfileName()
     {
-        int index = mProfileCursor.getColumnIndex("name");
-        return mProfileCursor.getString(index);
+        return getProfile(mProfile).getName();
     }
 
     private void clearLog()
