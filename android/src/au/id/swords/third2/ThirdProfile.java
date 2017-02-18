@@ -22,7 +22,7 @@ import org.json.JSONObject;
 class ThirdProfile
 {
     private String mName;
-    private LinkedHashMap<Integer, ThirdConfig> mPresets = new LinkedHashMap<>();
+    private final LinkedHashMap<Integer, ThirdConfig> mPresets = new LinkedHashMap<>();
 
     ThirdProfile(JSONObject json)
     {

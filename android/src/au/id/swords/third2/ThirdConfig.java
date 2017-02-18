@@ -11,7 +11,6 @@
  */
 package au.id.swords.third2;
 
-import android.content.ContentValues;
 import android.util.SparseIntArray;
 
 import java.util.Iterator;
@@ -24,12 +23,12 @@ import org.json.JSONObject;
 class ThirdConfig
 {
     static final int DEFAULT_DX_SIDES = 3;
-    static int[] SIDES = {2, 4, 6, 8, 10, 12, 20, 100};
+    static final int[] SIDES = {2, 4, 6, 8, 10, 12, 20, 100};
 
     private int mId;
     private String mName;
-    private Vector<ThirdConfig> mIncludes = new Vector<>();
-    private SparseIntArray mDice = new SparseIntArray();
+    private final Vector<ThirdConfig> mIncludes = new Vector<>();
+    private final SparseIntArray mDice = new SparseIntArray();
     private int mDxSides;
     private int mDx;
     private int mMul;
@@ -138,20 +137,6 @@ class ThirdConfig
         }
     }
 
-    ContentValues getValues()
-    {
-        ContentValues vals = new ContentValues();
-        vals.put("name", mName);
-        for(int i: SIDES)
-            vals.put(colName(i), getDie(i));
-
-        vals.put("dx", mDx);
-        vals.put("dx_sides", mDxSides);
-        vals.put("multiplier", mMul);
-        vals.put("modifier", mMod);
-        return vals;
-    }
-
     JSONObject toJSON()
     {
         JSONObject json = new JSONObject();
@@ -191,7 +176,7 @@ class ThirdConfig
         return mDice.get(die);
     }
 
-    Vector getDice()
+    Vector<Integer> getDice()
     {
         Vector<Integer> v = new Vector<>();
         for(int sides: SIDES)

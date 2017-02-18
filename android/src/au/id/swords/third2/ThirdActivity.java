@@ -16,7 +16,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -292,13 +291,11 @@ public class ThirdActivity extends AppCompatActivity
     @Override
     public boolean onContextItemSelected(MenuItem item)
     {
-        Intent intent;
         DialogFragment dialog;
         Bundle bundle;
         AdapterContextMenuInfo info;
         info = (AdapterContextMenuInfo) item.getMenuInfo();
         ThirdConfig conf = mPresetAdapter.getItem(info.position);
-        ThirdProfile profile = getProfile(mProfile);
         switch(item.getItemId())
         {
             case R.id.action_rename_preset:
@@ -681,9 +678,9 @@ public class ThirdActivity extends AppCompatActivity
         row.addView(tv3);
     }
 
-    private Integer rollDie(Integer sides)
+    private int rollDie(int sides)
     {
-        Integer result = mRNG.nextInt(Math.abs(sides)) + 1;
+        int result = mRNG.nextInt(Math.abs(sides)) + 1;
         if(sides < 0)
             result = -result;
         return result;
@@ -692,32 +689,32 @@ public class ThirdActivity extends AppCompatActivity
     private void roll()
     {
         clearLog();
-        Integer result = roll(mConfig);
+        int result = roll(mConfig);
 
         ProgressBar bar = (ProgressBar) findViewById(R.id.result_bar);
         bar.setProgress(result - mConfig.getMin());
 
         shiftResults();
-        mResult.setText(result.toString());
+        mResult.setText(String.valueOf(result));
     }
 
-    private Integer roll(ThirdConfig conf)
+    private int roll(ThirdConfig conf)
     {
-        Integer result = new Integer(0);
-        Integer outcome;
-
-        for(ThirdConfig inc: conf.getIncludes())
-        {
-            result += roll(inc);
-        }
+        int result = 0;
+        int outcome;
 
         Vector<Integer> v = conf.getDice();
         for(Integer sides: v)
         {
             outcome = rollDie(sides);
             String label = String.format("d%d", Math.abs(sides));
-            addLog(label, outcome.toString());
+            addLog(label, String.valueOf(outcome));
             result += outcome;
+        }
+
+        for(ThirdConfig inc: conf.getIncludes())
+        {
+            result += roll(inc);
         }
 
         Integer mul = conf.getMultiplier();
@@ -798,11 +795,11 @@ public class ThirdActivity extends AppCompatActivity
         {
             try
             {
-                return new Integer(mCounter.getText().toString());
+                return Integer.valueOf(mCounter.getText().toString());
             }
             catch(NumberFormatException e)
             {
-                return new Integer(0);
+                return 0;
             }
         }
 
@@ -906,11 +903,11 @@ public class ThirdActivity extends AppCompatActivity
         {
             try
             {
-                return new Integer(mSides.getText().toString());
+                return Integer.valueOf(mSides.getText().toString());
             }
             catch(NumberFormatException e)
             {
-                return new Integer(0);
+                return 0;
             }
         }
 
