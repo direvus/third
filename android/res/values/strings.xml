@@ -38,6 +38,7 @@
     <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>
     <string name="confirm_del_profile">Deleting a profile will also delete all its presets.  Are you sure you want to delete profile “%s”?</string>
+    <string name="confirm_del_preset">Deleting a preset will remove it from all other presets that include it.  Are you sure you want to delete preset “%s”?</string>
     <string name="error_del_last_profile">You may not delete the only profile.</string>
     <string name="error_empty_name">Name may not be blank.</string>
     <string name="success_update_preset">“%1$s” has been updated to %2$s.</string>

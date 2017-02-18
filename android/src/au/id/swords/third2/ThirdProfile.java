@@ -132,6 +132,10 @@ class ThirdProfile
 
     ThirdConfig removePreset(int id)
     {
+        for(ThirdConfig preset: mPresets.values())
+        {
+            preset.removeInclude(id);
+        }
         return mPresets.remove(id);
     }
 }

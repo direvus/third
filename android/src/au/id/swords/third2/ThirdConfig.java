@@ -119,6 +119,25 @@ class ThirdConfig
         mIncludes.add(include);
     }
 
+    boolean hasInclude(int id)
+    {
+        for(ThirdConfig include: mIncludes)
+        {
+            if(id == include.getId())
+                return true;
+        }
+        return false;
+    }
+
+    void removeInclude(int id)
+    {
+        for(int i = 0; i < mIncludes.size(); i++)
+        {
+            if(id == mIncludes.get(i).getId())
+                mIncludes.remove(i);
+        }
+    }
+
     ContentValues getValues()
     {
         ContentValues vals = new ContentValues();

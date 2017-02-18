@@ -361,9 +361,28 @@ public class ThirdActivity extends AppCompatActivity
                 showToast(getString(R.string.success_update_preset, conf.getName(), conf.describe()));
                 return true;
             case R.id.action_del_preset:
-                profile.removePreset(conf.getId());
-                saveProfiles();
-                loadProfiles();
+                boolean included = false;
+                for(ThirdConfig preset: mPresets.values())
+                {
+                    if(preset.hasInclude(conf.getId()))
+                    {
+                        included = true;
+                        break;
+                    }
+                }
+                if(included)
+                {
+                    dialog = new DeletePresetDialogFragment();
+                    bundle = new Bundle();
+                    bundle.putInt("index", conf.getId());
+                    bundle.putString("name", conf.getName());
+                    dialog.setArguments(bundle);
+                    dialog.show(getSupportFragmentManager(), "delete_preset");
+                }
+                else
+                {
+                    deletePreset(conf.getId());
+                }
                 return true;
         }
         return super.onContextItemSelected(item);
@@ -593,6 +612,14 @@ public class ThirdActivity extends AppCompatActivity
         loadProfiles();
     }
 
+    public void deletePreset(int id)
+    {
+        getProfile(mProfile).removePreset(id);
+        mConfig.removeInclude(id);
+
+        saveProfiles();
+        loadProfiles();
+    }
     private void updateConfig()
     {
         if(mConfigImmutable)
@@ -1036,4 +1063,37 @@ public class ThirdActivity extends AppCompatActivity
             return builder.create();
         }
     }
+
+    public static class DeletePresetDialogFragment extends DialogFragment
+    {
+        @Override
+        @NonNull
+        public Dialog onCreateDialog(Bundle state)
+        {
+            Bundle args = getArguments();
+            String message = getString(R.string.confirm_del_preset, args.getString("name"));
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.del_preset)
+                .setMessage(message)
+                .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(DialogInterface dialog, int id)
+                            {
+                                int index = DeletePresetDialogFragment.this.getArguments().getInt("index");
+                                ThirdActivity activity = (ThirdActivity) getActivity();
+                                activity.deletePreset(index);
+                                dialog.dismiss();
+                            }
+                        })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(DialogInterface dialog, int id)
+                            {
+                                dialog.dismiss();
+                            }
+                        });
+            return builder.create();
+        }
+    }
+
 }
