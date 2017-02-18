@@ -149,14 +149,31 @@
                     </TableLayout>
                 </ScrollView>
             </ViewFlipper>
+            <TextView
+                android:id="@+id/result"
+                android:text=""
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/result"
+                />
             <LinearLayout
                 android:layout_weight="0"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
                 android:orientation="horizontal"
                 >
                 <TextView
-                    android:id="@+id/result_log4"
+                    android:id="@+id/result_log1"
+                    android:text=""
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    style="@style/result_log1"
+                    />
+                <TextView
+                    android:id="@+id/result_log2"
                     android:text=""
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -172,28 +189,12 @@
                     style="@style/result_log"
                     />
                 <TextView
-                    android:id="@+id/result_log2"
+                    android:id="@+id/result_log4"
                     android:text=""
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     style="@style/result_log"
-                    />
-                <TextView
-                    android:id="@+id/result_log1"
-                    android:text=""
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    style="@style/result_log1"
-                    />
-                <TextView
-                    android:id="@+id/result"
-                    android:text=""
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    style="@style/result"
                     />
             </LinearLayout>
             <LinearLayout
