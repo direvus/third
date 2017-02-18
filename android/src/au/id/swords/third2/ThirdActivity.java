@@ -72,15 +72,12 @@ public class ThirdActivity extends AppCompatActivity
     LinkedHashMap<Integer, ThirdConfig> mPresets = new LinkedHashMap<>();
     ArrayAdapter<String> mProfileAdapter;
     ArrayAdapter<ThirdConfig> mPresetAdapter;
-    ArrayAdapter<ThirdConfig> mOtherAdapter;
     Spinner mProfileView;
     ListView mPresetView;
     TextView mResult;
     Vector<TextView> mResultLog;
     Integer mProfile;
     Random mRNG;
-
-    private static final int ACT_ADD_INC = 3;
 
     // Indicates "none" in zero-based index values (e.g. arrays).
     private static final int NONE = -1;
@@ -117,8 +114,6 @@ public class ThirdActivity extends AppCompatActivity
 
         mPresets = new LinkedHashMap<>();
         mPresetAdapter = new ArrayAdapter<>(this, R.layout.preset);
-        mOtherAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item);
 
         TableLayout t = (TableLayout) findViewById(R.id.counters);
         for(DiceCounter c: mDice)
@@ -333,26 +328,30 @@ public class ThirdActivity extends AppCompatActivity
                 dialog.show(getSupportFragmentManager(), "name_preset");
                 return true;
             case R.id.action_add_inc:
-                intent = new Intent(this, ThirdAddInclude.class);
-                intent.putExtra("id", conf.getId());
-                intent.putExtra("config", conf.describe());
+                dialog = new AddIncludeDialogFragment();
+                bundle = new Bundle();
 
-                int[] ids = new int[mPresets.size() - 1];
-                String[] labels = new String[mPresets.size() - 1];
-                int i = 0;
-
-                for(ThirdConfig preset: mPresets.values())
                 {
-                    if(preset.getId() != conf.getId())
+                    int[] ids = new int[mPresets.size() - 1];
+                    CharSequence[] names = new CharSequence[mPresets.size() - 1];
+                    int i = 0;
+
+                    for(ThirdConfig preset: mPresets.values())
                     {
-                        ids[i] = preset.getId();
-                        labels[i] = preset.toString();
-                        i++;
+                        if(preset.getId() != conf.getId())
+                        {
+                            ids[i] = preset.getId();
+                            names[i] = preset.toString();
+                            i++;
+                        }
                     }
+                    bundle.putString("title", getString(R.string.add_inc));
+                    bundle.putInt("id", conf.getId());
+                    bundle.putIntArray("ids", ids);
+                    bundle.putCharSequenceArray("names", names);
                 }
-                intent.putExtra("ids", ids);
-                intent.putExtra("labels", labels);
-                startActivityForResult(intent, ACT_ADD_INC);
+                dialog.setArguments(bundle);
+                dialog.show(getSupportFragmentManager(), "add_include");
                 return true;
             case R.id.action_update_preset:
                 conf.update(mConfig);
@@ -386,39 +385,6 @@ public class ThirdActivity extends AppCompatActivity
                 return true;
         }
         return super.onContextItemSelected(item);
-    }
-
-    @Override
-    protected void onActivityResult(int reqCode, int resCode, Intent intent)
-    {
-        super.onActivityResult(reqCode, resCode, intent);
-        if(resCode == RESULT_CANCELED)
-            return;
-
-        switch(reqCode)
-        {
-            case ACT_ADD_INC:
-                {
-                    int id = intent.getIntExtra("id", NONE);
-                    int inc = intent.getIntExtra("include", NONE);
-
-                    if(id < 0 || inc < 0 || id == inc)
-                        break;
-
-                    ThirdProfile profile = getProfile(mProfile);
-                    ThirdConfig preset = profile.getPreset(id);
-                    ThirdConfig include = profile.getPreset(inc);
-
-                    if(preset == null || include == null)
-                        break;
-
-                    preset.addInclude(include);
-                    saveProfiles();
-                    loadProfiles();
-                }
-                break;
-        }
-        invalidateOptionsMenu();
     }
 
     private void showToast(String text)
@@ -471,6 +437,7 @@ public class ThirdActivity extends AppCompatActivity
         }
         mProfileView.setAdapter(mProfileAdapter);
         mProfileView.setSelection(mProfile);
+        invalidateOptionsMenu();
     }
 
     private void saveProfiles()
@@ -620,6 +587,14 @@ public class ThirdActivity extends AppCompatActivity
         saveProfiles();
         loadProfiles();
     }
+
+    public void addInclude(int preset_id, int include_id)
+    {
+        getProfile(mProfile).addInclude(preset_id, include_id);
+        saveProfiles();
+        loadProfiles();
+    }
+
     private void updateConfig()
     {
         if(mConfigImmutable)
@@ -1064,6 +1039,33 @@ public class ThirdActivity extends AppCompatActivity
         }
     }
 
+    public static class AddIncludeDialogFragment extends DialogFragment
+    {
+        @Override
+        @NonNull
+        public Dialog onCreateDialog(Bundle state)
+        {
+            Bundle args = getArguments();
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+            builder.setTitle(args.getString("title"))
+                .setItems(args.getCharSequenceArray("names"), new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(DialogInterface dialog, int id)
+                            {
+                                Bundle args = AddIncludeDialogFragment.this.getArguments();
+                                int[] ids = args.getIntArray("ids");
+                                int preset = args.getInt("id", NONE);
+
+                                ThirdActivity activity = (ThirdActivity) getActivity();
+                                activity.addInclude(preset, ids[id]);
+                                dialog.dismiss();
+                            }
+                        });
+            return builder.create();
+        }
+    }
+
     public static class DeletePresetDialogFragment extends DialogFragment
     {
         @Override
@@ -1095,5 +1097,4 @@ public class ThirdActivity extends AppCompatActivity
             return builder.create();
         }
     }
-
 }

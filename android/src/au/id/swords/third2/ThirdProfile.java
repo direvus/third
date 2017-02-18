@@ -138,4 +138,16 @@ class ThirdProfile
         }
         return mPresets.remove(id);
     }
+
+    void addInclude(int preset_id, int include_id)
+    {
+        if(preset_id == include_id)
+            return;
+
+        ThirdConfig preset = mPresets.get(preset_id);
+        ThirdConfig include = mPresets.get(include_id);
+
+        if(preset != null && include != null)
+            preset.addInclude(include);
+    }
 }
