@@ -30,11 +30,11 @@
     <string name="add_inc">Include other preset</string>
     <string name="add_inc_msg">Select a preset to include</string>
     <string name="del_preset">Delete preset</string>
-    <string name="name_profile">Enter a name for the profile:</string>
     <string name="name_preset">Enter a name for this configuration:</string>
     <string name="name_preset_hint">Preset name</string>
     <string name="name_profile_hint">Profile name</string>
     <string name="ok">OK</string>
+    <string name="confirm">Confirm</string>
     <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>
     <string name="confirm_del_profile">Deleting a profile will also delete all its presets.  Are you sure you want to delete profile “%s”?</string>

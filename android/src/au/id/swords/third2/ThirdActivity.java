@@ -81,7 +81,6 @@ public class ThirdActivity extends AppCompatActivity
     Random mRNG;
 
     private static final int ACT_NAME_PRESET = 0;
-    private static final int ACT_NAME_PROFILE = 1;
     private static final int ACT_ADD_INC = 3;
 
     @Override
@@ -241,6 +240,9 @@ public class ThirdActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item)
     {
         Intent i;
+        DialogFragment dialog;
+        Bundle bundle;
+        ThirdProfile profile = getProfile(mProfile);
         switch(item.getItemId())
         {
             case R.id.action_add_preset:
@@ -249,19 +251,25 @@ public class ThirdActivity extends AppCompatActivity
                 startActivityForResult(i, ACT_NAME_PRESET);
                 return true;
             case R.id.action_add_profile:
-                i = new Intent(this, ThirdNameProfile.class);
-                startActivityForResult(i, ACT_NAME_PROFILE);
+                dialog = new NameProfileDialogFragment();
+                bundle = new Bundle();
+                bundle.putInt("index", -1);
+                bundle.putString("title", getString(R.string.add_profile));
+                dialog.setArguments(bundle);
+                dialog.show(getSupportFragmentManager(), "name_profile");
                 return true;
             case R.id.action_rename_profile:
-                i = new Intent(this, ThirdNameProfile.class);
-                i.putExtra("id", mProfile);
-                i.putExtra("name", getProfileName());
-                startActivityForResult(i, ACT_NAME_PROFILE);
+                dialog = new NameProfileDialogFragment();
+                bundle = new Bundle();
+                bundle.putString("title", getString(R.string.rename_profile));
+                bundle.putInt("index", mProfile);
+                bundle.putString("name", profile.getName());
+                dialog.setArguments(bundle);
+                dialog.show(getSupportFragmentManager(), "name_profile");
                 return true;
             case R.id.action_delete_profile:
-                DialogFragment dialog = new DeleteProfileDialogFragment();
-                ThirdProfile profile = getProfile(mProfile);
-                Bundle bundle = new Bundle();
+                dialog = new DeleteProfileDialogFragment();
+                bundle = new Bundle();
                 bundle.putInt("index", mProfile);
                 bundle.putString("label", profile.toString());
                 dialog.setArguments(bundle);
@@ -392,32 +400,6 @@ public class ThirdActivity extends AppCompatActivity
                     loadProfiles();
                 }
                 break;
-            case ACT_NAME_PROFILE:
-                {
-                    String name = intent.getStringExtra("name");
-                    if(name == null)
-                        name = "";
-
-                    name = name.trim();
-                    if(name.length() == 0)
-                    {
-                        showToast(getString(R.string.error_empty_name));
-                        break;
-                    }
-
-                    int id = intent.getIntExtra("id", -1);
-                    if(id >= 0 && id < mProfiles.size())
-                    {
-                        mProfiles.get(id).setName(name);
-                    }
-                    else
-                    {
-                        mProfiles.add(new ThirdProfile(name));
-                    }
-                    saveProfiles();
-                    loadProfiles();
-                }
-                break;
             case ACT_ADD_INC:
                 {
                     int id = intent.getIntExtra("id", -1);
@@ -491,6 +473,7 @@ public class ThirdActivity extends AppCompatActivity
             }
         }
         mProfileView.setAdapter(mProfileAdapter);
+        mProfileView.setSelection(mProfile);
     }
 
     private void saveProfiles()
@@ -536,6 +519,31 @@ public class ThirdActivity extends AppCompatActivity
     private void unsetProfile()
     {
         mProfile = null;
+    }
+
+    public void nameProfile(int index, String name)
+    {
+        if(name == null)
+            name = "";
+
+        name = name.trim();
+        if(name.length() == 0)
+        {
+            showToast(getString(R.string.error_empty_name));
+            return;
+        }
+
+        if(index >= 0 && index < mProfiles.size())
+        {
+            mProfiles.get(index).setName(name);
+        }
+        else
+        {
+            mProfiles.add(new ThirdProfile(name));
+            setProfile(mProfiles.size() - 1);
+        }
+        saveProfiles();
+        loadProfiles();
     }
 
     public void deleteProfile(int index)
@@ -907,6 +915,45 @@ public class ThirdActivity extends AppCompatActivity
                                 int index = DeleteProfileDialogFragment.this.getArguments().getInt("index");
                                 ThirdActivity activity = (ThirdActivity) getActivity();
                                 activity.deleteProfile(index);
+                                dialog.dismiss();
+                            }
+                        })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(DialogInterface dialog, int id)
+                            {
+                                dialog.dismiss();
+                            }
+                        });
+            return builder.create();
+        }
+    }
+
+    public static class NameProfileDialogFragment extends DialogFragment
+    {
+        @Override
+        @NonNull
+        public Dialog onCreateDialog(Bundle state)
+        {
+            Bundle args = getArguments();
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            View view = getActivity().getLayoutInflater().inflate(R.layout.name_profile, null);
+            EditText edit = (EditText) view.findViewById(R.id.profile_name);
+
+            if(args.containsKey("name"))
+                edit.setText(args.getString("name"));
+
+            builder.setTitle(args.getString("title"))
+                .setView(view)
+                .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(DialogInterface dialog, int id)
+                            {
+                                int index = NameProfileDialogFragment.this.getArguments().getInt("index");
+                                AlertDialog alert = (AlertDialog) dialog;
+                                EditText edit = (EditText) alert.findViewById(R.id.profile_name);
+                                ThirdActivity activity = (ThirdActivity) getActivity();
+                                activity.nameProfile(index, edit.getText().toString());
                                 dialog.dismiss();
                             }
                         })
