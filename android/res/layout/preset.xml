@@ -11,7 +11,7 @@
     which can be found in the file LICENSE at the top level of the source code.
     -->
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     style="@style/preset"
     />
