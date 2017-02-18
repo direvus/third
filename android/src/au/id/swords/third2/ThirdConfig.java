@@ -284,9 +284,6 @@ class ThirdConfig
         StringBuilder sb = new StringBuilder();
         Vector<String> sv = new Vector<String>();
 
-        for(ThirdConfig inc: mIncludes)
-            sv.add(inc.describeInclude());
-
         for(int sides: SIDES)
         {
             int count = mDice.get(sides);
@@ -306,6 +303,9 @@ class ThirdConfig
             else
                 sv.add(String.format("%dd%d", mDx, mDxSides));
         }
+
+        for(ThirdConfig inc: mIncludes)
+            sv.add(inc.describeInclude());
 
         Iterator it = sv.iterator();
         while(it.hasNext())
