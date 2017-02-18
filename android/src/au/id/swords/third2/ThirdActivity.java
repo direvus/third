@@ -80,8 +80,10 @@ public class ThirdActivity extends AppCompatActivity
     Integer mProfile;
     Random mRNG;
 
-    private static final int ACT_NAME_PRESET = 0;
     private static final int ACT_ADD_INC = 3;
+
+    // Indicates "none" in zero-based index values (e.g. arrays).
+    private static final int NONE = -1;
 
     @Override
     public void onCreate(Bundle state)
@@ -239,21 +241,25 @@ public class ThirdActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        Intent i;
         DialogFragment dialog;
         Bundle bundle;
         ThirdProfile profile = getProfile(mProfile);
         switch(item.getItemId())
         {
             case R.id.action_add_preset:
-                i = new Intent(this, ThirdNamePreset.class);
-                i.putExtra("config", describeConfig());
-                startActivityForResult(i, ACT_NAME_PRESET);
+                dialog = new NamePresetDialogFragment();
+                bundle = new Bundle();
+                bundle.putString("config", describeConfig());
+                bundle.putString("title", getString(R.string.add_preset));
+                bundle.putInt("index", NONE);
+                bundle.putInt("include", NONE);
+                dialog.setArguments(bundle);
+                dialog.show(getSupportFragmentManager(), "name_preset");
                 return true;
             case R.id.action_add_profile:
                 dialog = new NameProfileDialogFragment();
                 bundle = new Bundle();
-                bundle.putInt("index", -1);
+                bundle.putInt("index", NONE);
                 bundle.putString("title", getString(R.string.add_profile));
                 dialog.setArguments(bundle);
                 dialog.show(getSupportFragmentManager(), "name_profile");
@@ -292,6 +298,8 @@ public class ThirdActivity extends AppCompatActivity
     public boolean onContextItemSelected(MenuItem item)
     {
         Intent intent;
+        DialogFragment dialog;
+        Bundle bundle;
         AdapterContextMenuInfo info;
         info = (AdapterContextMenuInfo) item.getMenuInfo();
         ThirdConfig conf = mPresetAdapter.getItem(info.position);
@@ -299,17 +307,30 @@ public class ThirdActivity extends AppCompatActivity
         switch(item.getItemId())
         {
             case R.id.action_rename_preset:
-                intent = new Intent(this, ThirdNamePreset.class);
-                intent.putExtra("id", conf.getId());
-                intent.putExtra("name", conf.getName());
-                intent.putExtra("config", conf.describe());
-                startActivityForResult(intent, ACT_NAME_PRESET);
+                dialog = new NamePresetDialogFragment();
+                bundle = new Bundle();
+                bundle.putString("name", conf.getName());
+                bundle.putString("config", conf.toString());
+                bundle.putString("title", getString(R.string.rename_preset));
+                bundle.putInt("index", conf.getId());
+                bundle.putInt("include", NONE);
+                dialog.setArguments(bundle);
+                dialog.show(getSupportFragmentManager(), "name_preset");
                 return true;
             case R.id.action_add_inc_preset:
-                intent = new Intent(this, ThirdNamePreset.class);
-                intent.putExtra("config", conf.describeInclude());
-                intent.putExtra("include", conf.getId());
-                startActivityForResult(intent, ACT_NAME_PRESET);
+                dialog = new NamePresetDialogFragment();
+                bundle = new Bundle();
+                {
+                    ThirdConfig preset = new ThirdConfig();
+                    preset.update(mConfig);
+                    preset.addInclude(conf);
+                    bundle.putString("config", preset.describe());
+                    bundle.putString("title", getString(R.string.add_preset));
+                    bundle.putInt("index", NONE);
+                    bundle.putInt("include", conf.getId());
+                }
+                dialog.setArguments(bundle);
+                dialog.show(getSupportFragmentManager(), "name_preset");
                 return true;
             case R.id.action_add_inc:
                 intent = new Intent(this, ThirdAddInclude.class);
@@ -337,6 +358,7 @@ public class ThirdActivity extends AppCompatActivity
                 conf.update(mConfig);
                 saveProfiles();
                 loadProfiles();
+                showToast(getString(R.string.success_update_preset, conf.getName(), conf.describe()));
                 return true;
             case R.id.action_del_preset:
                 profile.removePreset(conf.getId());
@@ -356,54 +378,10 @@ public class ThirdActivity extends AppCompatActivity
 
         switch(reqCode)
         {
-            case ACT_NAME_PRESET:
-                {
-                    String name = intent.getStringExtra("name");
-                    int id = intent.getIntExtra("id", -1);
-                    int inc = intent.getIntExtra("include", -1);
-
-                    if(name == null)
-                        name = "";
-
-                    name = name.trim();
-                    if(name.length() == 0)
-                    {
-                        showToast(getString(R.string.error_empty_name));
-                        break;
-                    }
-
-                    ThirdProfile profile = getProfile(mProfile);
-
-                    if(id >= 0)
-                    {
-                        ThirdConfig preset = profile.getPreset(id);
-                        if(preset == null)
-                            break;
-
-                        preset.setName(name);
-                    }
-                    else if(inc >= 0)
-                    {
-                        ThirdConfig include = profile.getPreset(inc);
-                        if(include == null)
-                            break;
-
-                        ThirdConfig preset = profile.createPreset(name);
-                        preset.addInclude(include);
-                    }
-                    else
-                    {
-                        mConfig.setName(name);
-                        profile.createPreset(mConfig);
-                    }
-                    saveProfiles();
-                    loadProfiles();
-                }
-                break;
             case ACT_ADD_INC:
                 {
-                    int id = intent.getIntExtra("id", -1);
-                    int inc = intent.getIntExtra("include", -1);
+                    int id = intent.getIntExtra("id", NONE);
+                    int inc = intent.getIntExtra("include", NONE);
 
                     if(id < 0 || inc < 0 || id == inc)
                         break;
@@ -565,6 +543,51 @@ public class ThirdActivity extends AppCompatActivity
         else if(mProfile > index)
         {
             mProfile -= 1;
+        }
+        saveProfiles();
+        loadProfiles();
+    }
+
+    public void namePreset(int index, int include, String name)
+    {
+        if(name == null)
+            name = "";
+
+        name = name.trim();
+        if(name.length() == 0)
+        {
+            showToast(getString(R.string.error_empty_name));
+            return;
+        }
+
+        ThirdProfile profile = getProfile(mProfile);
+
+        if(index >= 0)
+        {
+            // Rename existing preset at 'index'.
+            ThirdConfig preset = profile.getPreset(index);
+            if(preset == null)
+                return;
+
+            preset.setName(name);
+        }
+        else if(include >= 0)
+        {
+            // Create new preset from current roll, and include existing preset
+            // 'include'.
+            ThirdConfig base = profile.getPreset(include);
+            if(base == null)
+                return;
+
+            mConfig.setName(name);
+            mConfig.addInclude(base);
+            profile.createPreset(mConfig);
+        }
+        else
+        {
+            // Create new preset from current roll configuration.
+            mConfig.setName(name);
+            profile.createPreset(mConfig);
         }
         saveProfiles();
         loadProfiles();
@@ -954,6 +977,52 @@ public class ThirdActivity extends AppCompatActivity
                                 EditText edit = (EditText) alert.findViewById(R.id.profile_name);
                                 ThirdActivity activity = (ThirdActivity) getActivity();
                                 activity.nameProfile(index, edit.getText().toString());
+                                dialog.dismiss();
+                            }
+                        })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(DialogInterface dialog, int id)
+                            {
+                                dialog.dismiss();
+                            }
+                        });
+            return builder.create();
+        }
+    }
+
+    public static class NamePresetDialogFragment extends DialogFragment
+    {
+        @Override
+        @NonNull
+        public Dialog onCreateDialog(Bundle state)
+        {
+            Bundle args = getArguments();
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            View view = getActivity().getLayoutInflater().inflate(R.layout.name_preset, null);
+            EditText edit = (EditText) view.findViewById(R.id.preset_name);
+            TextView text = (TextView) view.findViewById(R.id.name_preset_config);
+
+            if(args.containsKey("name"))
+                edit.setText(args.getString("name"));
+
+            if(args.containsKey("config"))
+                text.setText(args.getString("config"));
+
+            builder.setTitle(args.getString("title"))
+                .setView(view)
+                .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(DialogInterface dialog, int id)
+                            {
+                                Bundle args = NamePresetDialogFragment.this.getArguments();
+                                int index = args.getInt("index", NONE);
+                                int include = args.getInt("include", NONE);
+
+                                AlertDialog alert = (AlertDialog) dialog;
+                                EditText edit = (EditText) alert.findViewById(R.id.preset_name);
+                                ThirdActivity activity = (ThirdActivity) getActivity();
+                                activity.namePreset(index, include, edit.getText().toString());
                                 dialog.dismiss();
                             }
                         })

@@ -23,7 +23,7 @@
     <string name="add_profile">Add profile</string>
     <string name="rename_profile">Rename profile</string>
     <string name="del_profile">Delete profile</string>
-    <string name="add_preset">Add preset</string>
+    <string name="add_preset">Save as new preset</string>
     <string name="rename_preset">Rename preset</string>
     <string name="update_preset">Update preset to current roll</string>
     <string name="add_preset_inc">Use in new preset</string>
@@ -40,4 +40,5 @@
     <string name="confirm_del_profile">Deleting a profile will also delete all its presets.  Are you sure you want to delete profile “%s”?</string>
     <string name="error_del_last_profile">You may not delete the only profile.</string>
     <string name="error_empty_name">Name may not be blank.</string>
+    <string name="success_update_preset">“%1$s” has been updated to %2$s.</string>
 </resources>
