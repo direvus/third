@@ -48,7 +48,6 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import java.util.LinkedHashMap;
-import java.util.Random;
 import java.util.Vector;
 
 import org.json.JSONArray;
@@ -76,7 +75,6 @@ public class ThirdActivity extends AppCompatActivity
     TextView mResult;
     Vector<TextView> mResultLog;
     Integer mProfile;
-    Random mRNG;
 
     // Indicates "none" in zero-based index values (e.g. arrays).
     private static final int NONE = -1;
@@ -185,7 +183,6 @@ public class ThirdActivity extends AppCompatActivity
             }
         });
         registerForContextMenu(mPresetView);
-        loadProfiles();
         mLog = (TableLayout) findViewById(R.id.log);
         mResult = (TextView) findViewById(R.id.result);
 
@@ -195,7 +192,8 @@ public class ThirdActivity extends AppCompatActivity
         mResultLog.add((TextView) findViewById(R.id.result_log3));
         mResultLog.add((TextView) findViewById(R.id.result_log4));
 
-        mRNG = new Random();
+        updateFromConfig();
+        loadProfiles();
     }
 
     @Override
@@ -680,10 +678,7 @@ public class ThirdActivity extends AppCompatActivity
 
     private int rollDie(int sides)
     {
-        int result = mRNG.nextInt(Math.abs(sides)) + 1;
-        if(sides < 0)
-            result = -result;
-        return result;
+        return (int) Math.round(Math.floor(Math.random() * sides)) + 1;
     }
 
     private void roll()
