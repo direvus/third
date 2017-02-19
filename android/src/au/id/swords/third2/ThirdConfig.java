@@ -25,8 +25,8 @@ class ThirdConfig
     static final int DEFAULT_DX_SIDES = 3;
     static final int[] SIDES = {2, 4, 6, 8, 10, 12, 20, 100};
 
-    private int mId;
-    private String mName;
+    private int mId = -1;
+    private String mName = "";
     private final Vector<ThirdConfig> mIncludes = new Vector<>();
     private final SparseIntArray mDice = new SparseIntArray();
     private int mDxSides;
@@ -36,8 +36,6 @@ class ThirdConfig
 
     ThirdConfig()
     {
-        mId = -1;
-        mName = "";
         init();
     }
 
@@ -88,7 +86,7 @@ class ThirdConfig
             mIncludes.add(include);
     }
 
-    void init()
+    private void init()
     {
         mDx = 0;
         mDxSides = DEFAULT_DX_SIDES;
