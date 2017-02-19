@@ -235,7 +235,7 @@ public class ThirdActivity extends AppCompatActivity
     {
         DialogFragment dialog;
         Bundle bundle;
-        ThirdProfile profile = getProfile(mProfile);
+        ThirdProfile profile = getProfile();
         switch(item.getItemId())
         {
             case R.id.action_add_preset:
@@ -464,6 +464,11 @@ public class ThirdActivity extends AppCompatActivity
         return mProfiles.get(index);
     }
 
+    private ThirdProfile getProfile()
+    {
+        return getProfile(mProfile);
+    }
+
     private void setProfile(int index, ThirdProfile profile)
     {
         mProfile = index;
@@ -541,8 +546,7 @@ public class ThirdActivity extends AppCompatActivity
             return;
         }
 
-        ThirdProfile profile = getProfile(mProfile);
-
+        ThirdProfile profile = getProfile();
         if(index >= 0)
         {
             // Rename existing preset at 'index'.
@@ -576,7 +580,7 @@ public class ThirdActivity extends AppCompatActivity
 
     public void deletePreset(int id)
     {
-        getProfile(mProfile).removePreset(id);
+        getProfile().removePreset(id);
         mConfig.removeInclude(id);
 
         saveProfiles();
@@ -585,7 +589,7 @@ public class ThirdActivity extends AppCompatActivity
 
     public void addInclude(int preset_id, int include_id)
     {
-        getProfile(mProfile).addInclude(preset_id, include_id);
+        getProfile().addInclude(preset_id, include_id);
         saveProfiles();
         loadProfiles();
     }
@@ -644,11 +648,6 @@ public class ThirdActivity extends AppCompatActivity
     private String describeConfig()
     {
         return mConfig.describe();
-    }
-
-    private String getProfileName()
-    {
-        return getProfile(mProfile).getName();
     }
 
     private void clearLog()
