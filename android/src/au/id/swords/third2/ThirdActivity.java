@@ -696,13 +696,26 @@ public class ThirdActivity extends AppCompatActivity
     {
         int result = 0;
         int outcome;
+        boolean raw;
 
         Vector<Integer> v = conf.getDice();
         for(Integer sides: v)
         {
+            raw = true;
             outcome = rollDie(sides);
             String label = String.format("d%d", Math.abs(sides));
             addLog(label, String.valueOf(outcome));
+
+            for(ThirdTrigger trigger: conf.getTriggers())
+            {
+                while(trigger.firesOn(sides, outcome, raw))
+                {
+                    int roll = rollDie(sides);
+                    addLog(trigger.getName(), String.valueOf(roll));
+                    outcome = trigger.resolve(outcome, roll);
+                    raw = false;
+                }
+            }
             result += outcome;
         }
 

@@ -28,6 +28,7 @@ class ThirdConfig
     private int mId = -1;
     private String mName = "";
     private final Vector<ThirdConfig> mIncludes = new Vector<>();
+    private final Vector<ThirdTrigger> mTriggers = new Vector<>();
     private final SparseIntArray mDice = new SparseIntArray();
     private int mDxSides;
     private int mDx;
@@ -56,6 +57,19 @@ class ThirdConfig
 
         for(int i: SIDES)
             mDice.put(i, json.optInt(colName(i)));
+
+        JSONArray triggers = json.optJSONArray("triggers");
+        if(triggers != null)
+        {
+            for(int i = 0; i < triggers.length(); i++)
+            {
+                try
+                {
+                    mTriggers.add(new ThirdTrigger(triggers.optJSONObject(i)));
+                }
+                catch(ThirdTrigger.InfiniteLoop e) {}
+            }
+        }
     }
 
     ThirdConfig(int id, String name)
@@ -98,6 +112,7 @@ class ThirdConfig
             mDice.put(i, 0);
 
         mIncludes.clear();
+        mTriggers.clear();
     }
 
     void reset()
@@ -147,6 +162,10 @@ class ThirdConfig
             json.put("modifier", mMod);
             for(int i: SIDES)
                 json.put(colName(i), mDice.get(i));
+
+            json.put("triggers", new JSONArray());
+            for(ThirdTrigger trigger: mTriggers)
+                json.accumulate("triggers", trigger.toJSON());
 
             json.put("includes", new JSONArray());
             for(ThirdConfig include: mIncludes)
@@ -224,12 +243,20 @@ class ThirdConfig
         return mIncludes;
     }
 
+    Vector<ThirdTrigger> getTriggers()
+    {
+        return mTrigger;
+    }
+
     int getMin()
     {
         int min = 0;
 
         for(ThirdConfig inc: mIncludes)
             min += inc.getMin();
+
+        for(ThirdTrigger trigger: mTriggers)
+            min += trigger.getMin();
 
         for(int sides: SIDES)
             min += mDice.get(sides, 0);
@@ -238,12 +265,31 @@ class ThirdConfig
         return (min * mMul) + mMod;
     }
 
+    /*
+     * Return whether the outcome has an upper bound.
+     *
+     * This is false if any of the configuration's triggers are unbounded,
+     * otherwise it is true.
+     */
+    boolean isBounded()
+    {
+        for(ThirdTrigger trigger: mTriggers)
+        {
+            if(!trigger.isBounded())
+                return false;
+        }
+        return true;
+    }
+
     int getMax()
     {
         int max = 0;
 
         for(ThirdConfig inc: mIncludes)
             max += inc.getMax();
+
+        for(ThirdTrigger trigger: mTriggers)
+            max += trigger.getMax();
 
         for(int sides: SIDES)
             max += sides * mDice.get(sides);
@@ -254,52 +300,58 @@ class ThirdConfig
 
     Integer getRange()
     {
-        return getMax() - getMin();
+        if(isBounded())
+            return getMax() - getMin();
+        else
+            return null;
     }
 
     String describeRange()
     {
-        return String.format("%d - %d", getMin(), getMax());
+        if(isBounded())
+            return String.format("%d - %d", getMin(), getMax());
+        else
+            return String.format("%d - ∞", getMin());
+    }
+
+    private String describeDie(int sides, int count)
+    {
+        if(count == 1)
+            return String.format("d%d", sides);
+        else
+            return String.format("%dd%d", count, sides);
     }
 
     String describe()
     {
         StringBuilder sb = new StringBuilder();
-        Vector<String> sv = new Vector<String>();
 
         for(int sides: SIDES)
         {
             int count = mDice.get(sides);
             if(count != 0)
-            {
-                if(count == 1)
-                    sv.add(String.format("d%d", sides));
-                else
-                    sv.add(String.format("%dd%d", count, sides));
-            }
+                ThirdUtil.append(sb, " + ", describeDie(sides, count));
         }
 
         if(mDx != 0 && mDxSides != 0)
         {
-            if(mDx == 1)
-                sv.add(String.format("d%d", mDxSides));
-            else
-                sv.add(String.format("%dd%d", mDx, mDxSides));
+            ThirdUtil.append(sb, " + ", describeDie(mDx, mDxSides));
+        }
+
+        if(mTriggers.size() > 0)
+        {
+            StringBuilder triggers = new StringBuilder();
+            for(ThirdTrigger trigger: mTriggers)
+                ThirdUtil.append(triggers, ", ", trigger);
+
+            sb.append("(").append(triggers).append(")");
         }
 
         for(ThirdConfig inc: mIncludes)
-            sv.add(inc.describeInclude());
-
-        Iterator it = sv.iterator();
-        while(it.hasNext())
-        {
-            sb.append(it.next());
-            if(it.hasNext())
-                sb.append(" + ");
-        }
+            ThirdUtil.append(sb, " + ", inc.describeInclude());
 
         if(mMul != 1 && sb.length() > 0)
-            sb.append(String.format(" * %d", mMul));
+            ThirdUtil.append(sb, " * ", String.valueOf(mMul));
 
         if(mMod != 0)
         {
