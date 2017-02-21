@@ -16,6 +16,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -48,6 +49,7 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Vector;
 
 import org.json.JSONArray;
@@ -79,6 +81,8 @@ public class ThirdActivity extends AppCompatActivity
 
     // Indicates "none" in zero-based index values (e.g. arrays).
     private static final int NONE = -1;
+
+    static final int REQUEST_TRIGGER = 0;
 
     @Override
     public void onCreate(Bundle state)
@@ -359,6 +363,22 @@ public class ThirdActivity extends AppCompatActivity
                 loadProfiles();
                 showToast(getString(R.string.success_update_preset, conf.getName(), conf.describe()));
                 return true;
+            case R.id.action_add_trigger:
+                {
+                    LinkedHashSet<Integer> dice = conf.getActiveDice();
+                    if(dice.size() == 0)
+                    {
+                        showToast(getString(R.string.error_trigger_no_dice));
+                        return true;
+                    }
+
+                    Intent i = new Intent(this, ThirdTriggerActivity.class);
+                    i.putExtra("preset", conf.getId());
+                    i.putExtra("config", conf.toString());
+                    i.putExtra("dice", ThirdUtil.primitiveIntArray(dice));
+                    startActivityForResult(i, REQUEST_TRIGGER);
+                }
+                return true;
             case R.id.action_del_preset:
                 boolean included = false;
                 for(ThirdConfig preset: mPresets.values())
@@ -385,6 +405,41 @@ public class ThirdActivity extends AppCompatActivity
                 return true;
         }
         return super.onContextItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int reqCode, int resultCode, Intent data)
+    {
+        switch(reqCode)
+        {
+            case REQUEST_TRIGGER:
+                if(resultCode == RESULT_OK)
+                {
+                    int id = data.getIntExtra("preset", -1);
+                    ThirdProfile profile = getProfile();
+                    if(profile.getPresets().containsKey(id))
+                    {
+                        try
+                        {
+                            ThirdTrigger trigger = new ThirdTrigger(
+                                    new JSONObject(data.getStringExtra("trigger")));
+                            ThirdConfig preset = profile.getPreset(id);
+                            preset.addTrigger(trigger);
+
+                            saveProfiles();
+                            loadProfiles();
+                        }
+                        catch(ThirdTrigger.InfiniteLoop e)
+                        {
+                            showToast(getString(R.string.error_trigger_infinite_loop));
+                        }
+                        catch(JSONException e)
+                        {
+                        }
+                    }
+                }
+                break;
+        }
     }
 
     private void showToast(String text)
@@ -638,8 +693,18 @@ public class ThirdActivity extends AppCompatActivity
         range.setText(mConfig.describeRange());
 
         ProgressBar bar = (ProgressBar) findViewById(R.id.result_bar);
-        bar.setMax(mConfig.getRange());
-        bar.setProgress(0);
+        if(mConfig.isBounded())
+        {
+            bar.setEnabled(true);
+            bar.setMax(mConfig.getRange());
+            bar.setProgress(0);
+        }
+        else
+        {
+            bar.setEnabled(false);
+            bar.setMax(0);
+            bar.setProgress(0);
+        }
     }
 
     private void updateFromConfig()
@@ -701,6 +766,7 @@ public class ThirdActivity extends AppCompatActivity
     {
         int result = 0;
         int outcome;
+        int roll;
         boolean raw;
 
         Vector<Integer> v = conf.getDice();
@@ -713,9 +779,10 @@ public class ThirdActivity extends AppCompatActivity
 
             for(ThirdTrigger trigger: conf.getTriggers())
             {
-                while(trigger.firesOn(sides, outcome, raw))
+                roll = outcome;
+                while(trigger.firesOn(sides, roll, raw))
                 {
-                    int roll = rollDie(sides);
+                    roll = rollDie(sides);
                     addLog(trigger.getName(), String.valueOf(roll));
                     outcome = trigger.resolve(outcome, roll);
                     raw = false;

@@ -14,6 +14,7 @@ package au.id.swords.third2;
 import android.util.SparseIntArray;
 
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Vector;
 
 import org.json.JSONArray;
@@ -98,6 +99,9 @@ class ThirdConfig
 
         for(ThirdConfig include: config.getIncludes())
             mIncludes.add(include);
+
+        for(ThirdTrigger trigger: config.getTriggers())
+            mTriggers.add(trigger);
     }
 
     private void init()
@@ -150,6 +154,11 @@ class ThirdConfig
         }
     }
 
+    void addTrigger(ThirdTrigger trigger)
+    {
+        mTriggers.add(trigger);
+    }
+
     JSONObject toJSON()
     {
         JSONObject json = new JSONObject();
@@ -193,6 +202,13 @@ class ThirdConfig
         return mDice.get(die);
     }
 
+    /*
+     * Return a Vector of dice in this roll configuration.
+     *
+     * Each element of the Vector is the number of sides on a die to be rolled.
+     * So, if the configuration is 2d8 + 4d6, then getDice() will return
+     * {6, 6, 6, 6, 8, 8}.
+     */
     Vector<Integer> getDice()
     {
         Vector<Integer> v = new Vector<>();
@@ -216,6 +232,27 @@ class ThirdConfig
                 v.add(die);
         }
         return v;
+    }
+
+    /*
+     * Return a LinkedHashSet of dice that are active in this configuration.
+     *
+     * Each element of the set will be an integer, showing that there some
+     * non-zero number of dice with that number of sides in the configuration.
+     */
+    public LinkedHashSet<Integer> getActiveDice()
+    {
+        LinkedHashSet<Integer> result = new LinkedHashSet<>();
+        for(int sides: SIDES)
+        {
+            if(mDice.get(sides, 0) != 0)
+                result.add(sides);
+        }
+
+        if(mDx != 0 && mDxSides != 0)
+            result.add(mDxSides);
+
+        return result;
     }
 
     Integer getDx()
@@ -245,7 +282,7 @@ class ThirdConfig
 
     Vector<ThirdTrigger> getTriggers()
     {
-        return mTrigger;
+        return mTriggers;
     }
 
     int getMin()
@@ -342,9 +379,9 @@ class ThirdConfig
         {
             StringBuilder triggers = new StringBuilder();
             for(ThirdTrigger trigger: mTriggers)
-                ThirdUtil.append(triggers, ", ", trigger);
+                ThirdUtil.append(triggers, ", ", trigger.toString(this));
 
-            sb.append("(").append(triggers).append(")");
+            sb.append(" (").append(triggers).append(")");
         }
 
         for(ThirdConfig inc: mIncludes)

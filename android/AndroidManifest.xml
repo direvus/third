@@ -28,5 +28,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="au.id.swords.third2.ThirdTriggerActivity"
+            android:label="@string/add_trigger"
+            />
     </application>
 </manifest> 

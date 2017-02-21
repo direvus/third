@@ -14,7 +14,7 @@
     <string name="app_name">THIRD</string>
     <string name="reset">Clear</string>
     <string name="roll">Roll</string>
-    <string name="range">Range:</string>
+    <string name="range">Range</string>
     <string name="empty_config">Set up your roll</string>
     <string name="presets">Presets</string>
     <string name="results">Results</string>
@@ -29,17 +29,50 @@
     <string name="add_preset_inc">Use in new preset</string>
     <string name="add_inc">Include other preset</string>
     <string name="add_inc_msg">Select a preset to include</string>
+    <string name="add_trigger">Add trigger</string>
+    <string name="manage_triggers">Manage triggers</string>
     <string name="del_preset">Delete preset</string>
-    <string name="name_preset">Enter a name for this configuration:</string>
+    <string name="name_preset">Enter a name for this configuration</string>
     <string name="name_preset_hint">Preset name</string>
     <string name="name_profile_hint">Profile name</string>
+
+    <!-- 
+         NOTE: Trigger string arrays must be in the same order as the
+         ThirdTrigger.Type enum.
+         -->
+    <string-array name="trigger_types">
+        <item>Add</item>
+        <item>Explode</item>
+        <item>Replace</item>
+        <item>Advantage</item>
+        <item>Disadvantage</item>
+    </string-array>
+    <string-array name="trigger_type_helps">
+        <item><b>Add</b>: Roll again once, and add the new result to the total.</item>
+        <item><b>Explode</b>: Roll again, and add the new result to the total.  Continue rolling as long as the new result matches the trigger.</item>
+        <item><b>Replace</b>: Roll again, and replace the old result with the new result.</item>
+        <item><b>Advantage</b>: Roll again, and take the greater of the two results.</item>
+        <item><b>Disadvantage</b>: Roll again, and take the lesser of the two results.</item>
+    </string-array>
+
+    <string name="trigger_die_label">Target dice type</string>
+    <string name="trigger_die_prompt">Select dice type</string>
+    <string name="trigger_results_label">Trigger on results</string>
+    <string name="trigger_type_label">Trigger action</string>
+    <string name="trigger_type_prompt">Select trigger action</string>
+    <string name="trigger_results_help">Leave blank to trigger on all results.</string>
+    <string name="trigger_results_hint">e.g. "10" or "19-20"</string>
+
     <string name="ok">OK</string>
     <string name="confirm">Confirm</string>
     <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
     <string name="confirm_del_profile">Deleting a profile will also delete all its presets.  Are you sure you want to delete profile “%s”?</string>
     <string name="confirm_del_preset">Deleting a preset will remove it from all other presets that include it.  Are you sure you want to delete preset “%s”?</string>
     <string name="error_del_last_profile">You may not delete the only profile.</string>
     <string name="error_empty_name">Name may not be blank.</string>
+    <string name="error_trigger_no_dice">You cannot add triggers to a roll with no dice.</string>
+    <string name="error_trigger_infinite_loop">Invalid trigger configuration: would cause an infinite loop.</string>
     <string name="success_update_preset">“%1$s” has been updated to %2$s.</string>
 </resources>

@@ -247,6 +247,19 @@ class ThirdTrigger
         return sb.toString();
     }
 
+    public String toString(ThirdConfig config)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(mType.name());
+        if(config.getActiveDice().size() > 1)
+            sb.append(" d").append(mDie);
+
+        if(!matchesAll())
+            sb.append(" on ").append(describeResults());
+
+        return sb.toString();
+    }
+
     JSONObject toJSON()
     {
         JSONObject json = new JSONObject();
