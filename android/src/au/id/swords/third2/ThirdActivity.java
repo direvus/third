@@ -52,6 +52,7 @@ import java.util.Vector;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 public class ThirdActivity extends AppCompatActivity
 {
@@ -199,10 +200,7 @@ public class ThirdActivity extends AppCompatActivity
     @Override
     public void onSaveInstanceState(Bundle state)
     {
-        for(DiceCounter c: mDice)
-            state.putInt(c.getName(), c.getValue());
-        state.putInt("mul", mMul.getValue());
-        state.putInt("mod", mMod.getValue());
+        state.putString("config", mConfig.toJSON().toString());
         super.onSaveInstanceState(state);
     }
 
@@ -210,10 +208,17 @@ public class ThirdActivity extends AppCompatActivity
     public void onRestoreInstanceState(Bundle state)
     {
         super.onRestoreInstanceState(state);
-        for(DiceCounter c: mDice)
-            c.setValue(state.getInt(c.getName()));
-        mMul.setValue(state.getInt("mul"));
-        mMod.setValue(state.getInt("mod"));
+        if(state != null)
+        {
+            try
+            {
+                JSONObject json = new JSONObject(state.getString("config"));
+                setConfig(new ThirdConfig(json));
+            }
+            catch(JSONException e)
+            {
+            }
+        }
     }
 
     @Override
