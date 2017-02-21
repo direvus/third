@@ -11,6 +11,11 @@
     which can be found in the file LICENSE at the top level of the source code.
     -->
 <resources>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+    </style>
     <style name="result" parent="@android:style/TextAppearance.Large">
         <item name="android:gravity">center_horizontal</item>
         <item name="android:textStyle">bold</item>

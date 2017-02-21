@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    third: That's How I Roll Dice
+        A dice roller for roleplaying nerds.
+            http://swords.id.au/third/
+
+    Copyright (c) 2010, Brendan Jurd <bj@swords.id.au>
+    All rights reserved.
+
+    third is open-source, licensed under the Simplified BSD License, a copy of
+    which can be found in the file LICENSE at the top level of the source code.
+    -->
+<resources>
+    <color name="primary">#9FA8DA</color> <!-- Material Indigo 200 -->
+    <color name="primary_dark">#303F9F</color> <!-- Material Indigo 700 -->
+    <color name="accent">#448AFF</color> <!-- Material Blue A200 -->
+</resources>
