@@ -27,4 +27,16 @@ class ThirdUtil
         else
             return builder.append(content);
     }
+
+    public static int[] primitiveIntArray(java.util.Collection<Integer> c)
+    {
+        int[] result = new int[c.size()];
+        int i = 0;
+        for(Integer v: c)
+        {
+            result[i] = v;
+            i++;
+        }
+        return result;
+    }
 }
