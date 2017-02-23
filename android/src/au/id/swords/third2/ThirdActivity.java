@@ -76,6 +76,8 @@ public class ThirdActivity extends AppCompatActivity
     SharedPreferences mPrefs;
     Vector<ThirdProfile> mProfiles = new Vector<>();
     LinkedHashMap<Integer, ThirdConfig> mPresets = new LinkedHashMap<>();
+    ArrayAdapter<String> mProfileAdapter;
+    ArrayAdapter<ThirdConfig> mPresetAdapter;
     TextView mResult;
     Vector<TextView> mResultLog;
     Integer mProfile;
@@ -91,8 +93,24 @@ public class ThirdActivity extends AppCompatActivity
         super.onCreate(state);
         setContentView(R.layout.main);
 
+        mPresetListFragment = (PresetListFragment) getSupportFragmentManager().findFragmentById(R.id.preset_fragment);
+        if(mPresetListFragment == null)
+            mPresetListFragment = new PresetListFragment();
+
+        mLogFragment = (LogFragment) getSupportFragmentManager().findFragmentById(R.id.log_fragment);
+        if(mLogFragment == null)
+            mLogFragment = new LogFragment();
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
+
+        mProfileAdapter = new ArrayAdapter<>(this,
+            android.R.layout.simple_spinner_item);
+
+        mProfileAdapter.setDropDownViewResource(
+            android.R.layout.simple_spinner_dropdown_item);
+
+        mPresetAdapter = new ArrayAdapter<>(this, R.layout.preset);
 
         mDice = new DiceCounter[8];
         mDice[0] = new DiceCounter(this,   2, R.drawable.d2);
@@ -107,13 +125,10 @@ public class ThirdActivity extends AppCompatActivity
         mMod = new ButtonCounter(this, "mod", R.drawable.mod);
         mDx = new DxCounter(this);
 
-        mPresetListFragment = new PresetListFragment();
-        mLogFragment = new LogFragment();
-
-        mPagerAdapter = new PagerAdapter(getSupportFragmentManager());
         mPager = (ViewPager) findViewById(R.id.pager);
         if(mPager != null)
         {
+            mPagerAdapter = new PagerAdapter(getSupportFragmentManager());
             mPager.setAdapter(mPagerAdapter);
 
             PagerTabStrip strip = (PagerTabStrip) findViewById(R.id.pager_title);
@@ -265,7 +280,7 @@ public class ThirdActivity extends AppCompatActivity
         Bundle bundle;
         AdapterContextMenuInfo info;
         info = (AdapterContextMenuInfo) item.getMenuInfo();
-        ThirdConfig conf = mPresetListFragment.getPresetAdapter().getItem(info.position);
+        ThirdConfig conf = mPresetAdapter.getItem(info.position);
         switch(item.getItemId())
         {
             case R.id.action_rename_preset:
@@ -437,19 +452,21 @@ public class ThirdActivity extends AppCompatActivity
                         getString(R.string.default_profile_name)));
         }
 
-        loadProfileList();
+        if(mPresetListFragment != null)
+        {
+            Spinner view = mPresetListFragment.getProfileSpinner();
+            if(view != null)
+                loadProfileList(view);
+        }
         invalidateOptionsMenu();
     }
 
-    void loadProfileList()
+    void loadProfileList(Spinner view)
     {
-        ArrayAdapter<String> adapter = mPresetListFragment.getProfileAdapter();
-        Spinner view = mPresetListFragment.getProfileSpinner();
-
-        if(adapter == null || view == null)
+        if(mProfileAdapter == null || view == null)
             return;
 
-        adapter.clear();
+        mProfileAdapter.clear();
         for(int i = 0; i < mProfiles.size(); i++)
         {
             ThirdProfile profile = mProfiles.get(i);
@@ -459,13 +476,13 @@ public class ThirdActivity extends AppCompatActivity
                 name = String.format("Profile %d", i + 1);
             }
 
-            adapter.add(name);
+            mProfileAdapter.add(name);
             if(mProfile == null || mProfile == i)
             {
                 setProfile(i, profile);
             }
         }
-        view.setAdapter(adapter);
+        view.setAdapter(mProfileAdapter);
         view.setSelection(mProfile);
     }
 
@@ -487,22 +504,24 @@ public class ThirdActivity extends AppCompatActivity
         for(ThirdConfig conf: presets.values())
             mPresets.put(conf.getId(), conf);
 
-        loadPresetList();
+        if(mPresetListFragment != null)
+        {
+            ListView view = mPresetListFragment.getPresetList();
+            if(view != null)
+                loadPresetList(view);
+        }
     }
 
-    void loadPresetList()
+    void loadPresetList(ListView view)
     {
-        ArrayAdapter<ThirdConfig> adapter = mPresetListFragment.getPresetAdapter();
-        ListView view = mPresetListFragment.getPresetList();
-
-        if(adapter == null || view == null)
+        if(mPresetAdapter == null || view == null)
             return;
 
-        adapter.clear();
+        mPresetAdapter.clear();
         for(ThirdConfig conf: mPresets.values())
-            adapter.add(conf);
+            mPresetAdapter.add(conf);
 
-        view.setAdapter(adapter);
+        view.setAdapter(mPresetAdapter);
     }
 
     private ThirdProfile getProfile(int index)
@@ -1189,8 +1208,6 @@ public class ThirdActivity extends AppCompatActivity
 
     public static class PresetListFragment extends Fragment
     {
-        ArrayAdapter<String> mProfileAdapter;
-        ArrayAdapter<ThirdConfig> mPresetAdapter;
         Spinner mProfileView;
         ListView mPresetView;
 
@@ -1199,14 +1216,6 @@ public class ThirdActivity extends AppCompatActivity
         {
             ThirdActivity a = (ThirdActivity) getActivity();
             View v = inflater.inflate(R.layout.preset_list, container, false);
-
-            mProfileAdapter = new ArrayAdapter<>(a,
-                android.R.layout.simple_spinner_item);
-
-            mProfileAdapter.setDropDownViewResource(
-                android.R.layout.simple_spinner_dropdown_item);
-
-            mPresetAdapter = new ArrayAdapter<>(a, R.layout.preset);
 
             mProfileView = (Spinner) v.findViewById(R.id.profiles);
             mProfileView.setOnItemSelectedListener(
@@ -1236,8 +1245,8 @@ public class ThirdActivity extends AppCompatActivity
                 }
             });
             registerForContextMenu(mPresetView);
-            a.loadProfileList();
-            a.loadPresetList();
+            a.loadProfileList(mProfileView);
+            a.loadPresetList(mPresetView);
             return v;
         }
 
@@ -1249,16 +1258,6 @@ public class ThirdActivity extends AppCompatActivity
         ListView getPresetList()
         {
             return mPresetView;
-        }
-
-        ArrayAdapter<String> getProfileAdapter()
-        {
-            return mProfileAdapter;
-        }
-
-        ArrayAdapter<ThirdConfig> getPresetAdapter()
-        {
-            return mPresetAdapter;
         }
     }
 
