@@ -12,11 +12,8 @@
 package au.id.swords.third2;
 
 import android.util.SparseIntArray;
-
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Vector;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
