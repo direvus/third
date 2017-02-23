@@ -11,9 +11,10 @@
  */
 package au.id.swords.third2;
 
-import android.util.SparseIntArray;
+import android.util.Pair;
 
 import java.util.LinkedHashMap;
+import java.util.Vector;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,7 +36,7 @@ class ThirdProfile
             presets = new JSONArray();
         }
 
-        SparseIntArray map = new SparseIntArray();
+        Vector<Pair<Integer, Integer>> pairs = new Vector<>();
         for(int i = 0; i < presets.length(); i++)
         {
             JSONObject preset_json = presets.optJSONObject(i);
@@ -44,17 +45,17 @@ class ThirdProfile
 
             JSONArray includes = preset_json.optJSONArray("includes");
             for(int j = 0; j < includes.length(); j++)
-                map.put(preset.getId(), includes.optInt(j));
+                pairs.add(Pair.create(preset.getId(), includes.optInt(j)));
         }
 
         /*
          * Now that we have accumulated all of the presets, resolve references
          * to inclusions.
          */
-        for(int i = 0; i < map.size(); i++)
+        for(Pair<Integer, Integer> pair: pairs)
         {
-            ThirdConfig preset = mPresets.get(map.keyAt(i));
-            ThirdConfig include = mPresets.get(map.valueAt(i));
+            ThirdConfig preset = mPresets.get(pair.first);
+            ThirdConfig include = mPresets.get(pair.second);
 
             if(preset != null && include != null)
                 preset.addInclude(include);
