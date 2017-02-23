@@ -87,68 +87,19 @@
                 android:layout_height="wrap_content"
                 style="?android:attr/progressBarStyleHorizontal"
                 />
-            <RadioGroup
-                android:layout_weight="0"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                >
-                <RadioButton
-                    android:id="@+id/show_presets"
-                    android:text="@string/presets"
-                    android:layout_weight="1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    />
-                <RadioButton
-                    android:id="@+id/show_results"
-                    android:text="@string/results"
-                    android:layout_weight="1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    />
-            </RadioGroup>
-            <ViewFlipper
-                android:id="@+id/preset_flipper"
+            <android.support.v4.view.ViewPager
+                android:id="@+id/pager"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:layout_width="match_parent"
                 >
-                <LinearLayout
+                <android.support.v4.view.PagerTabStrip
+                    android:id="@+id/pager_title"
+                    android:layout_height="wrap_content"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    >
-                    <Spinner
-                        android:id="@+id/profiles"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0"
-                        android:prompt="@string/profiles"
-                        />
-                    <ListView
-                        android:id="@+id/presets"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:paddingTop="8dp"
-                        />
-                </LinearLayout>
-                <ScrollView
-                    android:layout_height="match_parent"
-                    android:layout_width="match_parent"
-                    >
-                    <TableLayout
-                        android:id="@+id/log"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:stretchColumns="0, 1, 2"
-                        >
-                    </TableLayout>
-                </ScrollView>
-            </ViewFlipper>
+                    android:layout_gravity="top"
+                    />
+            </android.support.v4.view.ViewPager>
             <TextView
                 android:id="@+id/result"
                 android:text=""

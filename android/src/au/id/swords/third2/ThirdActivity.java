@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
@@ -29,7 +30,13 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.view.PagerTabStrip;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.widget.AdapterView;
@@ -40,13 +47,11 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewFlipper;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -64,17 +69,13 @@ public class ThirdActivity extends AppCompatActivity
     DxCounter mDx;
     ButtonCounter mMul;
     ButtonCounter mMod;
-    TableLayout mLog;
-    ViewFlipper mFlip;
-    RadioButton mFlipPresets;
-    RadioButton mFlipResults;
+    ViewPager mPager;
+    PagerAdapter mPagerAdapter;
+    PresetListFragment mPresetListFragment;
+    LogFragment mLogFragment;
     SharedPreferences mPrefs;
     Vector<ThirdProfile> mProfiles = new Vector<>();
     LinkedHashMap<Integer, ThirdConfig> mPresets = new LinkedHashMap<>();
-    ArrayAdapter<String> mProfileAdapter;
-    ArrayAdapter<ThirdConfig> mPresetAdapter;
-    Spinner mProfileView;
-    ListView mPresetView;
     TextView mResult;
     Vector<TextView> mResultLog;
     Integer mProfile;
@@ -106,16 +107,24 @@ public class ThirdActivity extends AppCompatActivity
         mMod = new ButtonCounter(this, "mod", R.drawable.mod);
         mDx = new DxCounter(this);
 
+        mPresetListFragment = new PresetListFragment();
+        mLogFragment = new LogFragment();
+
+        mPagerAdapter = new PagerAdapter(getSupportFragmentManager());
+        mPager = (ViewPager) findViewById(R.id.pager);
+        if(mPager != null)
+        {
+            mPager.setAdapter(mPagerAdapter);
+
+            PagerTabStrip strip = (PagerTabStrip) findViewById(R.id.pager_title);
+            TypedValue v = new TypedValue();
+            getTheme().resolveAttribute(R.attr.colorAccent, v, true);
+            strip.setTabIndicatorColor(v.data);
+        }
+
         mPrefs = getPreferences(MODE_PRIVATE);
 
-        mProfileAdapter = new ArrayAdapter<>(this,
-            android.R.layout.simple_spinner_item);
-
-        mProfileAdapter.setDropDownViewResource(
-            android.R.layout.simple_spinner_dropdown_item);
-
         mPresets = new LinkedHashMap<>();
-        mPresetAdapter = new ArrayAdapter<>(this, R.layout.preset);
 
         TableLayout t = (TableLayout) findViewById(R.id.counters);
         for(DiceCounter c: mDice)
@@ -142,53 +151,6 @@ public class ThirdActivity extends AppCompatActivity
             }
         });
 
-        mFlip = (ViewFlipper) findViewById(R.id.preset_flipper);
-        mFlip.setDisplayedChild(0);
-        mFlipPresets = (RadioButton) findViewById(R.id.show_presets);
-        mFlipResults = (RadioButton) findViewById(R.id.show_results);
-        mFlipPresets.setChecked(true);
-        mFlipPresets.setOnClickListener(new Button.OnClickListener()
-        {
-            public void onClick(View v)
-            {
-                mFlip.setDisplayedChild(0);
-            }
-        });
-        mFlipResults.setOnClickListener(new Button.OnClickListener()
-        {
-            public void onClick(View v)
-            {
-                mFlip.setDisplayedChild(1);
-            }
-        });
-
-        mProfileView = (Spinner) findViewById(R.id.profiles);
-        mProfileView.setOnItemSelectedListener(
-            new AdapterView.OnItemSelectedListener()
-        {
-            public void onItemSelected(AdapterView parent, View v,
-                                       int pos, long id)
-            {
-                setProfile((int) id);
-            }
-
-            public void onNothingSelected(AdapterView parent)
-            {
-            }
-        });
-
-        mPresetView = (ListView) findViewById(R.id.presets);
-        mPresetView.setOnItemClickListener(new ListView.OnItemClickListener()
-        {
-            public void onItemClick(AdapterView parent, View v,
-                                    int pos, long id)
-            {
-                setConfig((ThirdConfig) parent.getItemAtPosition(pos));
-                roll();
-            }
-        });
-        registerForContextMenu(mPresetView);
-        mLog = (TableLayout) findViewById(R.id.log);
         mResult = (TextView) findViewById(R.id.result);
 
         mResultLog = new Vector<>();
@@ -235,7 +197,8 @@ public class ThirdActivity extends AppCompatActivity
     @Override
     public boolean onPrepareOptionsMenu(Menu menu)
     {
-        menu.findItem(R.id.action_delete_profile).setEnabled(mProfileView.getCount() > 1);
+        int profiles = mProfiles.size();
+        menu.findItem(R.id.action_delete_profile).setEnabled(profiles > 1);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -302,7 +265,7 @@ public class ThirdActivity extends AppCompatActivity
         Bundle bundle;
         AdapterContextMenuInfo info;
         info = (AdapterContextMenuInfo) item.getMenuInfo();
-        ThirdConfig conf = mPresetAdapter.getItem(info.position);
+        ThirdConfig conf = mPresetListFragment.getPresetAdapter().getItem(info.position);
         switch(item.getItemId())
         {
             case R.id.action_rename_preset:
@@ -474,7 +437,19 @@ public class ThirdActivity extends AppCompatActivity
                         getString(R.string.default_profile_name)));
         }
 
-        mProfileAdapter.clear();
+        loadProfileList();
+        invalidateOptionsMenu();
+    }
+
+    void loadProfileList()
+    {
+        ArrayAdapter<String> adapter = mPresetListFragment.getProfileAdapter();
+        Spinner view = mPresetListFragment.getProfileSpinner();
+
+        if(adapter == null || view == null)
+            return;
+
+        adapter.clear();
         for(int i = 0; i < mProfiles.size(); i++)
         {
             ThirdProfile profile = mProfiles.get(i);
@@ -484,15 +459,14 @@ public class ThirdActivity extends AppCompatActivity
                 name = String.format("Profile %d", i + 1);
             }
 
-            mProfileAdapter.add(name);
+            adapter.add(name);
             if(mProfile == null || mProfile == i)
             {
                 setProfile(i, profile);
             }
         }
-        mProfileView.setAdapter(mProfileAdapter);
-        mProfileView.setSelection(mProfile);
-        invalidateOptionsMenu();
+        view.setAdapter(adapter);
+        view.setSelection(mProfile);
     }
 
     private void saveProfiles()
@@ -508,15 +482,27 @@ public class ThirdActivity extends AppCompatActivity
     private void loadPresets(ThirdProfile profile)
     {
         LinkedHashMap<Integer, ThirdConfig> presets = profile.getPresets();
-        mPresets.clear();
-        mPresetAdapter.clear();
-        for(ThirdConfig conf: presets.values())
-        {
-            mPresets.put(conf.getId(), conf);
-            mPresetAdapter.add(conf);
-        }
 
-        mPresetView.setAdapter(mPresetAdapter);
+        mPresets.clear();
+        for(ThirdConfig conf: presets.values())
+            mPresets.put(conf.getId(), conf);
+
+        loadPresetList();
+    }
+
+    void loadPresetList()
+    {
+        ArrayAdapter<ThirdConfig> adapter = mPresetListFragment.getPresetAdapter();
+        ListView view = mPresetListFragment.getPresetList();
+
+        if(adapter == null || view == null)
+            return;
+
+        adapter.clear();
+        for(ThirdConfig conf: mPresets.values())
+            adapter.add(conf);
+
+        view.setAdapter(adapter);
     }
 
     private ThirdProfile getProfile(int index)
@@ -722,27 +708,12 @@ public class ThirdActivity extends AppCompatActivity
 
     private void clearLog()
     {
-        mLog.removeAllViews();
+        mLogFragment.clearLog();
     }
 
     private void addLog(String label, String outcome)
     {
-        TableRow row = new TableRow(this);
-        mLog.addView(row);
-
-        TextView tv1 = new TextView(this);
-        tv1.setText(String.valueOf(mLog.getChildCount()));
-        tv1.setGravity(Gravity.CENTER_HORIZONTAL);
-        row.addView(tv1);
-
-        TextView tv2 = new TextView(this);
-        tv2.setText(label);
-        row.addView(tv2);
-
-        TextView tv3 = new TextView(this);
-        tv3.setText(outcome);
-        tv3.setGravity(Gravity.RIGHT);
-        row.addView(tv3);
+        mLogFragment.addLog(label, outcome);
     }
 
     private int rollDie(int sides)
@@ -1171,6 +1142,162 @@ public class ThirdActivity extends AppCompatActivity
                             }
                         });
             return builder.create();
+        }
+    }
+
+    class PagerAdapter extends FragmentPagerAdapter
+    {
+        final int COUNT = 2;
+
+        PagerAdapter(FragmentManager fm)
+        {
+            super(fm);
+        }
+
+        @Override
+        public int getCount()
+        {
+            return COUNT;
+        }
+
+        @Override
+        public Fragment getItem(int pos)
+        {
+            switch(pos)
+            {
+                case 0:
+                    return mPresetListFragment;
+                case 1:
+                    return mLogFragment;
+            }
+            return null;
+        }
+
+        @Override
+        public String getPageTitle(int pos)
+        {
+            switch(pos)
+            {
+                case 0:
+                    return getString(R.string.presets).toUpperCase();
+                case 1:
+                    return getString(R.string.results).toUpperCase();
+            }
+            return "";
+        }
+    }
+
+    public static class PresetListFragment extends Fragment
+    {
+        ArrayAdapter<String> mProfileAdapter;
+        ArrayAdapter<ThirdConfig> mPresetAdapter;
+        Spinner mProfileView;
+        ListView mPresetView;
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle state)
+        {
+            ThirdActivity a = (ThirdActivity) getActivity();
+            View v = inflater.inflate(R.layout.preset_list, container, false);
+
+            mProfileAdapter = new ArrayAdapter<>(a,
+                android.R.layout.simple_spinner_item);
+
+            mProfileAdapter.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item);
+
+            mPresetAdapter = new ArrayAdapter<>(a, R.layout.preset);
+
+            mProfileView = (Spinner) v.findViewById(R.id.profiles);
+            mProfileView.setOnItemSelectedListener(
+                new AdapterView.OnItemSelectedListener()
+            {
+                public void onItemSelected(AdapterView parent, View v,
+                                           int pos, long id)
+                {
+                    ThirdActivity a = (ThirdActivity) getActivity();
+                    a.setProfile((int) id);
+                }
+
+                public void onNothingSelected(AdapterView parent)
+                {
+                }
+            });
+
+            mPresetView = (ListView) v.findViewById(R.id.presets);
+            mPresetView.setOnItemClickListener(new ListView.OnItemClickListener()
+            {
+                public void onItemClick(AdapterView parent, View v,
+                                        int pos, long id)
+                {
+                    ThirdActivity a = (ThirdActivity) getActivity();
+                    a.setConfig((ThirdConfig) parent.getItemAtPosition(pos));
+                    a.roll();
+                }
+            });
+            registerForContextMenu(mPresetView);
+            a.loadProfileList();
+            a.loadPresetList();
+            return v;
+        }
+
+        Spinner getProfileSpinner()
+        {
+            return mProfileView;
+        }
+
+        ListView getPresetList()
+        {
+            return mPresetView;
+        }
+
+        ArrayAdapter<String> getProfileAdapter()
+        {
+            return mProfileAdapter;
+        }
+
+        ArrayAdapter<ThirdConfig> getPresetAdapter()
+        {
+            return mPresetAdapter;
+        }
+    }
+
+    public static class LogFragment extends Fragment
+    {
+        TableLayout mLog;
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle state)
+        {
+            View v = inflater.inflate(R.layout.log, container, false);
+            mLog = (TableLayout) v.findViewById(R.id.log);
+            return v;
+        }
+
+        void addLog(String label, String outcome)
+        {
+            ThirdActivity a = (ThirdActivity) getActivity();
+            TableRow row = new TableRow(a);
+            mLog.addView(row);
+
+            TextView tv1 = new TextView(a);
+            tv1.setText(String.valueOf(mLog.getChildCount()));
+            tv1.setGravity(Gravity.CENTER_HORIZONTAL);
+            row.addView(tv1);
+
+            TextView tv2 = new TextView(a);
+            tv2.setText(label);
+            row.addView(tv2);
+
+            TextView tv3 = new TextView(a);
+            tv3.setText(outcome);
+            tv3.setGravity(Gravity.RIGHT);
+            row.addView(tv3);
+        }
+
+        void clearLog()
+        {
+            mLog.removeAllViews();
         }
     }
 }
