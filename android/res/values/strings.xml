@@ -61,7 +61,7 @@
     <string name="trigger_type_label">Trigger action</string>
     <string name="trigger_type_prompt">Select trigger action</string>
     <string name="trigger_results_help">Leave blank to trigger on all results.</string>
-    <string name="trigger_results_hint">e.g. "10" or "19-20"</string>
+    <string name="trigger_results_hint">e.g. "10" or "19–20"</string>
 
     <string name="ok">OK</string>
     <string name="confirm">Confirm</string>
