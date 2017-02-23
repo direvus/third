@@ -369,7 +369,7 @@ class ThirdConfig
 
         if(mDx != 0 && mDxSides != 0)
         {
-            ThirdUtil.append(sb, " + ", describeDie(mDx, mDxSides));
+            ThirdUtil.append(sb, " + ", describeDie(mDxSides, mDx));
         }
 
         if(mTriggers.size() > 0)
