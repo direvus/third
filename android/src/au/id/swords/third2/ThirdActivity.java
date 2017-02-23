@@ -737,7 +737,11 @@ public class ThirdActivity extends AppCompatActivity
 
     private int rollDie(int sides)
     {
-        return (int) Math.round(Math.floor(Math.random() * sides)) + 1;
+        int floor = (int) Math.round(Math.floor(Math.random() * sides));
+        if(sides > 0)
+            return floor + 1;
+        else
+            return floor - 1;
     }
 
     private void roll()
