@@ -270,7 +270,7 @@ public class ThirdActivity extends AppCompatActivity
     {
         super.onCreateContextMenu(menu, v, info);
         getMenuInflater().inflate(R.menu.preset_context, menu);
-        menu.findItem(R.id.action_add_inc_preset).setEnabled(mPresets.size() > 1);
+        menu.findItem(R.id.action_add_inc).setEnabled(mPresets.size() > 1);
     }
 
     @Override
