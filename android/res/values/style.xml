@@ -20,7 +20,7 @@
         <item name="android:gravity">left</item>
     </style>
     <style name="result" parent="@android:style/TextAppearance.Large">
-        <item name="android:gravity">center_horizontal</item>
+        <item name="android:gravity">center</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">42sp</item>
     </style>

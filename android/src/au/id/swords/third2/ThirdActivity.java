@@ -45,6 +45,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
@@ -79,6 +80,8 @@ public class ThirdActivity extends AppCompatActivity
     ArrayAdapter<String> mProfileAdapter;
     ArrayAdapter<ThirdConfig> mPresetAdapter;
     TextView mResult;
+    ImageView mResultMin;
+    ImageView mResultMax;
     Vector<TextView> mResultLog;
     Integer mProfile;
 
@@ -168,6 +171,8 @@ public class ThirdActivity extends AppCompatActivity
         });
 
         mResult = (TextView) findViewById(R.id.result);
+        mResultMin = (ImageView) findViewById(R.id.result_min);
+        mResultMax = (ImageView) findViewById(R.id.result_max);
 
         mResultLog = new Vector<>();
         mResultLog.add((TextView) findViewById(R.id.result_log1));
@@ -758,6 +763,8 @@ public class ThirdActivity extends AppCompatActivity
 
         shiftResults();
         mResult.setText(String.valueOf(result));
+        mResultMin.setVisibility((result == mConfig.getMin()) ? View.VISIBLE : View.INVISIBLE);
+        mResultMax.setVisibility((mConfig.isBounded() && result == mConfig.getMax()) ? View.VISIBLE : View.INVISIBLE);
     }
 
     private int roll(ThirdConfig conf)
