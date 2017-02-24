@@ -747,6 +747,9 @@ public class ThirdActivity extends AppCompatActivity
 
     private void roll()
     {
+        if(mConfig.isBounded() && mConfig.getMin() == mConfig.getMax())
+            return;
+
         clearLog();
         int result = roll(mConfig);
 
