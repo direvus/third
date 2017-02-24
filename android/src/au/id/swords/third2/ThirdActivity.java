@@ -733,12 +733,14 @@ public class ThirdActivity extends AppCompatActivity
 
     private void clearLog()
     {
-        mLogFragment.clearLog();
+        if(mLogFragment != null)
+            mLogFragment.clearLog();
     }
 
     private void addLog(String label, String outcome)
     {
-        mLogFragment.addLog(label, outcome);
+        if(mLogFragment != null)
+            mLogFragment.addLog(label, outcome);
     }
 
     private int rollDie(int sides)
@@ -1290,6 +1292,9 @@ public class ThirdActivity extends AppCompatActivity
 
         void addLog(String label, String outcome)
         {
+            if(mLog == null)
+                return;
+
             ThirdActivity a = (ThirdActivity) getActivity();
             TableRow row = new TableRow(a);
             mLog.addView(row);
@@ -1311,7 +1316,8 @@ public class ThirdActivity extends AppCompatActivity
 
         void clearLog()
         {
-            mLog.removeAllViews();
+            if(mLog != null)
+                mLog.removeAllViews();
         }
     }
 }
