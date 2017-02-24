@@ -147,6 +147,7 @@ public class ThirdActivity extends AppCompatActivity
         t.addView(mMod);
         t.addView(mMul);
         t.addView(mDx);
+        t.requestLayout();
 
         Button reset = (Button) findViewById(R.id.reset);
         reset.setOnClickListener(new Button.OnClickListener()

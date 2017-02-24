@@ -10,23 +10,19 @@
     third is open-source, licensed under the Simplified BSD License, a copy of
     which can be found in the file LICENSE at the top level of the source code.
     -->
-<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
-    android:paddingRight="4dip"
-    >
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
     <ImageButton
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="0"
         />
     <EditText
         android:id="@+id/counter"
         android:layout_width="48dip"
         android:layout_height="wrap_content"
-        android:layout_weight="0"
         android:gravity="right"
         android:inputType="numberSigned"
         android:selectAllOnFocus="true"
         android:text="0"
         />
-</TableRow>
+</merge>
