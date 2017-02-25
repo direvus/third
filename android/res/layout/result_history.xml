@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    third: That's How I Roll Dice
+        A dice roller for roleplaying nerds.
+            http://swords.id.au/third/
+
+    Copyright (c) 2010, Brendan Jurd <bj@swords.id.au>
+    All rights reserved.
+
+    third is open-source, licensed under the Simplified BSD License, a copy of
+    which can be found in the file LICENSE at the top level of the source code.
+    -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_weight="0"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="4dp"
+    android:orientation="horizontal"
+    >
+    <TextView
+        android:id="@+id/result_log1"
+        android:text=""
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        style="@style/result_log1"
+        />
+    <TextView
+        android:id="@+id/result_log2"
+        android:text=""
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        style="@style/result_log"
+        />
+    <TextView
+        android:id="@+id/result_log3"
+        android:text=""
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        style="@style/result_log"
+        />
+    <TextView
+        android:id="@+id/result_log4"
+        android:text=""
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        style="@style/result_log"
+        />
+</LinearLayout>
